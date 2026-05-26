@@ -48,6 +48,7 @@ All deliverables written to `./reports/credit-identity/` with PII masked.
 - Cite every tradeline finding to the specific report (bureau + tradeline ID).
 - Score impact estimates are **directional, not precise** — FICO doesn't publish exact weights and your data only matters in context. Say so.
 - Dispute letters: include the FCRA-required elements (consumer identifier, account ID, what's wrong, what's correct, requested action).
+- **Cite every number** (balance, utilization %, score, inquiry date) to the specific bureau report; mark anything the user states from memory as `[UNSOURCED]`.
 
 ## Score-driver weights (FICO, approximate, state when used)
 

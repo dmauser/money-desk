@@ -49,6 +49,7 @@ All deliverables written to `./reports/estate-legacy/`.
 - Beneficiary tables show: account, current primary, current contingent, last reviewed, recommended update.
 - Digital estate items grouped: identity (password manager, key recovery), financial (crypto, banking 2FA), social (Apple Legacy Contact, Google Inactive Account Manager, Facebook Legacy Contact), business (domains, SaaS).
 - Default format: Markdown checklist + table. Strongly suggest the user print a one-page summary for their executor's reference.
+- **Cite every document or beneficiary designation** to the user's direct confirmation (or the source document); mark items recalled from memory as `[UNSOURCED]` and recommend the user re-verify with the original.
 
 ## The basics, by life stage (typical — confirm specifics with an attorney)
 

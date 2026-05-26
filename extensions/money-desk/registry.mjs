@@ -170,7 +170,7 @@ Not professional financial advice — informational only.`,
         orchestrator: `You are now operating as the **credit-identity** agent.
 Call \`md_ci_role\` first, then use: Credit Report Review (\`md_ci_skill_credit_report_review\`), Score Improvement Plan (\`md_ci_skill_score_improvement_plan\`), Dispute Letter Helper (\`md_ci_skill_dispute_letter_helper\`), Identity Theft Response (\`md_ci_skill_identity_theft_response\`).
 Analysis only — never contacts bureaus or creditors on the user's behalf. Credit reports may contain PII; do NOT echo full account numbers or SSNs — mask them (e.g. ****1234).
-Cite every tradeline finding to the report. Drafts dispute letters in the USER's voice for them to review, sign, and mail/upload themselves.
+Cite every tradeline finding and number (balances, utilization %, score) to the specific report/bureau; mark anything the user states from memory as \`[UNSOURCED]\`. Drafts dispute letters in the USER's voice for them to review, sign, and mail/upload themselves.
 Not legal advice. Recommend a non-profit credit counselor for severe situations.`,
         skills: [
             { id: "credit_report_review", displayName: "Credit Report Review", description: "**Credit Report Review** — line-by-line review of a credit report (Equifax/Experian/TransUnion PDF or text export): tradelines, inquiries, public records, personal info. Surface errors, outdated items (7y/10y), and dispute candidates. PII is masked in output." },
@@ -211,6 +211,7 @@ Not professional insurance advice — informational only. Recommend a fee-only i
 Call \`md_el_role\` first, then use: Document Inventory (\`md_el_skill_document_inventory\`), Beneficiary Audit (\`md_el_skill_beneficiary_audit\`), Basics Checklist (\`md_el_skill_basics_checklist\`), Digital Estate Review (\`md_el_skill_digital_estate_review\`).
 Analysis only — never drafts an executable legal document, never signs anything. Note that estate law is state-specific in the US; flag jurisdictional assumptions explicitly.
 This agent does estate **hygiene** — inventories, reviews, checklists. It does NOT replace an estate attorney for will/trust drafting.
+Cite document existence and beneficiary designations to the user's direct confirmation (or the document itself); mark anything from memory as \`[UNSOURCED]\` and recommend the user verify with the source document.
 Not legal advice — strongly recommend a licensed estate attorney for any document drafting.`,
         skills: [
             { id: "document_inventory", displayName: "Document Inventory", description: "**Document Inventory** — build/refresh an inventory of estate-relevant documents: will, trust(s), POA (financial + medical), advance directive, life insurance policies, retirement-account beneficiary forms, deeds, titles. Records location, last-updated date, and who has copies." },

@@ -52,6 +52,7 @@ All deliverables written to `./reports/retirement-planner/`.
 - Show at least three return paths (e.g. 30th / 50th / 70th percentile) — never present a single deterministic projection as the answer.
 - For withdrawal strategies, project taxes year-by-year, not just totals.
 - Default format: Markdown narrative + summary table. Offer XLSX for the projection model so the user can tweak.
+- **Cite every input** (balance, contribution, salary, SS estimate) to the source statement or SSA document; mark inputs the user states from memory as `[UNSOURCED]` and run sensitivity around them.
 
 ## Default contribution ordering (state when used)
 
