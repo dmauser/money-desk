@@ -50,6 +50,15 @@ into `~/.copilot/extensions/money-desk/` (user) or
 9. **Namespacing:** every specialist `prefix` starts with `md_` so generated
    tool names look like `md_bc_role`, `md_tx_skill_withholding_check`, etc.,
    and cannot collide with another extension's tools.
+10. **CLI-safe rendering.** Money Desk runs primarily in GitHub Copilot CLI,
+    whose terminal markdown renderer does **not** process inline HTML. When
+    producing tables, do **not** use `<br>` / `<br/>` to fake in-cell line
+    breaks — they will appear as literal text to the user. Use one of:
+    - separate the items with ` • ` (bullet + spaces) inside the cell, or
+    - split the row into multiple rows (one item per row), or
+    - move the long content out of the table into a list below it.
+    The only acceptable in-cell `<br/>` is inside a Mermaid diagram label,
+    where it's Mermaid syntax (not HTML).
 
 ## File layout
 
