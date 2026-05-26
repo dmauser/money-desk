@@ -62,12 +62,6 @@ description: Project savings trajectory to a target retirement age using user in
   - **Gap-closing levers** — quantified.
   - **Stress test** — Year-1 30% drop scenario outcome.
 
-## Optional CLI
-
-```
-python build_retirement_projection.py [--return 0.05] [--inflation 0.025] [--spend 80000]
-```
-
 ## Notes
 
 - Linear projections are wrong. Sensitivity ranges are the honest output.

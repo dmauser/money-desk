@@ -19,10 +19,12 @@
 | ⚙️ | [How It Works](#how-it-works) | Architecture, routing, discoverability |
 | 📝 | [Usage Examples](#usage-examples) | Example prompts for every specialist |
 | 📂 | [Repository Structure](#repository-structure) | Folder tree and conventions |
-| 🔒 | [Privacy & Guardrails](#privacy--guardrails) | What Money Desk will and won't do |
+| 🔒 | [Privacy & Guardrails](#privacy--guardrails) | What Money Desk will and won't do (full: [PRIVACY.md](./PRIVACY.md)) |
 | 🔧 | [Troubleshooting](#troubleshooting) | Common issues and fixes |
 | 🤝 | [Contributing](#contributing) | How to add a specialist or skill |
 | 📄 | [License](#license) | MIT |
+
+> 📋 **Full machine-readable capability map:** [docs/CAPABILITIES.md](./docs/CAPABILITIES.md) — auto-generated from the registry, lists every specialist, skill, and tool.
 
 ---
 
@@ -521,6 +523,8 @@ Money Desk is built around a strict set of guardrails baked into every specialis
 
 Reports produced by Money Desk are written to `./reports/<specialist>/` or `./reports/<ACCOUNT>/` in the current working directory. They never leave your machine unless you share them yourself.
 
+For the full, explicit data-flow and verification commands, see **[PRIVACY.md](./PRIVACY.md)**.
+
 ## Troubleshooting
 
 **`copilot` doesn't see the money-desk tools after install.**
@@ -549,7 +553,8 @@ Quick contributor checklist:
 1. Add the entry to `SPECIALISTS` in `extensions/money-desk/registry.mjs`.
 2. Create the role markdown + one SKILL.md per skill.
 3. Add a canonical phrase to `tests/routes.test.mjs`.
-4. Run `npm test` (78+ tests should pass).
+4. Run `npm run docs:capabilities` to regenerate `docs/CAPABILITIES.md`.
+5. Run `npm test` (all tests should pass — including the docs-sync and guardrails checks).
 
 ## License
 

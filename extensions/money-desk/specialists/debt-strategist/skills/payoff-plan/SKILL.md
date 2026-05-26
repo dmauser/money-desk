@@ -49,12 +49,6 @@ description: Build a debt payoff plan comparing avalanche (highest APR first) vs
   - **Hybrid recommendation** with rationale.
   - **Action list** — what to set up (auto-pay, transfers, etc.).
 
-## Optional CLI
-
-```
-python build_payoff_plan.py [--method avalanche|snowball|hybrid] [--extra USD]
-```
-
 ## Notes
 
 - Avalanche always wins on math. Snowball sometimes wins on adherence. Recommend the one the user will actually finish.

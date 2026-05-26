@@ -45,12 +45,6 @@ description: Convert an allocation delta into a concrete, tax-aware list of trad
   - **Settle-date awareness** — note T+1 / T+2 if any sell needs to fund a buy.
   - **Disclaimer** — analysis-only, no orders placed.
 
-## Optional CLI
-
-```
-python build_rebalance_plan.py [--target FILE] [--include-taxable] [--max-tax USD]
-```
-
 ## Notes
 
 - Rebalancing inside a Roth or 401(k) is preferable to taxable sells; it can take longer because contributions are limited, but it's tax-free.

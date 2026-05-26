@@ -43,12 +43,6 @@ If the user only has 1–2 months, run it but flag that small-N conclusions are 
   - **Recommendations** — 3–5 concrete next steps (often: run Category Audit and Subscription Audit next).
 - Offer XLSX export with full transaction detail and pivots.
 
-## Optional CLI
-
-```
-python build_cashflow_review.py [--months N] [--export csv|xlsx] [--include-account NAME]...
-```
-
 ## Notes
 
 - "Net savings" includes transfers to dedicated savings/brokerage accounts. Be careful not to double-count: transfers between checking and savings are NOT savings unless the savings account doesn't get swept back.

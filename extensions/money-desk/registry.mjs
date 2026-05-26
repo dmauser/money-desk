@@ -73,10 +73,10 @@ Analysis only — never move money, never authorize cancellations on the user's 
 Output: write reports to \`./reports/budget-coach/\` (multi-account) or \`./reports/<ACCOUNT>/\` (single account).
 Not professional financial advice — informational only.`,
         skills: [
-            { id: "cashflow_review", displayName: "Cashflow Review", description: "**Cashflow Review** — month-over-month inflows vs outflows from bank/credit-card statements (CSV/PDF). Surfaces net cash position, savings rate, irregular income, and over-spend months. Run: python build_cashflow_review.py [--months N] [--export csv|xlsx]" },
+            { id: "cashflow_review", displayName: "Cashflow Review", description: "**Cashflow Review** — month-over-month inflows vs outflows from bank/credit-card statements (CSV/PDF). Surfaces net cash position, savings rate, irregular income, and over-spend months." },
             { id: "category_audit", displayName: "Category Audit", description: "**Category Audit** — re-categorize transactions, surface miscategorized merchants, and roll up spend by category (rent/utilities/food/transport/discretionary). Highlights category drift vs prior periods." },
             { id: "monthly_plan", displayName: "Monthly Plan", description: "**Monthly Plan** — build a zero-based or envelope-style monthly spending plan from take-home pay; allocates to fixed obligations, variable categories, savings goals, and discretionary buffer. Outputs a one-page plan + tracker." },
-            { id: "subscription_audit", displayName: "Subscription Audit", description: "**Subscription Audit** — scan statements for recurring subscriptions, group by service, flag unused/forgotten/duplicate, and quantify annualized cost. Run: python build_subscription_audit.py [--months N] [--export csv]" },
+            { id: "subscription_audit", displayName: "Subscription Audit", description: "**Subscription Audit** — scan statements for recurring subscriptions, group by service, flag unused/forgotten/duplicate, and quantify annualized cost." },
         ],
     },
     {
@@ -94,7 +94,7 @@ Defaults to US federal personal tax; flag state-specific assumptions. Note tax y
 Not professional tax/legal advice — informational only. Recommend a CPA/EA for complex situations.`,
         skills: [
             { id: "return_prep_checklist", displayName: "Return Prep Checklist", description: "**Return Prep Checklist** — assemble all documents needed to file (W-2, 1099-INT/DIV/B/NEC/MISC/R, 1098, K-1, receipts, prior-year return). Produces a categorized checklist with status (have / missing / requested)." },
-            { id: "withholding_check", displayName: "Withholding Check", description: "**Withholding Check** — project full-year federal tax liability vs YTD withholding from pay stubs; recommend W-4 adjustments or quarterly estimated payments to land within safe-harbor. Run: python build_withholding_check.py [--ytd-stub PATH] [--state ST]" },
+            { id: "withholding_check", displayName: "Withholding Check", description: "**Withholding Check** — project full-year federal tax liability vs YTD withholding from pay stubs; recommend W-4 adjustments or quarterly estimated payments to land within safe-harbor." },
             { id: "deductions_review", displayName: "Deductions Review", description: "**Deductions Review** — compare standard vs itemized; surface candidate deductions (SALT cap, mortgage interest, charitable, medical above-AGI-threshold, HSA, student-loan interest); flag above/below-the-line distinctions." },
             { id: "tax_loss_harvest_review", displayName: "Tax-Loss Harvest Review", description: "**Tax-Loss Harvest Review** — review taxable-brokerage lots for unrealized losses, surface wash-sale risk (30-day window), and quantify carryover capacity. Identifies harvest candidates; does NOT place trades." },
         ],
@@ -133,7 +133,7 @@ Analysis only — never moves money, never initiates rollovers. Cite balances/co
 Use conservative real-return assumptions and document them. Stress-test with multiple return paths and inflation scenarios.
 Not professional financial advice — informational only.`,
         skills: [
-            { id: "retirement_projection", displayName: "Retirement Projection", description: "**Retirement Projection** — project nest egg at retirement age under base/upside/downside return scenarios; estimate sustainable withdrawal in today's dollars; show shortfall vs target spending. Run: python build_retirement_projection.py [--retire-age N] [--target-spend $]" },
+            { id: "retirement_projection", displayName: "Retirement Projection", description: "**Retirement Projection** — project nest egg at retirement age under base/upside/downside return scenarios; estimate sustainable withdrawal in today's dollars; show shortfall vs target spending." },
             { id: "contribution_optimizer", displayName: "Contribution Optimizer", description: "**Contribution Optimizer** — given cash flow, optimize the order of contributions: 401(k) up to employer match → HSA → max Roth → max 401(k) → backdoor/mega-backdoor Roth → taxable. Flag limits and phase-outs." },
             { id: "withdrawal_strategy", displayName: "Withdrawal Strategy", description: "**Withdrawal Strategy** — sequence of withdrawals across taxable / tax-deferred / Roth in retirement to minimize lifetime tax and preserve Roth. Includes Roth conversion ladder analysis between retirement and RMD age." },
             { id: "social_security_review", displayName: "Social Security Review", description: "**Social Security Review** — review estimated PIA from SSA statement, model claim ages (62 / FRA / 70), spousal/survivor considerations, and break-even analysis. Not a substitute for SSA's calculator." },

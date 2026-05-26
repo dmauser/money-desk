@@ -45,12 +45,6 @@ description: Project full-year federal tax liability vs YTD withholding from pay
   - **Safe-harbor analysis** — required minimum and current run-rate.
   - **Recommended action** — specific W-4 changes or estimated-payment amount with deadline.
 
-## Optional CLI
-
-```
-python build_withholding_check.py [--ytd-stub PATH] [--state ST] [--year YYYY]
-```
-
 ## Notes
 
 - Bonus / RSU withholding is often at the flat 22% supplemental rate, which under-withholds high earners. Surface this — a "fully withheld" RSU is almost never actually fully withheld.

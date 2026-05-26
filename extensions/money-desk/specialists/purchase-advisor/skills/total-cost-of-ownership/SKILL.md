@@ -52,12 +52,6 @@ description: Compute total cost of ownership over the planned hold period for a 
   - **Sensitivity table.**
   - **Decision** — recommended option with reasoning.
 
-## Optional CLI
-
-```
-python build_tco.py [--options PATH] [--years N] [--miles-per-year M] [--discount 0.05]
-```
-
 ## Notes
 
 - Sticker price is rarely the right comparison. Insurance + fuel + reliability often swap which option is "cheaper."

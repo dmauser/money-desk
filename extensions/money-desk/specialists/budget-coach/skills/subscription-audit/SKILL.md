@@ -40,12 +40,6 @@ description: Scan statements for recurring subscriptions, group by service, flag
   - **Recommended renegotiations** — services known to discount on call (e.g. some ISPs, gyms, satellite radio).
 - Offer XLSX export with full transaction lineage per subscription.
 
-## Optional CLI
-
-```
-python build_subscription_audit.py [--months N] [--export csv] [--min-occurrences 3]
-```
-
 ## Notes
 
 - App Store / Play Store subscriptions can be hidden — they show as single-line "Apple.com/Bill" or "Google *Service". Flag these for the user to check in their account settings.

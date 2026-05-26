@@ -48,12 +48,6 @@ description: Evaluate refinancing a mortgage, auto loan, or personal loan: break
   - **Sensitivity** — what if rates drop 25 bps more / closing costs are 20% higher?
   - **Action list** — get N quotes, lock rate timing, document checklist.
 
-## Optional CLI
-
-```
-python build_refi_analysis.py [--loan-estimate PATH] [--current-statement PATH]
-```
-
 ## Notes
 
 - Always shop ≥3 lenders. Loan estimates are standardized — apples-to-apples.
