@@ -1,0 +1,67 @@
+# Contributing to money-desk
+
+Thanks for the interest. This repo is small and prefers focused PRs.
+
+## Ground rules
+
+- **Zero runtime dependencies.** money-desk uses only Node built-ins
+  (`node:fs/promises`, `node:child_process`, etc.) plus `@github/copilot-sdk`
+  at runtime (which the host Copilot CLI provides). PRs that add deps to
+  `dependencies` are unlikely to merge.
+- **ESM, Node 18+.** No CommonJS, no transpilation.
+- **No test framework** — Node's built-in `node:test` runner only.
+- **Architecture rules** are documented in
+  [`.github/copilot-instructions.md`](./.github/copilot-instructions.md).
+  Read it before changes that touch the registry or extension entry.
+
+## Local development
+
+```bash
+npm test                          # all tests
+node bin/cli.mjs --version        # smoke test the CLI
+node bin/cli.mjs status           # ditto
+node bin/cli.mjs init --project   # local install into a tmp dir to verify
+```
+
+## Adding a specialist
+
+1. Append a fully-populated entry to `SPECIALISTS` in
+   `extensions/money-desk/registry.mjs`.
+2. Create the role markdown at `specialists/<name>/agents/<name>.md`.
+3. Create one `specialists/<name>/skills/<slug>/SKILL.md` per skill.
+4. Add the prefix and a canonical phrase to
+   `tests/routes.test.mjs`'s `CANONICAL_PHRASES`.
+5. `npm test` must pass.
+6. Update the README's "The team" table.
+
+## Adding a skill to an existing specialist
+
+1. Append a `{ id, displayName, description }` entry to that specialist's
+   `skills` array. Description **must** start with `**<displayName>** —`.
+2. Create `specialists/<name>/skills/<slug>/SKILL.md`.
+3. `npm test` must pass.
+
+## Markdown style for skill playbooks
+
+A SKILL.md is genuinely useful when an agent can execute it without
+follow-up questions. Each one should cover:
+
+- **When to use** — concrete triggers, not lorem ipsum.
+- **Inputs needed** — exactly what the user must provide.
+- **Workflow** — numbered steps an agent can follow.
+- **Required citations** — what every number must point to.
+- **Deliverable shape** — the file path and section structure of the
+  produced report.
+- **Notes** — gotchas, anti-patterns, caveats.
+
+Aim for ~60–120 lines. Quality beats length.
+
+## Versioning
+
+Follow SemVer. Specialist additions and skill additions are MINOR. Tool
+renames or schema changes that break consumers are MAJOR. Bug fixes are
+PATCH.
+
+## License
+
+By contributing you agree your contributions are licensed under MIT.
