@@ -1,0 +1,76 @@
+name: 🐞 Bug report
+description: Something in money-desk is not working as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Before filing, please:
+        - Re-run `npm test` from a clone of the repo and check it passes.
+        - Run `node bin/cli.mjs status` and include the output below.
+        - Search existing issues to avoid duplicates.
+
+        **Do not include real personal financial data in this issue.**
+        Redact statements, account numbers, balances, SSN, etc.
+  - type: input
+    id: version
+    attributes:
+      label: money-desk version
+      description: Output of `node bin/cli.mjs --version` (or git SHA if installed from source).
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: node
+    attributes:
+      label: Node.js version
+      description: Output of `node --version`.
+      placeholder: "v20.x.x"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "Windows 11 / macOS 14.x / Ubuntu 22.04"
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction steps
+      description: Exact prompts you typed and tools the agent called. Redact any PII.
+      placeholder: |
+        1. `npx github:dmauser/money-desk init`
+        2. Launch `copilot --experimental`
+        3. Type prompt: "..."
+        4. Observe: ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: status
+    attributes:
+      label: bin/cli.mjs status output
+      render: shell
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirmation
+      options:
+        - label: I have redacted all real personal financial data from this report.
+          required: true
+        - label: I have searched existing issues and this is not a duplicate.
+          required: true

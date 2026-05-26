@@ -1,0 +1,55 @@
+name: ✨ Feature request
+description: Suggest a new specialist, skill, or capability.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion! For new specialists or skills, please skim
+        [CONTRIBUTING.md](../CONTRIBUTING.md) so your proposal lines up with
+        the project's architecture (declarative `registry.mjs`, role + skills
+        markdown layout, prefix namespacing).
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What are you proposing?
+      options:
+        - New specialist (e.g. real-estate, financial-goals)
+        - New skill on an existing specialist
+        - New discovery / orchestration tool (cross-specialist)
+        - Change to existing skill behavior
+        - Tooling / installer / docs improvement
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Who is the user, what are they trying to do, why is it painful today?
+    validations:
+      required: true
+  - type: textarea
+    id: shape
+    attributes:
+      label: Proposed shape
+      description: |
+        If a new specialist: proposed `prefix` (2–3 letters, will be `md_<prefix>`),
+        `domain` display name, list of 3–5 skills. If a new skill: which existing
+        specialist, suggested `id` (snake_case), one-line description.
+    validations:
+      required: true
+  - type: textarea
+    id: guardrails
+    attributes:
+      label: Guardrails / scope limits
+      description: |
+        Money Desk is analysis-only. Confirm this proposal does not require
+        executing trades, moving money, filing returns, signing documents,
+        contacting third parties, or storing data between sessions.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
