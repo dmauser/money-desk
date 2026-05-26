@@ -38,3 +38,19 @@ test("every specialist role markdown mentions [UNSOURCED]", async () => {
         `These role files are missing the [UNSOURCED] guardrail: ${missing.join(", ")}`,
     );
 });
+
+const FRIENDLY_NAME_RULE = /friendly name/i;
+
+test("every specialist orchestrator instructs the model to use the friendly name", () => {
+    const missing = SPECIALISTS.filter((s) => !FRIENDLY_NAME_RULE.test(s.orchestrator));
+    assert.deepEqual(
+        missing.map((s) => s.prefix),
+        [],
+        `These orchestrators do not tell the model to use the friendly skill name: ${missing.map((s) => s.prefix).join(", ")}`,
+    );
+});
+
+test("global capabilities summary documents the friendly-name convention", () => {
+    const summary = buildCapabilitiesSummary();
+    assert.match(summary, /friendly name/i, "buildCapabilitiesSummary() must document the friendly-name rule");
+});

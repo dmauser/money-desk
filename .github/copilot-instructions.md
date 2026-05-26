@@ -59,6 +59,14 @@ into `~/.copilot/extensions/money-desk/` (user) or
     - move the long content out of the table into a list below it.
     The only acceptable in-cell `<br/>` is inside a Mermaid diagram label,
     where it's Mermaid syntax (not HTML).
+11. **Friendly names, not tool ids.** When the agent surfaces a skill or
+    specialist to the user in chat, it must render the **friendly name**
+    (e.g. "Portfolio Review", "Allocation Check", "Buy vs Lease") — never
+    the raw tool id (`md_iv_skill_portfolio_review`). Tool ids are how the
+    agent invokes the skill under the hood; they are not labels. Every
+    orchestrator + the global capabilities summary explicitly enforce this,
+    and `tests/guardrails.test.mjs` will fail if any orchestrator stops
+    saying so.
 
 ## File layout
 
