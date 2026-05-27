@@ -53,28 +53,28 @@ Each specialist runs with its own domain expertise, guardrails, and step-by-step
 
 Twenty specialists, one coordinator. Say what you need in plain English — the router picks the right desk.
 
-| Specialist | What They Do |
-|------------|--------------|
-| 💰 **Budget Coach** | Cashflow reviews, category audits, zero-based monthly plans, subscription cleanup |
-| 🧾 **Tax Planner** | Return-prep checklists, withholding checks, deductions reviews, tax-loss harvesting |
-| 📈 **Investing Advisor** | Portfolio reviews, allocation checks, rebalance plans, fund-expense audits |
-| 🏖️ **Retirement Planner** | Retirement projections, contribution optimization, withdrawal sequencing, Social Security |
-| 💳 **Debt Strategist** | Payoff plans (avalanche/snowball), refinance analysis, credit-card strategy, student loans |
-| 🛡️ **Credit & Identity** | Credit-report reviews, score-improvement plans, dispute letters, ID-theft response |
-| 🏥 **Insurance — Health & Medicare** | Health-plan selection (HDHP+HSA vs PPO), Medicare IRMAA, LTC planning |
-| ☂️ **Insurance — Property & Casualty** | Auto / home / renters declarations-page audit, deductible optimizer, umbrella sizing |
-| 🪢 **Insurance — Life & Disability** | Life-insurance needs (DIME/HLV), individual disability review, beneficiary audit |
-| 📜 **Estate & Legacy** | Document inventories, beneficiary audits, basics checklist, digital-estate review |
-| 🛒 **Purchase Advisor** | Buy-vs-lease, rent-vs-buy, big-purchase reviews, total cost of ownership |
-| 🎓 **Education Planner** | 529 reviews, college-cost projections, FAFSA / financial-aid positioning, account-type selection |
-| 📊 **Net Worth & Goals** | Net-worth snapshots, emergency-fund sizing, goal-based savings plans, sinking funds |
-| 🧑‍💻 **Self-Employed Planner** | Solo 401k / SEP / SIMPLE selector, quarterly estimated taxes, S-corp election, Schedule C / QBI review |
-| 🗓️ **Life Events** | Cross-specialist orchestrator — annual review, new baby, job change, home purchase, inheritance, layoff playbooks |
-| 🏘️ **Real Estate Investor** | Rental-property underwriting (cap rate, cash-on-cash, DSCR), mortgage/refi strategy, house-hacking, real-estate tax strategy (depreciation, 1031, cost segregation), sell-vs-hold |
-| 🧠 **Behavioral Coach** | Panic / FOMO circuit-breaker, money-script diagnostic, decision journal, couples money alignment, lifestyle-inflation audit |
-| 🌍 **International / Expat** | US-expat tax overview (FBAR, FATCA, FEIE vs FTC), cross-border investing (PFIC traps), currency/FX exposure, moving-country checklist |
-| 📚 **Financial Literacy** | Plain-language concept explainer (depth-calibrated), glossary lookups, paycheck walkthrough, account-type map, money-myths debunk, statement walkthrough (brokerage/401k/mortgage/EOB), 12-month beginner roadmap, teach-a-kid lessons + custodial Roth IRA pitch |
-| 🔥 **FIRE Planner** | Financial-Independence / Retire-Early strategy: FIRE number calculator, safe-withdrawal stress test (Bengen / Trinity / Kitces / VPW), lean / coast / barista / chubby / fat classifier, savings-rate optimizer, pre-59½ bridge strategy (SEPP/72(t), Roth ladder), pre-65 healthcare plan (ACA-MAGI / HSA), withdrawal-order optimizer, geographic arbitrage planner |
+| | Specialist | What They Do |
+|---|------------|--------------|
+| 💰 | **Budget Coach** | Cashflow reviews, category audits, zero-based monthly plans, subscription cleanup |
+| 🧾 | **Tax Planner** | Return-prep checklists, withholding checks, deductions reviews, tax-loss harvesting |
+| 📈 | **Investing Advisor** | Portfolio reviews, allocation checks, rebalance plans, fund-expense audits |
+| 🏖️ | **Retirement Planner** | Retirement projections, contribution optimization, withdrawal sequencing, Social Security |
+| 💳 | **Debt Strategist** | Payoff plans (avalanche/snowball), refinance analysis, credit-card strategy, student loans |
+| 🛡️ | **Credit & Identity** | Credit-report reviews, score-improvement plans, dispute letters, ID-theft response |
+| 🏥 | **Insurance — Health & Medicare** | Health-plan selection (HDHP+HSA vs PPO), Medicare IRMAA, LTC planning |
+| ☂️ | **Insurance — Property & Casualty** | Auto / home / renters declarations-page audit, deductible optimizer, umbrella sizing |
+| 🪢 | **Insurance — Life & Disability** | Life-insurance needs (DIME/HLV), individual disability review, beneficiary audit |
+| 📜 | **Estate & Legacy** | Document inventories, beneficiary audits, basics checklist, digital-estate review |
+| 🛒 | **Purchase Advisor** | Buy-vs-lease, rent-vs-buy, big-purchase reviews, total cost of ownership |
+| 🎓 | **Education Planner** | 529 reviews, college-cost projections, FAFSA / financial-aid positioning, account-type selection |
+| 📊 | **Net Worth & Goals** | Net-worth snapshots, emergency-fund sizing, goal-based savings plans, sinking funds |
+| 🧑‍💻 | **Self-Employed Planner** | Solo 401k / SEP / SIMPLE selector, quarterly estimated taxes, S-corp election, Schedule C / QBI review |
+| 🗓️ | **Life Events** | Cross-specialist orchestrator — annual review, new baby, job change, home purchase, inheritance, layoff playbooks |
+| 🏘️ | **Real Estate Investor** | Rental-property underwriting (cap rate, cash-on-cash, DSCR), mortgage/refi strategy, house-hacking, real-estate tax strategy (depreciation, 1031, cost segregation), sell-vs-hold |
+| 🧠 | **Behavioral Coach** | Panic / FOMO circuit-breaker, money-script diagnostic, decision journal, couples money alignment, lifestyle-inflation audit |
+| 🌍 | **International / Expat** | US-expat tax overview (FBAR, FATCA, FEIE vs FTC), cross-border investing (PFIC traps), currency/FX exposure, moving-country checklist |
+| 📚 | **Financial Literacy** | Plain-language concept explainer (depth-calibrated), glossary lookups, paycheck walkthrough, account-type map, money-myths debunk, statement walkthrough (brokerage/401k/mortgage/EOB), 12-month beginner roadmap, teach-a-kid lessons + custodial Roth IRA pitch |
+| 🔥 | **FIRE Planner** | Financial-Independence / Retire-Early strategy: FIRE number calculator, safe-withdrawal stress test (Bengen / Trinity / Kitces / VPW), lean / coast / barista / chubby / fat classifier, savings-rate optimizer, pre-59½ bridge strategy (SEPP/72(t), Roth ladder), pre-65 healthcare plan (ACA-MAGI / HSA), withdrawal-order optimizer, geographic arbitrage planner |
 
 > 🔖 Each specialist also has a short tool **prefix** (e.g. `md_bc`, `md_tx`) used in the underlying tool names and in `md_route` / `md_capabilities` output. You almost never need to type these yourself — see **[docs/PREFIXES.md](./docs/PREFIXES.md)** for the full prefix map and how the per-specialist tools are named.
 
