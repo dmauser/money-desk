@@ -19,6 +19,7 @@ const CANONICAL_PHRASES = {
     md_ed: "Review my 529 plan and project college costs for my kid; how does FAFSA work?",
     md_nw: "What's my net worth and how much emergency fund do I need for sinking funds?",
     md_se: "I just went 1099 — should I set up a Solo 401k or SEP IRA, and what about quarterly estimated taxes?",
+    md_le: "We just had a baby — walk me through the new baby playbook with the 30-day insurance window.",
 };
 
 test("every prefix has a canonical phrase fixture", () => {

@@ -7,7 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.3.0] — 2026-05-26
+## [0.4.0] — 2026-05-26
+
+Phase 3 of the deep-review expansion: 1 new cross-specialist orchestrator
+(`md_le` Life Events) bundling 6 sequenced playbooks. Total: **13 specialists
+/ 62 skills / 90 tools** (up from 12 / 56 / 82). Adds the missing "guided
+experience" layer that turns a tool library into a runbook for big moments.
+
+### Added
+
+- 🌟 **Life Events** specialist (`md_le`) — cross-specialist orchestrator that
+  does NOT compute domain work directly; instead it sequences calls to the
+  other 12 specialists and stitches their outputs into one consolidated
+  playbook with 30/60/90-day deadlines.
+  - 📅 **Annual Financial Review** — once-a-year audit across 8–10 sub-skills
+    with age-triggered specials (catch-up, Medicare/IRMAA, QCD, RMD).
+  - 👶 **New Baby Playbook** — pre-arrival through 60 days post-birth, with
+    the 30-day insurance qualifying-event window as the hard deadline.
+  - 💼 **Job Change Playbook** — comp-package valuation, benefits enrollment,
+    the old-401(k) 4-option framework, equity calendar, withholding reset.
+  - 🏠 **Home Purchase Playbook** — honest PITI affordability, down-payment
+    stack, buy-vs-rent crossover, loan-offer audit, post-close hygiene.
+  - 🎁 **Inheritance Playbook** — 0-to-9-month runbook with the disclaimer
+    window, basis step-up, inherited-IRA 10-year-rule schedule, integration.
+  - 📉 **Layoff Playbook** — severance review (OWBPA), COBRA-vs-ACA decision
+    math, survival cashflow, low-income-year tax opportunities.
+
+### Changed
+
+- `md_capabilities` description, `md_route` table, and presence note updated
+  to enumerate all 13 specialists and life-event keywords.
+
+
 
 Phase 2 of the deep-review expansion: 8 new skills backfilled into 5 existing
 specialists. Total: **12 specialists / 56 skills / 82 tools** (up from 12 / 48
@@ -121,7 +152,8 @@ Initial release.
 - 82 tests covering: tool manifest consistency, route regex coverage,
   installer smoke, `[UNSOURCED]` guardrail coverage, docs sync.
 
-[Unreleased]: https://github.com/dmauser/money-desk/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/dmauser/money-desk/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/dmauser/money-desk/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/dmauser/money-desk/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/dmauser/money-desk/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/dmauser/money-desk/releases/tag/v0.1.0

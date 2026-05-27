@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js >= 18](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
 
-**Your personal-finance AI team for GitHub Copilot CLI.** 12 specialist agents with 82 tools covering budgeting, taxes, investing, retirement, debt, credit, insurance, estate hygiene, major purchase decisions, education / 529 planning, net worth & goals tracking, and self-employed / 1099 planning — routed automatically. Zero runtime dependencies.
+**Your personal-finance AI team for GitHub Copilot CLI.** 13 specialist agents with 90 tools covering budgeting, taxes, investing, retirement, debt, credit, insurance, estate hygiene, major purchase decisions, education / 529 planning, net worth & goals tracking, self-employed / 1099 planning, and cross-specialist life-event playbooks (annual review, new baby, job change, home purchase, inheritance, layoff) — routed automatically. Zero runtime dependencies.
 
 ---
 
@@ -13,7 +13,7 @@
 |---|---------|-------------|
 | 🚀 | [Quick Start](#quick-start) | One-command install |
 | 💡 | [What is Money Desk?](#what-is-money-desk) | Overview and key concepts |
-| 👥 | [The Team](#the-team) | All 12 specialists at a glance |
+| 👥 | [The Team](#the-team) | All 13 specialists at a glance |
 | 📦 | [Installation](#installation) | 5 ways to install |
 | 🖥️ | [CLI Reference](#cli-reference) | `init`, `status`, `uninstall`, `--version` |
 | ⚙️ | [How It Works](#how-it-works) | Architecture, routing, discoverability |
@@ -62,6 +62,7 @@ Each specialist runs with its own domain expertise, guardrails, and step-by-step
 | **Education Planner** | `md_ed` | 529 reviews, college-cost projections, FAFSA / financial-aid positioning, account-type selection |
 | **Net Worth & Goals** | `md_nw` | Net-worth snapshots, emergency-fund sizing, goal-based savings plans, sinking funds |
 | **Self-Employed Planner** | `md_se` | Solo 401k / SEP / SIMPLE selector, quarterly estimated taxes, S-corp election, Schedule C / QBI review |
+| **Life Events** | `md_le` | Cross-specialist orchestrator — annual review, new baby, job change, home purchase, inheritance, layoff playbooks |
 
 Each specialist exposes:
 
@@ -98,7 +99,7 @@ copilot --experimental
 
 This will:
 1. Create `~/.copilot/extensions/money-desk/` if it doesn't exist.
-2. Copy the extension router and all 12 specialists.
+2. Copy the extension router and all 13 specialists.
 3. Display a summary of what was installed.
 
 ### Option B — Project-level install (no experimental mode needed)
@@ -120,7 +121,7 @@ copilot
 
 This will:
 1. Create `.github/extensions/money-desk/` in the current repo.
-2. Copy the extension router and all 12 specialists.
+2. Copy the extension router and all 13 specialists.
 3. Add the extension directory to `.gitignore` (each developer runs init themselves — keep secrets out of source).
 
 ### Option C — Global install via npm
@@ -214,7 +215,7 @@ copilot
 > show me the money-desk capabilities
 ```
 
-You should see all 12 specialists listed with their tools.
+You should see all 13 specialists listed with their tools.
 
 ### Updating
 
@@ -262,7 +263,7 @@ Common flags:
 Money Desk is designed so the host agent (Copilot CLI) finds and uses it on the **first turn**, without the user having to prove it exists. Three mechanisms work together:
 
 1. **Keyword-rich entry-point tools.** `md_capabilities` and `md_route` are eagerly registered in the initial tool manifest and their descriptions include every domain keyword — `money-desk`, `@money-desk`, `personal finance`, `budget`, `taxes`, `investing`, `retirement`, `debt`, `credit`, `insurance`, `estate`, `purchase`, `buy vs lease`, `rent vs buy` — plus an explicit "**Call this FIRST**" instruction.
-2. **Keyword-rich `*_role` tools.** Each of the 12 `<prefix>_role` tools starts with `"Money Desk specialist: <domain>."` and lists trigger phrases a user might say. This lets the agent's tool-search surface the right specialist directly.
+2. **Keyword-rich `*_role` tools.** Each of the 13 `<prefix>_role` tools starts with `"Money Desk specialist: <domain>."` and lists trigger phrases a user might say. This lets the agent's tool-search surface the right specialist directly.
 3. **First-prompt presence note.** The `onUserPromptSubmitted` hook injects a one-time presence note on the first prompt of every session, telling the agent that money-desk is loaded and how to enumerate it via `md_capabilities`. A per-prefix routing hint is appended on subsequent prompts when their regex matches.
 
 ### Architecture
@@ -304,7 +305,7 @@ You don't need to call these manually — just describe what you need and the ro
 
 ### Registry as the source of truth
 
-All 82 tools are derived from a single declarative `SPECIALISTS` table in [`extensions/money-desk/registry.mjs`](extensions/money-desk/registry.mjs). That table — not `extension.mjs` — is what you edit to add or modify a specialist or skill. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full how-to.
+All 90 tools are derived from a single declarative `SPECIALISTS` table in [`extensions/money-desk/registry.mjs`](extensions/money-desk/registry.mjs). That table — not `extension.mjs` — is what you edit to add or modify a specialist or skill. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full how-to.
 
 ### Privacy
 

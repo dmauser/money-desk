@@ -3,7 +3,7 @@
 
 # Money Desk Capabilities
 
-Money Desk ships **12 specialists** with **56 skills** plus 2 discovery tools (`md_capabilities`, `md_route`) — a total of **82 tools** registered with Copilot CLI.
+Money Desk ships **13 specialists** with **62 skills** plus 2 discovery tools (`md_capabilities`, `md_route`) — a total of **90 tools** registered with Copilot CLI.
 
 ## Specialists
 
@@ -21,6 +21,7 @@ Money Desk ships **12 specialists** with **56 skills** plus 2 discovery tools (`
 | 10 | 🎓 Education Planner | `md_ed` | `md_ed_role` | `md_ed_orchestrate` | `college`, `savings`, `fund`, `cost` |
 | 11 | 📊 Net Worth & Goals | `md_nw` | `md_nw_role` | `md_nw_orchestrate` | `worth`, `emergency`, `fund`, `sinking` |
 | 12 | 💼 Self-Employed Planner | `md_se` | `md_se_role` | `md_se_orchestrate` | `self`, `employ`, `freelanc`, `income` |
+| 13 | 🌟 Life Events | `md_le` | `md_le_role` | `md_le_orchestrate` | `annual`, `financial`, `review`, `year` |
 
 ## Skills by specialist
 
@@ -139,6 +140,17 @@ Money Desk ships **12 specialists** with **56 skills** plus 2 discovery tools (`
 | **Quarterly Estimated Taxes** | `md_se_skill_quarterly_estimated_taxes` | compute Form 1040-ES Q1–Q4 amounts (federal + state) using safe-harbor (100% / 110% of prior-year tax) or annualized-income method for lumpy income. Includes self-employment tax (12.4% SS + 2.9% Medicare + 0.9% additional). Does NOT make the payment. |
 | **Entity & S-Corp Election Review** | `md_se_skill_entity_election_review` | analyze whether electing S-corp tax treatment saves more in payroll taxes than it adds in admin cost. Includes reasonable-compensation analysis, payroll-service + CPA + state-franchise cost itemization, break-even net-income threshold, and the hidden trade-offs (retirement contribution capacity, mortgage qualification, audit risk). |
 | **Business Deductions & QBI Review** | `md_se_skill_business_deductions_review` | audit Schedule C deductions line-by-line (home office, mileage vs actual, SEHI, retirement, Sec 179, supplies, software, professional fees), surface common omissions, and compute QBI / Section 199A 20% deduction with income-threshold phase-outs and SSTB rules. |
+
+### 🌟 Life Events (`md_le`)
+
+| Skill | Tool | What it does |
+|-------|------|--------------|
+| **Annual Financial Review** | `md_le_skill_annual_financial_review` | once-a-year audit orchestrating 8–10 sub-skills across budget, tax, investing, retirement, insurance, estate, and net worth into one prioritized 30/60/90-day action list. Triggers age-based specials (catch-up contributions, Medicare/IRMAA at 63–64, QCD at 70½, RMDs at 73/75). |
+| **New Baby Playbook** | `md_le_skill_new_baby_playbook` | 30/60/90-day runbook for biological birth or adoption. Sequences pre-arrival term-life + will/guardian designation, the 30-day insurance qualifying-event window (DO NOT MISS), FSA/DCFSA mid-year election, beneficiary updates, 529 setup, and cashflow reshape for daycare. |
+| **Job Change Playbook** | `md_le_skill_job_change_playbook` | comp-package valuation (base/bonus/RSU/options/ESPP), benefits enrollment, the old-401(k) 4-option decision framework (leave/roll-to-new/Rollover-IRA/cashout) with pro-rata backdoor-Roth implications, equity vesting/exercise calendar, and withholding reset. |
+| **Home Purchase Playbook** | `md_le_skill_home_purchase_playbook` | honest affordability sizing (PITI + HOA + PMI + maintenance, capped at 28% gross), down-payment + closing + reserves cash stack, buy-vs-rent crossover analysis, loan-offer comparison (APR + points + breakeven), and post-close insurance + beneficiary + sinking-fund setup. |
+| **Inheritance Playbook** | `md_le_skill_inheritance_playbook` | 0-to-9-month runbook starting with 'do nothing fast.' Sequences the 9-month disclaimer window, cost-basis step-up documentation, inherited-IRA 10-year-rule distribution schedule, state inheritance tax check, then re-projection + IPS + asset-location updates. |
+| **Layoff Playbook** | `md_le_skill_layoff_playbook` | severance review (OWBPA 21/45/7-day windows), unemployment filing, COBRA vs ACA-Marketplace-with-PTC vs spouse-plan decision math, survival-mode cashflow, old-401(k) hold-don't-cash, and the low-income-year tax opportunities (Roth conversion, 0% LTCG harvest). |
 
 ## Discovery tools
 
