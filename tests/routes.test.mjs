@@ -26,6 +26,7 @@ const CANONICAL_PHRASES = {
     md_bh: "The market just dropped 5% and I want to sell everything — should I?",
     md_in: "I'm a US citizen moving to Portugal next year — what about FBAR, PFICs, and FEIE vs FTC?",
     md_fl: "Can you explain what a Roth IRA is in plain English?",
+    md_fi: "When can I retire if I save 50% of my income?",
 };
 
 test("every prefix has a canonical phrase fixture", () => {

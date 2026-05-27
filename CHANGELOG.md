@@ -7,6 +7,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] — 2026-05-27
+
+New **FIRE Planner** specialist (`md_fi`, 🔥) — the strategist for Financial
+Independence / Retire Early. Unlike Retirement Planner (which assumes the
+traditional 65+ regime with Social Security bridging and a ~25-year horizon),
+FIRE Planner owns the early-retirement decision tree: 30–60-year horizons,
+pre-59½ access mechanics, pre-65 healthcare, sequence-of-returns risk, the
+lean / coast / barista / chubby / fat flavor decision, and the bridge / Roth
+conversion ladder. It's a **router into other specialists** for execution —
+hands off conversion mechanics to Tax Planner, glide-path allocation to
+Investing Advisor, ACA enrollment to Health & Medicare, "one-more-year
+syndrome" to Behavioral Coach, and international geo-arbitrage to
+International / Expat.
+
+### Added
+
+- 🔥 **New specialist:** FIRE Planner (`md_fi`, 20th specialist) with 8 skills:
+  - **FIRE Number Calculator** — 4% / 3.5% / 3% range with lean / coast / barista / chubby / fat flavor scenarios; never quotes a single point estimate
+  - **Safe-Withdrawal Stress Test** — Trinity / Bengen / Kitces guardrails / Bogleheads VPW across multiple historical and bad-decade scenarios; sequence-of-returns risk surfaced explicitly
+  - **FIRE Flavor Classifier** — lean / coast / barista / chubby / fat tradeoffs given the user's number, lifestyle, and identity-after-work concerns
+  - **Savings-Rate Optimizer** — MMM-style "years to FI" sensitivity; where the next 5% comes from (hand-off to Budget Coach)
+  - **Pre-59½ Bridge Strategy** — taxable bridge sizing vs SEPP/72(t) vs Roth conversion ladder; IRREVERSIBLE-decision warnings on SEPP elections
+  - **Pre-65 Healthcare Plan** — ACA-MAGI management, subsidy cliff awareness, HSA stacking; flags as the #1 single-point-of-failure for early retirement
+  - **Withdrawal Order Optimizer** — tax-bracket-filling early years (Roth conversions in 0% LTCG / low-bracket window), IRMAA tiering, the standard-deduction floor
+  - **Geographic Arbitrage Planner** — domestic and international cost-of-living-shift framing; hands off the tax mechanics (FBAR / PFIC / FEIE) to International / Expat
+- 📋 **Intake schemas** (v0.9.0 hard-gated UX) for the 4 highest-leverage skills: FIRE Number Calculator, Safe-Withdrawal Stress Test, Pre-59½ Bridge Strategy, Withdrawal Order Optimizer. Designed with the v0.9.0 zero-assumption rule — no opinion defaults for returns / inflation / longevity / bond %; every assumption is a required input.
+- 🔁 **Three-direction handoff wiring** in `registry.mjs`:
+  - **Forward** — every FIRE SKILL.md ends with a `**Next step → @[Specialist]:** "..."` line pointing at the right execution arm (`md_tx` for ladders, `md_iv` for glide paths, `md_ih` for ACA, `md_bc` for budget surgery, `md_bh` for one-more-year syndrome, `md_in` for FBAR / FEIE, `md_nw` for tracking the number).
+  - **Reverse** — `md_rp`, `md_iv`, `md_nw`, and `md_bc` orchestrator text now explicitly routes FIRE / early-retirement / 4%-rule / lean-coast-barista-chubby-fat language to `md_fi_role`, preventing silent absorption into the traditional-retirement / allocation / budgeting flows.
+- 📊 **Specialist count:** 19 → **20**.
+- 🧰 **Tool count:** 129 → **139** (8 new skill tools + role + orchestrator).
+- 🛣️ **Route regex** covers the full FIRE community vocabulary: FIRE / FI / financial independence / retire early, the 4% rule, Bengen / Trinity / Kitces / Bogleheads VPW, lean / coast / barista / chubby / fat FIRE, SEPP / 72(t) / Rule of 55, Roth conversion ladder, ACA subsidy cliff, MMM / ChooseFI / Bogleheads, geographic arbitrage / nomad / slow-travel.
+
+### Design — strategy, not advice
+
+- **Education-first framing.** Assumes the user has read FIRE basics; leads with the *decision*, not the *definition*.
+- **No opinion defaults.** Same v0.9.0 rule as the original hard-gated rollout: returns, inflation, longevity, bond %, healthcare cost — all required from the user. Schemas do not pre-fill them.
+- **Withdrawal rate ranges, not point estimates.** Every projection shows 3% / 3.5% / 4% / 4.5%; never quotes "the 4% rule" as a single answer.
+- **Sequence-of-returns risk is loud, not buried.** Every projection skill must show the bad-decade scenario, not just the average.
+- **No "you should FIRE" / "you shouldn't FIRE."** Strategy and tradeoffs only — never life advice.
+- **IRREVERSIBLE-decision warnings** for SEPP/72(t) elections and FBAR reporting, with explicit "execute with a CPA, not a chat transcript" framing.
+
+### Changed
+
+- `registry.mjs` — 4 existing specialist orchestrators (`md_rp`, `md_iv`, `md_nw`, `md_bc`) gained a one-line reverse-handoff sentence routing FIRE-shaped intent to `md_fi`.
+- `docs/CAPABILITIES.md` regenerated from registry.
+- `package.json` description now lists FIRE alongside the other domains.
+
+### Tests
+
+- 190 tests passing (was 188), including the new `md_fi` canonical-phrase routing fixture and the auto-validated FIRE intake schemas.
+
 ## [0.10.0] — 2026-05-27
 
 New **Financial Literacy** specialist (`md_fl`) — the on-ramp and plain-language
@@ -445,7 +497,8 @@ Initial release.
 - 82 tests covering: tool manifest consistency, route regex coverage,
   installer smoke, `[UNSOURCED]` guardrail coverage, docs sync.
 
-[Unreleased]: https://github.com/dmauser/money-desk/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/dmauser/money-desk/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/dmauser/money-desk/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/dmauser/money-desk/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/dmauser/money-desk/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/dmauser/money-desk/compare/v0.7.0...v0.8.0

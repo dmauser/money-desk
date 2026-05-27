@@ -3,7 +3,7 @@
 
 # Money Desk Capabilities
 
-Money Desk ships **19 specialists** with **86 skills** plus 2 discovery tools (`md_capabilities`, `md_route`) — a total of **126 tools** registered with Copilot CLI.
+Money Desk ships **20 specialists** with **94 skills** plus 2 discovery tools (`md_capabilities`, `md_route`) — a total of **136 tools** registered with Copilot CLI.
 
 ## Specialists
 
@@ -28,6 +28,7 @@ Money Desk ships **19 specialists** with **86 skills** plus 2 discovery tools (`
 | 17 | 🧠 Behavioral Coach | `md_bh` | `md_bh_role` | `md_bh_orchestrate` | `panic`, `FOMO`, `loss`, `aversion` |
 | 18 | 🌍 International / Expat | `md_in` | `md_in_role` | `md_in_orchestrate` | `expat`, `expatriate`, `citizen`, `abroad` |
 | 19 | 🎓 Financial Literacy | `md_fl` | `md_fl_role` | `md_fl_orchestrate` | `what`, `does`, `what`, `explain` |
+| 20 | 🔥 FIRE Planner | `md_fi` | `md_fi_role` | `md_fi_orchestrate` | `FIRE`, `financial`, `independence`, `retire` |
 
 ## Skills by specialist
 
@@ -211,6 +212,19 @@ Money Desk ships **19 specialists** with **86 skills** plus 2 discovery tools (`
 | **Statement Walkthrough** | `md_fl_skill_statement_walkthrough` | generic decode of a brokerage / 401(k) / mortgage / EOB statement. Walks the universal sections (summary box → holdings or activity → fees → footer), names every line, flags the verify-this items (cost basis, beneficiary, vesting, escrow shortage, PMI removability, EOB vs actual bill reconciliation, surprise-billing protection), and ends with one specific next step. |
 | **Beginner Roadmap** | `md_fl_skill_beginner_roadmap` | 12-month sequenced curriculum for someone starting from zero. Each month has one focus, one thing to learn, one specific action, and one diagnostic skill to run. Sequence: money diary → concept literacy → 1-month emergency fund → 401(k) match → debt triage → credit basics → insurance baseline → Roth IRA → finish emergency fund → tax intuition → investment basics → net-worth snapshot. The 'where do I even start?' replacer. |
 | **Teach a Kid** | `md_fl_skill_teach_a_kid` | age-appropriate money lessons across five stages (preschool 3-5, early elementary 6-9, late elementary 10-13, high school 14-17, young adult 18-22). Each stage has the developmentally-right concept, a concrete activity, and the trap to avoid. Bonus deep dive on the custodial Roth IRA for a teenager with earned income — $3,000 contributed at 16 ≈ $100k at 67 — the single highest-leverage money move available to a parent. |
+
+### 🔥 FIRE Planner (`md_fi`)
+
+| Skill | Tool | What it does |
+|-------|------|--------------|
+| **FIRE Number Calculator** | `md_fi_skill_fire_number_calculator` | compute the user's target asset base for FI. Presents lean / coast / barista / chubby / fat targets side-by-side, layers pre-65 ACA + post-65 Medicare healthcare honestly, shows the number at three withdrawal rates (3% / 3.5% / 4%) not one. Surfaces gap vs today's portfolio in $ and years-of-current-savings. Sensitivity: ±1% real return, ±20% spend. |
+| **Safe-Withdrawal Stress Test** | `md_fi_skill_swr_stress_test` | pressure-test a candidate WR against the user's actual horizon (30y vs 40y vs 50y matters), allocation, spend pattern, and income floor. Presents Bengen fixed-real vs Kitces ratcheting/guardrails vs Bogleheads VPW camps honestly. Names the four killers (bad first decade, inflation spike, healthcare blow-up, longevity tail) and the user's specific mitigation for each. |
+| **FIRE Flavor Classifier** | `md_fi_skill_coast_barista_lean_fat_classifier` | recommend lean / coast / barista / chubby / fat FIRE based on numbers AND lifestyle inputs (frugality tolerance, career attachment, geographic flexibility, spouse alignment). Outputs flavor-specific failure modes and the path to the target number. Spouse-alignment check is mandatory: unaddressed → hand off to Behavioral Coach Couples Money Alignment before proceeding. |
+| **Savings-Rate Optimizer** | `md_fi_skill_savings_rate_optimizer` | plot today's savings rate on the Mr. Money Mustache 2012 years-to-FI curve, find the realistic next 5–10% in the user's actual top-3 categories (housing / transport / food usually = 60-75% of spend), quantify each candidate move in years-off-FI-date. Picks ONE next move per quarter (not 12), respects the user's hard-no list, hands off execution to Budget Coach or Purchase Advisor or Refinance. |
+| **Pre-59½ Bridge Strategy** | `md_fi_skill_bridge_account_strategy` | the four legal mechanisms for early access without 10% penalty: Roth conversion ladder (IRC §408A(d)(3)(F) 5-year rule), SEPP/72(t) (IRC §72(t) + Notice 2022-6), brokerage bridge (0% LTCG capture), HSA-as-stealth-IRA stacking. Picks the user's primary + secondary stack. Flags ACA-MAGI ceiling as the binding constraint on conversion size. SEPP irreversibility warning loud. Hands off execution to Tax Planner + CPA. |
+| **Pre-65 Healthcare Plan** | `md_fi_skill_pre_65_healthcare_plan` | the #1 FIRE blocker. Maps ACA Marketplace with MAGI-managed subsidies (IRA 2022 / 2025 enhanced subsidy regime — verify current law), COBRA bridge, spouse-coverage piggyback, Direct Primary Care + catastrophic, health-sharing ministries. Outputs MAGI ceiling that coordinates with Bridge Strategy and Withdrawal Order Optimizer. Hands off plan-by-plan enrollment to Health & Medicare. |
+| **Withdrawal Order Optimizer** | `md_fi_skill_withdrawal_order_optimizer` | sequence taxable / Trad / Roth / HSA drawdowns to maximize after-tax sustainable spend across the full horizon. Captures the early-FIRE low-bracket bracket-filling Roth-conversion opportunity (often +0.3–0.7% sustainable WR vs naive brokerage-first default). Surfaces RMD pressure at 73; coordinates ACA-MAGI pre-65 and IRMAA post-65 ceilings. Year-by-year sequenced plan; execution handed off to Tax Planner + CPA. |
+| **Geographic Arbitrage Planner** | `md_fi_skill_geo_arbitrage_planner` | map domestic (no-state-income-tax, low-COL) and international (Portugal D7 / Spain NLV / Mexico Temporal / Thailand LTR / Malaysia MM2H / Panama Pensionado / Costa Rica) options. COL-adjusted spend impact, visa pathway, US-person tax-residency (citizenship-based taxation reminder), FBAR / FATCA / PFIC reminders, healthcare cost, FX exposure, reversibility honesty. International ALWAYS hands off to International / Expat + expat-experienced CPA + immigration attorney. |
 
 ## Discovery tools
 

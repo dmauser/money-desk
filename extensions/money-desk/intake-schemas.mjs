@@ -239,6 +239,103 @@ export const INTAKE_SCHEMAS = {
             required: ["vehicle", "msrp", "lease_residual_pct", "lease_money_factor", "lease_term_months", "purchase_apr", "purchase_loan_term_months", "annual_miles", "ownership_horizon_years"],
         },
     },
+
+    // ── FIRE Planner ───────────────────────────────────────────────────
+
+    md_fi_skill_fire_number_calculator: {
+        message: "Let's compute your FIRE number across the lean / coast / barista / chubby / fat flavors. I'll show three withdrawal rates side-by-side. Anything you skip, I'll flag rather than guess.",
+        schema: {
+            properties: {
+                current_age: { type: "integer", title: "Current age", minimum: 18, maximum: 75 },
+                target_fi_age: { type: "integer", title: "Target FI age", minimum: 25, maximum: 75 },
+                planning_to_age: { type: "integer", title: "Plan-to age (life expectancy)", description: "How long the plan needs to last; common range 90–100" },
+                target_annual_spend: { type: "number", title: "Target annual spend in retirement (today's $)", description: "Post-tax, what life costs you per year. EXCLUDE mortgage if paid off by FIRE; INCLUDE healthcare honestly." },
+                taxable_balance: { type: "number", title: "Taxable brokerage balance ($)", default: 0 },
+                trad_balance: { type: "number", title: "Traditional 401(k) + IRA balance ($)", default: 0 },
+                roth_balance: { type: "number", title: "Roth 401(k) + IRA balance ($)", default: 0 },
+                hsa_balance: { type: "number", title: "HSA balance ($)", default: 0 },
+                cash_balance: { type: "number", title: "Cash + HYSA balance ($)", default: 0 },
+                annual_healthcare_pre65: { type: "number", title: "Estimated annual healthcare cost pre-65 ($)", description: "Your estimate. If you don't know, run Pre-65 Healthcare Plan first." },
+                annual_healthcare_post65: { type: "number", title: "Estimated annual healthcare cost post-65 ($)", description: "Medicare + Medigap + Part D typically $5–10k/person/yr in today's $" },
+                expected_real_return_pct: { type: "number", title: "Expected real (after-inflation) portfolio return (%)", description: "Your view — common range 3–5%" },
+                ss_monthly_estimate: { type: "number", title: "Social Security monthly estimate at claim age ($, optional)", description: "From ssa.gov; enter 0 to plan without SS", default: 0 },
+                part_time_income_annual: { type: "number", title: "Expected post-FIRE part-time income ($/yr, optional)", description: "For barista FIRE; enter 0 if none planned", default: 0 },
+            },
+            required: ["current_age", "target_fi_age", "planning_to_age", "target_annual_spend", "annual_healthcare_pre65", "annual_healthcare_post65", "expected_real_return_pct"],
+        },
+    },
+
+    md_fi_skill_swr_stress_test: {
+        message: "Let's stress-test your withdrawal rate. The 4% rule was calibrated for 30-year horizons — longer needs lower. I'll show 3% / 3.5% / 4% / 4.5% side-by-side and name the four killers honestly.",
+        schema: {
+            properties: {
+                horizon_years: { type: "integer", title: "Horizon (years)", description: "Years the portfolio must last; 30 = traditional retirement, 40+ = early FIRE", minimum: 10, maximum: 70 },
+                target_annual_spend: { type: "number", title: "Target annual spend (today's $)" },
+                portfolio_total: { type: "number", title: "Total portfolio ($)" },
+                stock_pct: { type: "number", title: "Stock allocation (%)", minimum: 0, maximum: 100 },
+                bond_pct: { type: "number", title: "Bond allocation (%)", minimum: 0, maximum: 100 },
+                cash_pct: { type: "number", title: "Cash allocation (%)", minimum: 0, maximum: 100 },
+                spend_pattern: { type: "string", title: "Spend pattern", enum: ["Flat real (constant inflation-adjusted)", "Rising real (lifestyle creep)", "Declining real (retirement smile)", "Variable / lumpy"] },
+                income_floor_annual: { type: "number", title: "Income floor: SS + pension ($/yr)", description: "Starting at claim/payment age; enter 0 if planning without", default: 0 },
+                income_floor_start_age: { type: "integer", title: "Income floor start age", description: "Age when SS / pension begins; ignore if income floor = 0", minimum: 0, maximum: 90, default: 67 },
+                expected_real_return_pct: { type: "number", title: "Expected real return assumption (%)", description: "Your view — common range 4–5% real for 60-80% stock" },
+                spend_flexibility: { type: "string", title: "Spend flexibility in a down year", enum: ["Could cut 0–5%", "Could cut 5–15%", "Could cut 15–25%", "Could cut 25%+"], description: "Honest answer — Kitces guardrails require real cuts" },
+            },
+            required: ["horizon_years", "target_annual_spend", "portfolio_total", "stock_pct", "bond_pct", "cash_pct", "spend_pattern", "expected_real_return_pct", "spend_flexibility"],
+        },
+    },
+
+    md_fi_skill_bridge_account_strategy: {
+        message: "Let's design your pre-59½ bridge. The four mechanisms — Roth conversion ladder, SEPP/72(t), brokerage bridge, HSA stacking — combine differently per household. SEPP especially is IRREVERSIBLE; we'll surface that.",
+        schema: {
+            properties: {
+                current_age: { type: "integer", title: "Current age", minimum: 30, maximum: 60 },
+                target_fire_age: { type: "integer", title: "Target FIRE age", minimum: 30, maximum: 59 },
+                annual_spend_early_retirement: { type: "number", title: "Annual spend in early retirement (today's $)" },
+                taxable_balance: { type: "number", title: "Taxable brokerage balance ($)", default: 0 },
+                taxable_cost_basis: { type: "number", title: "Taxable account cost basis ($, approximate)", description: "Roughly how much you put in (vs current value)", default: 0 },
+                trad_balance: { type: "number", title: "Traditional 401(k) + IRA balance ($)", default: 0 },
+                roth_contributions_accessible: { type: "number", title: "Roth IRA contributions accessible ($)", description: "Original contributions only — always penalty-free", default: 0 },
+                roth_earnings: { type: "number", title: "Roth earnings ($, gated by 5y + 59.5)", default: 0 },
+                hsa_balance: { type: "number", title: "HSA balance ($)", default: 0 },
+                cash_balance: { type: "number", title: "Cash + HYSA balance ($)", default: 0 },
+                spouse_income_post_fire: { type: "number", title: "Spouse income post-FIRE ($/yr)", description: "For households where one spouse keeps working", default: 0 },
+                other_income_post_fire: { type: "number", title: "Other income post-FIRE ($/yr)", description: "Real estate, consulting, pension", default: 0 },
+                filing_status: { type: "string", title: "Filing status post-FIRE", enum: ["Single", "Married Filing Jointly", "Married Filing Separately", "Head of Household"] },
+                state: { type: "string", title: "State of residence post-FIRE", description: "State-tax treatment of conversions / withdrawals varies" },
+                aca_magi_ceiling: { type: "number", title: "Target ACA-MAGI ceiling ($/yr, optional)", description: "From Pre-65 Healthcare Plan; cap on conversions + realized gains. Enter 0 if not using ACA.", default: 0 },
+            },
+            required: ["current_age", "target_fire_age", "annual_spend_early_retirement", "filing_status", "state"],
+        },
+    },
+
+    md_fi_skill_withdrawal_order_optimizer: {
+        message: "Let's sequence your withdrawal order to maximize after-tax sustainable spend. The naive 'brokerage → Trad → Roth' default is usually wrong for early FIRE — bracket-filling Roth conversions in the low-income early years can add ~0.5%/yr to your sustainable WR.",
+        schema: {
+            properties: {
+                current_age: { type: "integer", title: "Current age", minimum: 30, maximum: 75 },
+                fire_age: { type: "integer", title: "FIRE age", minimum: 30, maximum: 75 },
+                planning_to_age: { type: "integer", title: "Plan-to age", minimum: 75, maximum: 105 },
+                target_spend_post_tax: { type: "number", title: "Target annual spend (post-tax, today's $)" },
+                taxable_balance: { type: "number", title: "Taxable brokerage balance ($)", default: 0 },
+                taxable_cost_basis: { type: "number", title: "Taxable cost basis ($, approximate)", default: 0 },
+                trad_balance: { type: "number", title: "Traditional 401(k) + IRA balance ($)", default: 0 },
+                roth_contributions: { type: "number", title: "Roth contributions ($)", default: 0 },
+                roth_earnings: { type: "number", title: "Roth earnings ($)", default: 0 },
+                hsa_balance: { type: "number", title: "HSA balance ($)", default: 0 },
+                cash_balance: { type: "number", title: "Cash balance ($)", default: 0 },
+                aca_magi_ceiling: { type: "number", title: "ACA-MAGI ceiling ($/yr)", description: "From Pre-65 Healthcare Plan; binding constraint on conversions + LTCG. Enter 0 if not using ACA.", default: 0 },
+                irmaa_ceiling: { type: "number", title: "Post-65 IRMAA ceiling target ($/yr, optional)", description: "Approx threshold to avoid Medicare premium surcharges; cite md_facts for current bracket. Enter 0 to skip.", default: 0 },
+                spouse_income_post_fire: { type: "number", title: "Spouse income post-FIRE ($/yr)", default: 0 },
+                other_income_post_fire: { type: "number", title: "Other income post-FIRE ($/yr)", default: 0 },
+                ss_pia_monthly: { type: "number", title: "Social Security PIA monthly ($, at FRA)", description: "From ssa.gov; enter 0 to plan without", default: 0 },
+                ss_claim_age: { type: "integer", title: "Planned SS claim age", minimum: 62, maximum: 70, default: 67 },
+                filing_status: { type: "string", title: "Filing status post-FIRE", enum: ["Single", "Married Filing Jointly", "Married Filing Separately", "Head of Household"] },
+                state: { type: "string", title: "State of residence post-FIRE" },
+            },
+            required: ["current_age", "fire_age", "planning_to_age", "target_spend_post_tax", "filing_status", "state"],
+        },
+    },
 };
 
 export function getIntakeSchema(toolName) {
