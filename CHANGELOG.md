@@ -7,6 +7,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-05-26
+
+Citations overhaul. Replaces a single scary `[UNSOURCED]` tag with a 4-tag honesty
+vocabulary and ships a curated 2026 facts table so the most common figures
+(IRS limits, tax brackets, IRMAA, FAFSA, conforming-loan, FEIE, etc.) are
+cited from a real source instead of marked `[UNSOURCED]`. Total: **18
+specialists / 78 skills / 118 tools** (up from 116 — 2 new top-level tools).
+
+### Added
+
+- 📚 **`md_facts`** — bundled 2026 reference data with ~14 topic blocks
+  covering IRS contribution limits (401k, IRA, HSA, FSA, SEP, SIMPLE), MFJ
+  income-tax brackets + standard deduction, LTCG / NIIT / AMT thresholds,
+  Social Security wage base + FRA + earnings test, Medicare Part A/B/D
+  premiums + IRMAA brackets (single + MFJ), estate & gift exemptions, QBI
+  §199A thresholds, FAFSA / Pell / 529-to-Roth, mortgage & real-estate
+  (conforming-loan, §121 exclusion, SALT cap, bonus depreciation, §179,
+  §1031), Federal Poverty Level table, expat (FEIE / FBAR / FATCA / PFIC),
+  and safe modeling defaults (real returns, withdrawal rates, vacancy /
+  capex / maintenance / management). Each block carries `_source` and
+  `_url` so cites point at the primary authority (IRS, SSA, CMS, FHFA, HUD,
+  HHS, FinCEN).
+- 📜 **`md_citation_conventions`** — returns the 4-tag honesty vocabulary
+  so any specialist (or fresh session) can call once to align.
+
+### Changed
+
+- **Citation vocabulary** expanded from a single tag to four:
+  - `[USER-PROVIDED]` — the user told you this value; cite the user message.
+  - `[ASSUMPTION: <value>]` — explicit modeling default the user can override.
+  - `[md_facts: <topic>]` — sourced from the bundled facts table.
+  - `[UNSOURCED]` — last resort; only when md_facts and user docs don't cover
+    the topic. Ask the user to confirm before any irreversible decision.
+- Every one of the 18 specialist orchestrators now nudges the model to call
+  `md_facts` BEFORE marking any contribution limit, bracket, IRMAA value,
+  FAFSA threshold, conforming-loan limit, FEIE, §121 exclusion, or annual
+  gift exclusion as `[UNSOURCED]`.
+- `md_capabilities` guardrail summary now documents the 4-tag scheme.
+
+### Why
+
+In v0.5.0 the `[UNSOURCED]` tag was applied so broadly it became noise —
+every output had it on almost every number, which made the genuinely shaky
+claims indistinguishable from the well-known ones. v0.6.0 reserves
+`[UNSOURCED]` for actual unknowns, gives modeling assumptions a proper
+label, and ships the most-cited 2026 figures as data so they're sourced
+instead of flagged.
+
 ## [0.5.0] — 2026-05-26
 
 Phase 4 of the deep-review expansion **plus** an Insurance Reviewer split refactor.
@@ -202,7 +250,8 @@ Initial release.
 - 82 tests covering: tool manifest consistency, route regex coverage,
   installer smoke, `[UNSOURCED]` guardrail coverage, docs sync.
 
-[Unreleased]: https://github.com/dmauser/money-desk/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/dmauser/money-desk/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/dmauser/money-desk/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/dmauser/money-desk/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/dmauser/money-desk/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/dmauser/money-desk/compare/v0.2.0...v0.3.0
