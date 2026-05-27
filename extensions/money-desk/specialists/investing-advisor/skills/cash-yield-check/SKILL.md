@@ -76,11 +76,41 @@ Markdown report `./reports/investing-advisor/cash-yield-check-<YYYYMMDD>.md`:
 
 - **Source** — at the top of the report, a one-liner: `Primary source: DepositAccounts.com (<category-page-URL>), as-of <timestamp shown on page>. Cross-checked on issuer product pages (links in shortlist). [UNSOURCED — verify on issuer page]`. If a one-off override was used this turn (e.g. Bankrate), name the override source here and note that the persisted default is DepositAccounts.com.
 - **Bucket & constraints** — echoed back: amount, horizon, access needs, minimums OK, eligibility constraints.
-- **Shortlist table** — 3–6 rows. Columns: Institution + Product, APY (as-of), **DepositAccounts URL**, **Issuer product-page URL**, Insurance, Min to earn APY, Monthly fee, Tier cap, Access, Eligibility, Notes/gotchas. Every APY cell ends with the `[UNSOURCED — verify on issuer page]` tag.
+- **Shortlist table** — 3–6 rows. **Required columns:**
+  - Institution + Product
+  - APY (as-of) — tagged `[UNSOURCED — verify on issuer page]`
+  - **Expense ratio / net-expense** — `n/a` for deposit accounts (HYSA / MMA / CD); for MMFs use the prospectus net expense ratio (e.g. SPAXX 0.42%, VMFXX 0.11%, SWVXX 0.34%); for T-bill ETFs the ETF's net expense ratio (SGOV 0.09%, BIL 0.135%). Cite the fund-issuer page.
+  - **Fed tax** — always "Ordinary income, Form 1099-INT (deposits) or 1099-DIV (MMFs) or 1099-INT box 3 (Treasuries)". For deposits and most prime MMFs: 100% federally taxable. For Treasury MMFs / T-bill ETFs / direct T-bills: 100% federally taxable.
+  - **State tax** — the column that often flips the decision:
+    - HYSA / MMA / CD / reward checking → **fully state-taxable** (ordinary income).
+    - Prime / corporate MMFs (SPAXX, SWVXX, SPRXX) → **mostly state-taxable**; a partial state exemption may apply for the portion in US-government obligations (issuer publishes a year-end "% from US government" breakdown — typically 30–55% for SPAXX, varies annually).
+    - Treasury MMFs (VUSXX, FDLXX, SNSXX), T-bill ETFs (SGOV, BIL), and direct T-bills → **state-tax-free** (interest from direct US Treasury obligations is exempt from state and local tax — IRC §103). Note: CA, NY, CT require ≥50% USGO holdings in a fund for the state exemption to pass through; check the fund's USGO % each year.
+    - Municipal money-market funds (if surfaced) → federally tax-free; state-tax-free only if single-state and matches the user's state of residence. Out of scope for most users; flag only if the user is in a high state-tax bracket with a large taxable cash bucket.
+  - Insurance — FDIC / NCUA / SIPC (with coverage limits)
+  - Min to earn APY
+  - Monthly fee + how to waive
+  - Tier cap (if any) and blended APY at the user's deposit size
+  - Access mechanics (ACH only, debit card, ATM network, checks, mobile deposit, T+1 settlement)
+  - Eligibility / membership friction
+  - Notes / gotchas (teaser-rate cliff, post-promo APY, slow ACH, $X early-withdrawal penalty, requires checking-account relationship, etc.)
+- **After-tax yield comparison** — for each shortlisted option, compute the **after-tax APY** explicitly:
+  - Deposits: `APY × (1 − fed_marginal − state_marginal)`
+  - Treasury MMF / T-bill ETF / direct T-bill: `(yield − net_expense_ratio) × (1 − fed_marginal)` (no state-tax subtraction)
+  - Prime MMF with partial USGO%: `(yield − net_expense_ratio) × (1 − fed_marginal − state_marginal × (1 − usgo_pct))`
+  - Cite `[USER-PROVIDED]` or `[ASSUMPTION: <rate>]` for both fed and state marginal rates; for bracket lookup, call `md_facts` and cite `[IRS 2026 limits]`.
+  - Tabulate side-by-side so the user sees the **after-tax winner**, which is often DIFFERENT from the headline-APY winner in CA / NY / OR / HI / NJ / MN brackets.
 - **Annualized dollar pickup** — `amount × ΔAPY` pre-tax and after-tax, vs the user's current APY.
-- **CD ladder option** (only if horizon allows) — sample 3/6/12-mo ladder with current top APYs (each citing its DepositAccounts row + issuer page) and total blended yield.
-- **Non-deposit alternatives** (only if opted in) — money-market mutual fund (cite the fund issuer's 7-day yield page) + Treasury ETF / T-bill (cite TreasuryDirect or brokerage auction page) comparison, with the FDIC-vs-SIPC and state-tax distinction called out. Do NOT cite DepositAccounts for these — it does not cover them.
-- **What this is NOT** — explicit one-liner: "This is a rate survey, not a recommendation to open any specific account. Verify rates and terms on the institution's own site before applying."
+- **CD ladder option** (only if horizon allows) — sample 3/6/12-mo ladder with current top APYs (each citing its DepositAccounts row + issuer page) and total blended yield. Show pre- and after-tax.
+- **Non-deposit alternatives** (only if opted in) — money-market mutual fund (cite the fund issuer's 7-day yield + net expense ratio + USGO%) + Treasury ETF / T-bill (cite TreasuryDirect or brokerage auction page + ETF expense ratio) comparison, with FDIC-vs-SIPC and state-tax distinction called out. Do NOT cite DepositAccounts for these — it does not cover them.
+- **Considerations** (bulleted, plain English):
+  - Tax-treatment summary (which options are state-tax-free for this user's state).
+  - Liquidity vs yield trade-off (HYSA same-day ACH vs MMF T+1 vs CD lockup vs T-bill maturity calendar).
+  - Insurance type (FDIC vs NCUA vs SIPC vs "no insurance — full faith and credit of US government" for T-bills) and how the user's amount compares to the per-institution $250k FDIC cap.
+  - Reinvestment risk (rates drop while CD is locked) vs rate-cut protection (CD locks the current rate before cuts).
+  - Tax-form impact (1099-INT vs 1099-DIV vs 1099-B; some brokerages don't issue 1099 below $10 — interest is still reportable).
+  - Behavioral fit (one-account simplicity vs squeezing the last 25 bps).
+- **Notes** (gotchas specific to this user's shortlist) — teaser-rate cliffs, tier-cap surprises, eligibility friction, account-opening hard pulls, account-closing fees if closed within 90/180 days.
+- **What this is NOT** — explicit one-liner: "This is a rate survey, not a recommendation to open any specific account. Verify rates, fees, terms, and current USGO% on the institution's own site before applying."
 - **Next step** — pointer to the friendly-named follow-up skill.
 
 ## Notes

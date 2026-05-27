@@ -49,7 +49,13 @@ Markdown report `./reports/net-worth-goals/emergency-fund-<YYYYMMDD>.md`:
 - **Headline** — e.g., "You have 2.3 months of essentials in EF; recommended target is 6 months. Gap: $14,200."
 - **Math table** — essential outflow, current EF, months covered, target, gap.
 - **Why this target** — bullet list of modifiers.
-- **Account placement** — recommended split (e.g., "$10k HYSA for instant access; remaining $20k in 4-/8-/13-wk T-bill ladder for state-tax savings"). **Cite every HYSA / MMA / CD rate to a DepositAccounts.com URL (category or product page) with the as-of timestamp, tagged `[UNSOURCED — verify on issuer page]`, and link the bank/credit-union's own product page alongside it. Money-market mutual funds cite the fund issuer's 7-day-yield page; T-bills cite TreasuryDirect.gov or the brokerage's auction page.** Include a one-line "Primary rate source: DepositAccounts.com" footnote (note any one-off override the user requested for this turn).
+- **Account placement** — recommended split (e.g., "$10k HYSA for instant access; remaining $20k in 4-/8-/13-wk T-bill ladder for state-tax savings"). **Cite every HYSA / MMA / CD rate to a DepositAccounts.com URL (category or product page) with the as-of timestamp, tagged `[UNSOURCED — verify on issuer page]`, and link the bank/credit-union's own product page alongside it. Money-market mutual funds cite the fund issuer's 7-day-yield page; T-bills cite TreasuryDirect.gov or the brokerage's auction page.** For every option in the placement, show:
+  - **Expense ratio / net expense** — `n/a` for deposits; prospectus net-expense for MMFs (e.g. SPAXX 0.42%, VMFXX 0.11%, SWVXX 0.34%, VUSXX 0.09%); ETF net-expense for T-bill ETFs (SGOV 0.09%, BIL 0.135%).
+  - **Federal tax treatment** — all interest is ordinary income (1099-INT for deposits and T-bills; 1099-DIV for MMFs). No federal exemption.
+  - **State tax treatment** — HYSA / MMA / CD → fully state-taxable. Treasury MMFs / T-bill ETFs / direct T-bills → **state-tax-free** (IRC §103). Prime MMFs → partially state-taxable; multiply state tax by `(1 − USGO%)` using the fund's published year-end USGO breakdown.
+  - **After-tax APY** for this user's marginal fed + state brackets (cite `[USER-PROVIDED]` / `[ASSUMPTION]` / `[IRS 2026 limits]` via `md_facts`). This often flips the ranking for CA / NY / OR / HI / NJ / MN residents.
+  - **Considerations** — liquidity (same-day ACH vs T+1 settle vs T-bill maturity), insurance type (FDIC / NCUA / SIPC / US govt full-faith-and-credit), $250k per-institution FDIC cap, reinvestment risk on CD ladders.
+  Include a one-line "Primary rate source: DepositAccounts.com" footnote (note any one-off override the user requested for this turn).
 - **Build-up plan** — monthly contribution and months-to-target; sequenced with debt payoff if applicable.
 - **Excess scenario (if applicable)** — deployment plan for over-funded cash.
 

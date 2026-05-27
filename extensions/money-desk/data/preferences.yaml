@@ -44,4 +44,29 @@ preferred_sources:
 #      aggregator) is turn-scoped: honor it for that single response, then
 #      revert to the default on the next deposit-rate question.
 
+# Required columns when displaying rates in any output report
+# (applies to Cash Yield Check, Emergency Fund Assessment, Sinking Funds Setup,
+# Retirement Planner cash sleeve, Life Events emergency-fund sizing):
+output_requirements:
+per_option_columns:
+  - apy_with_as_of_and_url   # the rate + as-of timestamp + DepositAccounts URL + issuer URL
+  - expense_ratio            # n/a for deposits; prospectus net-expense for MMFs (SPAXX 0.42%, VMFXX 0.11%, SWVXX 0.34%, VUSXX 0.09%); ETF net-expense for T-bill ETFs (SGOV 0.09%, BIL 0.135%)
+  - fed_tax_treatment        # always ordinary income; 1099-INT (deposits/T-bills) or 1099-DIV (MMFs)
+  - state_tax_treatment      # HYSA/MMA/CD → fully state-taxable; Treasury MMFs / T-bill ETFs / direct T-bills → state-tax-free (IRC §103); prime MMFs → partial via USGO% (issuer publishes year-end breakdown; CA/NY/CT require ≥50% USGO for pass-through)
+  - after_tax_apy            # APY × (1 − fed_marginal − state_marginal × (1 − usgo_pct_if_applicable))
+  - insurance                # FDIC / NCUA / SIPC / "US govt full faith & credit"
+  - min_to_earn_apy
+  - monthly_fee_and_waiver
+  - tier_cap_and_blended_apy
+  - access_mechanics         # ACH only / debit / ATM network / checks / mobile deposit / T+1 settlement
+  - eligibility_friction     # credit-union field-of-membership / state / employer
+  - notes_and_gotchas        # teaser-rate cliff / post-promo APY / tier traps / early-withdrawal penalty / account-closing fees
+required_sections:
+  - source_footer            # "Primary source: DepositAccounts.com (<URL>), as-of <timestamp>"; name any one-off override here
+  - after_tax_comparison     # side-by-side table so the user sees the after-tax winner (often differs from headline-APY winner in CA / NY / OR / HI / NJ / MN brackets)
+  - considerations           # tax treatment by state, liquidity vs yield, insurance type, $250k FDIC cap, reinvestment risk, 1099 reporting
+  - notes                    # specialist notes on this user's specific shortlist
+  - what_this_is_not         # "rate survey, not a recommendation; verify on issuer site"
+  - next_step                # friendly-named follow-up skill
+
 # Saved: 2026-05-27

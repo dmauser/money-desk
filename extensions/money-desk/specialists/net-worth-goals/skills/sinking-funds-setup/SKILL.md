@@ -45,7 +45,7 @@ description: Convert known irregular expenses (annual insurance premium, car mai
 Markdown report `./reports/net-worth-goals/sinking-funds-<YYYYMMDD>.md`:
 - **Headline** — e.g., "Bumpy cash flow smoothed: $980/mo across 6 sinking-fund buckets covers $11,760 of annual irregulars."
 - **Funds table** — bucket, annual total, monthly contribution, target balance to maintain.
-- **Account structure** — recommendation with rationale. **For every HYSA / MMA / sub-account suggested, cite the DepositAccounts.com URL (category or product page) with the as-of timestamp, tagged `[UNSOURCED — verify on issuer page]`, and link the institution's own product page alongside it.** Include a one-line "Primary rate source: DepositAccounts.com" footnote (note any one-off override the user requested).
+- **Account structure** — recommendation with rationale. **For every HYSA / MMA / sub-account suggested, cite the DepositAccounts.com URL (category or product page) with the as-of timestamp, tagged `[UNSOURCED — verify on issuer page]`, and link the institution's own product page alongside it.** For each option include: expense ratio (`n/a` for deposits), federal-tax treatment (ordinary income via 1099-INT), and state-tax treatment (fully taxable for HYSA / MMA / CD; state-tax-free for T-bill alternatives if the user prefers them for sinking-fund cash with > 4-week horizons). Include a one-line "Primary rate source: DepositAccounts.com" footnote (note any one-off override the user requested).
 - **Calendar** — which fund spends in which month (so the user can see why the balances dip in some months).
 - **Action checklist** — open buckets/sub-accounts, set auto-transfers, integrate with monthly plan.
 
