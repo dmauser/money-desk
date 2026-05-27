@@ -76,3 +76,43 @@ test("every prefix is namespaced under md_", () => {
         );
     }
 });
+
+import { extractIntake, getIntake } from "../extensions/money-desk/registry.mjs";
+
+test("extractIntake parses a known SKILL.md inputs section", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const { join } = await import("node:path");
+    const { SPECIALISTS_DIR } = await import("../extensions/money-desk/registry.mjs");
+    const path = join(SPECIALISTS_DIR, "life-disability", "skills", "life-insurance-needs", "SKILL.md");
+    const body = await readFile(path, "utf8");
+    const intake = extractIntake(body);
+    assert.ok(intake && intake.length > 0, "extractIntake should return content for life-insurance-needs");
+    assert.match(intake, /Age|Income|Dependents/i, "intake should contain expected fields");
+});
+
+test("md_intake returns checklist for friendly skill name", async () => {
+    const out = await getIntake("Life Insurance Needs");
+    assert.match(out, /Intake checklist/);
+    assert.match(out, /Life & Disability/);
+    assert.match(out, /md_lp_skill_life_insurance_needs/);
+});
+
+test("md_intake without arguments lists all skills", async () => {
+    const out = await getIntake();
+    assert.match(out, /md_intake/);
+    assert.match(out, /Available skills/);
+    // should contain a row for at least one well-known skill
+    assert.match(out, /Life Insurance Needs/);
+});
+
+test("md_intake returns helpful error for unknown skill", async () => {
+    const out = await getIntake("totally_made_up_skill");
+    assert.match(out, /Unknown skill/);
+});
+
+test("skill loader prepends INTAKE FIRST banner", async () => {
+    const lifeInsurance = tools.find((t) => t.name === "md_lp_skill_life_insurance_needs");
+    const body = await lifeInsurance.handler();
+    assert.match(body, /INTAKE FIRST/);
+    assert.match(body, /Required inputs/);
+});

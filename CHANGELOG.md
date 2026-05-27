@@ -7,6 +7,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] — 2026-05-26
+
+Intake-first overhaul. Adds a new `md_intake` discovery tool, prepends a prominent
+"⚠️ INTAKE FIRST" banner to every skill load, and updates every orchestrator with
+an intake-first nudge so the agent asks the user for missing personal facts
+**before** computing — instead of silently inventing `[ASSUMPTION:]` values for
+things the user could trivially provide. Total: **18 specialists / 78 skills /
+119 tools** (up from 118 — 1 new top-level tool).
+
+### Added
+
+- 📝 **`md_intake`** — returns the structured "Inputs needed" checklist for any
+  skill before the agent runs it. Accepts the skill tool id
+  (`md_lp_skill_life_insurance_needs`), the `prefix:id` form
+  (`md_lp:life_insurance_needs`), or the friendly name (`Life Insurance Needs`).
+  Omit `skill` to list every available skill with its specialist and tool id.
+- 🚧 **Intake banner on every skill load.** `buildSkillLoader` now parses the
+  `## Inputs needed` (or `## Inputs required`) section out of each SKILL.md and
+  prepends a prominent quoted banner instructing the agent to STOP and ask the
+  user for missing inputs before running the workflow. Cost: zero changes to the
+  78 SKILL.md files — the existing prose is reused.
+- ✅ New tests covering `extractIntake` parsing, `md_intake` lookup by friendly
+  name / tool id / empty, the unknown-skill error path, and the intake banner
+  on the life-insurance-needs skill load.
+- ✅ New guardrail tests asserting every orchestrator carries the intake-first
+  nudge, and that `buildCapabilitiesSummary` documents the intake-first rule.
+
+### Changed
+
+- **`CITATION_CONVENTIONS`** clarified: `[ASSUMPTION:]` is now explicitly
+  reserved for *modeling defaults* (discount rate, vacancy %, real return) —
+  never for personal facts the user could provide. Adds an "Intake first"
+  paragraph pointing at `md_intake`.
+- **`buildCapabilitiesSummary` guardrails** lead with a new **Intake first**
+  bullet above Analysis-only / Citations / Privacy / Not professional advice.
+- **All 18 specialist orchestrators** carry a one-line "Intake first: before
+  running any skill, call `md_intake({ skill: ... })` to get its required
+  inputs; for anything missing, STOP and ask the user in plain language…"
+  nudge (injected via `scripts/inject-intake-nudge.mjs`).
+- **`extension.mjs` discovery-tool list** now mentions `md_intake` alongside
+  `md_facts` / `md_citation_conventions`; bundle-count text bumped to
+  `119 tools, 18 specialists`.
+- **README** bumped to 119 tools; "discovery tools" subsection documents
+  `md_intake`. Friendly-label `md_facts` examples replace the old
+  `[md_facts: <topic>]` raw-id form.
+
+### Why
+
+A worked example of running **Life Insurance Needs** revealed that the agent
+would happily composite an entire family profile (income, mortgage, kids,
+existing coverage) from prior conversation context — using `[ASSUMPTION:]` tags
+for items the user holds — instead of pausing to ask. `md_intake` + the banner
++ the orchestrator nudges turn that anti-pattern into an explicit gate: the
+agent reads the inputs list, asks the user once in plain language, then runs.
+
 ## [0.6.0] — 2026-05-26
 
 Citations overhaul. Replaces a single scary `[UNSOURCED]` tag with a 4-tag honesty
@@ -250,7 +305,8 @@ Initial release.
 - 82 tests covering: tool manifest consistency, route regex coverage,
   installer smoke, `[UNSOURCED]` guardrail coverage, docs sync.
 
-[Unreleased]: https://github.com/dmauser/money-desk/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/dmauser/money-desk/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/dmauser/money-desk/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/dmauser/money-desk/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/dmauser/money-desk/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/dmauser/money-desk/compare/v0.3.0...v0.4.0

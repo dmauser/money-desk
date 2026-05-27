@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js >= 18](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
 
-**Your personal-finance AI team for GitHub Copilot CLI.** 18 specialist agents with 118 tools (including a bundled 2026 facts table — IRS limits, brackets, IRMAA, FAFSA, conforming-loan, FEIE — so figures get cited from `md_facts` instead of marked `[UNSOURCED]`) covering budgeting, taxes, investing, retirement, debt, credit, health & Medicare, property & casualty insurance, life & disability insurance, estate hygiene, major purchase decisions, education / 529 planning, net worth & goals tracking, self-employed / 1099 planning, cross-specialist life-event playbooks (annual review, new baby, job change, home purchase, inheritance, layoff), real-estate investing, behavioral coaching, and international / expat planning — routed automatically. Zero runtime dependencies.
+**Your personal-finance AI team for GitHub Copilot CLI.** 18 specialist agents with 119 tools (including a bundled 2026 facts table — IRS limits, brackets, IRMAA, FAFSA, conforming-loan, FEIE — so figures get cited from `md_facts` instead of marked `[UNSOURCED]`, and an `md_intake` checklist tool that surfaces each skill's required inputs BEFORE it runs so the agent asks the user instead of inventing values) covering budgeting, taxes, investing, retirement, debt, credit, health & Medicare, property & casualty insurance, life & disability insurance, estate hygiene, major purchase decisions, education / 529 planning, net worth & goals tracking, self-employed / 1099 planning, cross-specialist life-event playbooks (annual review, new baby, job change, home purchase, inheritance, layoff), real-estate investing, behavioral coaching, and international / expat planning — routed automatically. Zero runtime dependencies.
 
 ---
 
@@ -79,8 +79,9 @@ Plus four top-level discovery / reference tools:
 
 - `md_capabilities` — list the full team and their skills.
 - `md_route` — given a query, return the most relevant specialist(s).
-- `md_facts` — curated 2026 reference data (IRS contribution limits, tax brackets, IRMAA brackets, FAFSA / Pell, Social Security wage base, Medicare premiums, estate exemptions, FEIE, conforming-loan limits, Section 121 exclusion, Federal Poverty Level, ~30 topics total). Specialists cite from this table as `[md_facts: <topic>]` instead of `[UNSOURCED]`.
-- `md_citation_conventions` — the 4-tag honesty vocabulary (`[USER-PROVIDED]`, `[ASSUMPTION: <value>]`, `[md_facts: <topic>]`, `[UNSOURCED]`) used across every specialist.
+- `md_facts` — curated 2026 reference data (IRS contribution limits, tax brackets, IRMAA brackets, FAFSA / Pell, Social Security wage base, Medicare premiums, estate exemptions, FEIE, conforming-loan limits, Section 121 exclusion, Federal Poverty Level, ~30 topics total). Specialists cite from this table using the topic's friendly label (e.g. `[IRS 2026 limits]`, `[CMS Medicare 2026]`) instead of `[UNSOURCED]`.
+- `md_intake` — returns the structured "Inputs needed" checklist for any skill BEFORE you run it, so the agent can ask the user for missing inputs (grouped into one message) instead of inventing values. Pass the skill tool id, the `prefix:id` form, or the friendly name (e.g. `Life Insurance Needs`). Omit `skill` to list every skill.
+- `md_citation_conventions` — the 4-tag honesty vocabulary (`[USER-PROVIDED]`, `[ASSUMPTION: <value>]`, `[<Friendly Source Label>]`, `[UNSOURCED]`) used across every specialist.
 
 ## Installation
 
@@ -312,7 +313,7 @@ You don't need to call these manually — just describe what you need and the ro
 
 ### Registry as the source of truth
 
-All 118 tools are derived from a single declarative `SPECIALISTS` table in [`extensions/money-desk/registry.mjs`](extensions/money-desk/registry.mjs). That table — not `extension.mjs` — is what you edit to add or modify a specialist or skill. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full how-to.
+All 119 tools are derived from a single declarative `SPECIALISTS` table in [`extensions/money-desk/registry.mjs`](extensions/money-desk/registry.mjs). That table — not `extension.mjs` — is what you edit to add or modify a specialist or skill. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full how-to.
 
 ### Privacy
 

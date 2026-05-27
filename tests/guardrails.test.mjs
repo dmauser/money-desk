@@ -54,3 +54,19 @@ test("global capabilities summary documents the friendly-name convention", () =>
     const summary = buildCapabilitiesSummary();
     assert.match(summary, /friendly name/i, "buildCapabilitiesSummary() must document the friendly-name rule");
 });
+
+const INTAKE_RULE = /md_intake|intake first/i;
+
+test("every specialist orchestrator instructs the model to call md_intake first", () => {
+    const missing = SPECIALISTS.filter((s) => !INTAKE_RULE.test(s.orchestrator));
+    assert.deepEqual(
+        missing.map((s) => s.prefix),
+        [],
+        `These orchestrators are missing the intake-first nudge: ${missing.map((s) => s.prefix).join(", ")}`,
+    );
+});
+
+test("global capabilities summary documents the intake-first rule", () => {
+    const summary = buildCapabilitiesSummary();
+    assert.match(summary, INTAKE_RULE, "buildCapabilitiesSummary() must mention md_intake or intake-first");
+});

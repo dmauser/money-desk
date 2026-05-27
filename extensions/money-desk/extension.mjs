@@ -24,7 +24,7 @@ const PRESENCE_NOTE =
     "Retirement Planner, Debt Strategist, Credit & Identity, Health & Medicare, Property & Casualty, " +
     "Life & Disability, Estate & Legacy, Purchase Advisor, Education Planner, Net Worth & Goals, " +
     "Self-Employed Planner, Life Events, Real Estate Investor, Behavioral Coach, International / Expat. " +
-    "Discovery tools available right now: `md_capabilities` (full map), `md_route` (pick a specialist for a query), `md_facts` (curated 2026 reference data — IRS limits, tax brackets, IRMAA, FAFSA, real-estate / expat thresholds), `md_citation_conventions` (the 4-tag honesty vocabulary). " +
+    "Discovery tools available right now: `md_capabilities` (full map), `md_route` (pick a specialist for a query), `md_intake` (required-input checklist for a skill — call BEFORE running it so you know what to ask the user), `md_facts` (curated 2026 reference data — IRS limits, tax brackets, IRMAA, FAFSA, real-estate / expat thresholds), `md_citation_conventions` (the 4-tag honesty vocabulary). " +
     "Specialist tool prefixes: md_bc_, md_tx_, md_iv_, md_rp_, md_ds_, md_ci_, md_ih_, md_pc_, md_lp_, md_el_, md_pa_, md_ed_, md_nw_, md_se_, md_le_, md_re_, md_bh_, md_in_. " +
     "When the user mentions personal finance, budgeting, taxes, investing, retirement, debt, credit, " +
     "insurance (health / auto / home / life / disability / Medicare / LTC), estate planning, a major purchase decision, " +
@@ -42,7 +42,7 @@ const MD_MENTION = /(^|[^\w])@?money[\s-]?desk\b/i;
 
 const MD_DIRECT_INSTRUCTION =
     "[money-desk — DIRECT MENTION] The user just referenced the money-desk extension by name. " +
-    "It IS loaded in this session (118 tools, 18 specialists). " +
+    "It IS loaded in this session (119 tools, 18 specialists). " +
     "Do NOT tell the user money-desk is unavailable, unknown, or not part of the CLI. " +
     "REQUIRED next action: call the `md_capabilities` tool now to retrieve the specialist map, " +
     "then answer the user's question using that information. " +
