@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.3] — 2026-05-27
+
+### Changed
+
+- **Investing Advisor route regex broadened** for cash-yield phrasing so
+  prompts like "where to keep my cash", "stash my savings", "rate on my
+  savings account", "APY on my savings", "interest on my emergency fund",
+  "emergency fund yield", "my savings is earning 0.05%", "6-month CD",
+  "money market account / fund", "MMDA APY", "online savings", and direct
+  references to "depositaccounts.com" / "bankrate" all auto-route to
+  Investing Advisor (which can then run **Cash Yield Check**). Verified
+  against a 36-phrase keyword fixture; no false negatives on common cash
+  shopping language.
+
 ## [0.11.2] — 2026-05-27
 
 ### Added
