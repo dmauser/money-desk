@@ -3,7 +3,7 @@
 
 # Money Desk Capabilities
 
-Money Desk ships **18 specialists** with **78 skills** plus 2 discovery tools (`md_capabilities`, `md_route`) — a total of **116 tools** registered with Copilot CLI.
+Money Desk ships **19 specialists** with **86 skills** plus 2 discovery tools (`md_capabilities`, `md_route`) — a total of **126 tools** registered with Copilot CLI.
 
 ## Specialists
 
@@ -27,6 +27,7 @@ Money Desk ships **18 specialists** with **78 skills** plus 2 discovery tools (`
 | 16 | 🏘️ Real Estate Investor | `md_re` | `md_re_role` | `md_re_orchestrate` | `rental`, `property`, `real`, `estate` |
 | 17 | 🧠 Behavioral Coach | `md_bh` | `md_bh_role` | `md_bh_orchestrate` | `panic`, `FOMO`, `loss`, `aversion` |
 | 18 | 🌍 International / Expat | `md_in` | `md_in_role` | `md_in_orchestrate` | `expat`, `expatriate`, `citizen`, `abroad` |
+| 19 | 🎓 Financial Literacy | `md_fl` | `md_fl_role` | `md_fl_orchestrate` | `what`, `does`, `what`, `explain` |
 
 ## Skills by specialist
 
@@ -197,6 +198,19 @@ Money Desk ships **18 specialists** with **78 skills** plus 2 discovery tools (`
 | **Cross-Border Investing** | `md_in_skill_cross_border_investing` | the PFIC trap on non-US mutual funds / ETFs (rule: US persons buy US-domiciled funds ONLY), US-broker residency restrictions (Schwab International / IBKR for expats), US tax treatment of foreign retirement accounts (UK ISA / SIPP, Canadian TFSA / RRSP, Australian super), and cross-border brokerage architecture. |
 | **Currency / FX Exposure** | `md_in_skill_currency_fx_exposure` | map income / liability / asset currency mismatch, recommend emergency-fund + short-term-goal currency placement, equity-vs-bond currency rules of thumb, the real cost of cross-border transfers (bank 2.5-4% vs Wise / IBKR 0.4-0.7%), and when (rarely) a forward-contract hedge is worth doing for a defined upcoming liability. |
 | **Moving Country Checklist** | `md_in_skill_moving_country_checklist` | T-12 / T-6 / T-1 / T+90 day runbook for an international move: tax-residency disengagement, brokerage migration (before move), insurance bridge, mail forwarding, first-year split-FEIE filing, beneficiary review with destination-country succession law, and the §877A exit-tax screen if renouncing US citizenship. |
+
+### 🎓 Financial Literacy (`md_fl`)
+
+| Skill | Tool | What it does |
+|-------|------|--------------|
+| **Concept Explainer** | `md_fl_skill_concept_explainer` | plain-language explanation of any personal-finance concept at user-chosen depth (beginner / intermediate / pro). Defines jargon inline on first use, offers one well-chosen analogy where it helps, includes a worked example with concrete numbers, names the common misconception, anchors to 'here's why this matters for you', and ends with a pointer to the diagnostic specialist that uses the concept. |
+| **Glossary Lookup** | `md_fl_skill_glossary_lookup` | terse one-paragraph definition of a personal-finance term plus the one thing most people get wrong about it plus a deep-dive pointer. The 'I just need a quick answer' companion to Concept Explainer. Covers APR vs APY, expense ratio, Backdoor / Mega Backdoor Roth, PMI, HSA triple tax advantage, step-up basis, term vs whole, DCA, and the rest of the standard vocabulary. |
+| **Paycheck Walkthrough** | `md_fl_skill_paycheck_walkthrough` | line-by-line decode of a pay stub: gross / FIT / FICA OASDI / FICA Medicare / state / SDI / 401(k) / HSA / health premiums / net. Names every deduction, computes the take-home %, flags common red flags (OASDI past wage base, Medicare Additional, stale W-4, miscoded state tax, missing HSA, supplemental-rate bonus). Hand-off to Withholding Check for the personal recommendation. |
+| **Account Type Map** | `md_fl_skill_account_type_map` | visual hierarchy of every common US personal-finance account (checking, HYSA, money market, CD, I-Bonds, brokerage, Traditional / Roth 401(k), Traditional / Roth IRA, HSA, FSA, 529, custodial UTMA / UGMA) with what each is FOR, tax treatment (in / growth / out), 2026 annual limit (from md_facts), and the default 10-step placement order. The 'I have an extra $500 — where does it go?' decoder ring. |
+| **Money Myths Debunk** | `md_fl_skill_money_myths_debunk` | evidence-based correction of common personal-finance myths. Each myth gets a verdict (TRUE / MOSTLY TRUE / IT DEPENDS / MOSTLY FALSE / FALSE), the kernel of truth that lets it spread, the actual evidence with primary citations, the better mental model, and a pointer to the diagnostic skill that runs the personalized version. Covers 'credit cards are bad', 'renting throws money away', 'max your 401(k)', 'carry a small balance to build credit', 'whole life is an investment', 'time in beats timing', '30-year + invest the difference', 'pay off your mortgage early'. |
+| **Statement Walkthrough** | `md_fl_skill_statement_walkthrough` | generic decode of a brokerage / 401(k) / mortgage / EOB statement. Walks the universal sections (summary box → holdings or activity → fees → footer), names every line, flags the verify-this items (cost basis, beneficiary, vesting, escrow shortage, PMI removability, EOB vs actual bill reconciliation, surprise-billing protection), and ends with one specific next step. |
+| **Beginner Roadmap** | `md_fl_skill_beginner_roadmap` | 12-month sequenced curriculum for someone starting from zero. Each month has one focus, one thing to learn, one specific action, and one diagnostic skill to run. Sequence: money diary → concept literacy → 1-month emergency fund → 401(k) match → debt triage → credit basics → insurance baseline → Roth IRA → finish emergency fund → tax intuition → investment basics → net-worth snapshot. The 'where do I even start?' replacer. |
+| **Teach a Kid** | `md_fl_skill_teach_a_kid` | age-appropriate money lessons across five stages (preschool 3-5, early elementary 6-9, late elementary 10-13, high school 14-17, young adult 18-22). Each stage has the developmentally-right concept, a concrete activity, and the trap to avoid. Bonus deep dive on the custodial Roth IRA for a teenager with earned income — $3,000 contributed at 16 ≈ $100k at 67 — the single highest-leverage money move available to a parent. |
 
 ## Discovery tools
 

@@ -25,6 +25,7 @@ const CANONICAL_PHRASES = {
     md_re: "Underwrite this rental property — run cap rate, cash-on-cash, and a sell-vs-hold analysis.",
     md_bh: "The market just dropped 5% and I want to sell everything — should I?",
     md_in: "I'm a US citizen moving to Portugal next year — what about FBAR, PFICs, and FEIE vs FTC?",
+    md_fl: "Can you explain what a Roth IRA is in plain English?",
 };
 
 test("every prefix has a canonical phrase fixture", () => {

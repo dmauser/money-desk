@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] — 2026-05-27
+
+New **Financial Literacy** specialist (`md_fl`) — the on-ramp and plain-language
+interpreter for the rest of Money Desk. While the other 18 specialists are
+*diagnostic* ("analyze my X, recommend Y"), this one is **explanatory**: its
+job is to make the concept click, define the term, demystify the document, or
+set up the foundational mental model — then hand off to the right diagnostic
+specialist. No shaming, ever.
+
+### Added
+
+- 🎓 **New specialist:** Financial Literacy (`md_fl`, 19th specialist) with
+  8 skills:
+  - **Concept Explainer** — any money concept at user-chosen depth (beginner / intermediate / pro)
+  - **Glossary Lookup** — terse definitions + "what most people get wrong" + deep-dive pointer
+  - **Paycheck Walkthrough** — line-by-line pay stub decode, red flags, hand-off to Withholding Check
+  - **Account Type Map** — every common account (checking / HYSA / 401k / IRA / HSA / 529 / I-Bonds) with tax treatment + the 10-step default placement order
+  - **Money Myths Debunk** — evidence-based corrections (credit cards bad, renting throws money away, max your 401k, carry a small balance, whole life is investment, time vs timing, etc.) with verdicts and primary citations
+  - **Statement Walkthrough** — generic decode of brokerage / 401(k) / mortgage / EOB statements
+  - **Beginner Roadmap** — 12-month sequenced curriculum for someone starting from zero
+  - **Teach a Kid** — age-appropriate money lessons across 5 stages + the custodial Roth IRA pitch ($3k at 16 ≈ $100k at 67)
+- 📊 **Specialist count:** 18 → **19**.
+- 🧰 **Tool count:** 119 → **129** (8 skill tools + role + orchestrator).
+- 🛣️ **Route regex** triggers on educational phrasings: "what is X?", "explain Y in plain English", "is it true that...?", "where do I start?", "teach my kid about money", "APR vs APY", "compound interest", "Roth vs Traditional", paycheck/statement walkthroughs, etc.
+
+### Design — explanatory, not diagnostic
+
+- Most Financial Literacy skills **don't have an intake gate** (deliberately) —
+  explaining a concept shouldn't require a structured form first. The two
+  exceptions (Paycheck Walkthrough, Statement Walkthrough) do gate, since
+  those need the actual document.
+- Every output ends with **one specific next step** — either a glossary term
+  to look up next, the diagnostic skill that uses the concept, or a concrete
+  action for the week.
+- **No fabricated statistics.** If a citation isn't available, the skill says
+  `[UNSOURCED]` and tells the user to verify — never "studies show 90% of
+  people…".
+- **No security ticker recommendations.** "Here's what an ETF is" → in scope.
+  "VTSAX is the best ETF" → out of scope.
+
+### Tests
+
+- New canonical-phrase fixture for `md_fl`.
+- Regenerated `docs/CAPABILITIES.md`.
+- **179/179 pass** (was 168).
+
 ## [0.9.0] — 2026-05-27
 
 Intake gate now emits **ready-to-use `ask_user` JSON schemas** for the 10
@@ -399,7 +445,8 @@ Initial release.
 - 82 tests covering: tool manifest consistency, route regex coverage,
   installer smoke, `[UNSOURCED]` guardrail coverage, docs sync.
 
-[Unreleased]: https://github.com/dmauser/money-desk/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/dmauser/money-desk/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/dmauser/money-desk/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/dmauser/money-desk/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/dmauser/money-desk/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/dmauser/money-desk/compare/v0.6.0...v0.7.0
