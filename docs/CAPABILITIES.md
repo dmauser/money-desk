@@ -3,7 +3,7 @@
 
 # Money Desk Capabilities
 
-Money Desk ships **12 specialists** with **48 skills** plus 2 discovery tools (`md_capabilities`, `md_route`) — a total of **74 tools** registered with Copilot CLI.
+Money Desk ships **12 specialists** with **56 skills** plus 2 discovery tools (`md_capabilities`, `md_route`) — a total of **82 tools** registered with Copilot CLI.
 
 ## Specialists
 
@@ -41,6 +41,7 @@ Money Desk ships **12 specialists** with **48 skills** plus 2 discovery tools (`
 | **Withholding Check** | `md_tx_skill_withholding_check` | project full-year federal tax liability vs YTD withholding from pay stubs; recommend W-4 adjustments or quarterly estimated payments to land within safe-harbor. |
 | **Deductions Review** | `md_tx_skill_deductions_review` | compare standard vs itemized; surface candidate deductions (SALT cap, mortgage interest, charitable, medical above-AGI-threshold, HSA, student-loan interest); flag above/below-the-line distinctions. |
 | **Tax-Loss Harvest Review** | `md_tx_skill_tax_loss_harvest_review` | review taxable-brokerage lots for unrealized losses, surface wash-sale risk (30-day window), and quantify carryover capacity. Identifies harvest candidates; does NOT place trades. |
+| **Charitable Giving Strategy** | `md_tx_skill_charitable_giving_strategy` | optimize charitable giving across cash vs appreciated securities vs QCD (age 70½+) vs DAF bunching. Computes federal + state tax savings under each path; respects AGI caps (60% cash / 30% appreciated for public charities) and Form 8283 thresholds. |
 
 ### 📈 Investing Advisor (`md_iv`)
 
@@ -50,6 +51,8 @@ Money Desk ships **12 specialists** with **48 skills** plus 2 discovery tools (`
 | **Allocation Check** | `md_iv_skill_allocation_check` | compare current allocation to target (stocks/bonds/cash, US/international, large/small, factor tilts); surface drift, glidepath issues, and tax-location mismatches. |
 | **Rebalance Plan** | `md_iv_skill_rebalance_plan` | produce a buy/sell list to return the portfolio to target, prioritizing new contributions and tax-advantaged accounts first to minimize tax drag. Outputs trade list with rationale; does NOT execute. |
 | **Fund Expense Audit** | `md_iv_skill_fund_expense_audit` | audit expense ratios across all funds; identify high-cost funds, suggest comparable low-cost replacements, and quantify annual & 30-year cost drag of current lineup. |
+| **Investment Policy Statement** | `md_iv_skill_investment_policy_statement` | draft a one-page personal IPS codifying goals, time horizon, target allocation, account placement, contribution waterfall, rebalancing rule, and behavioral guardrails. The pre-commitment device that prevents panic-selling during drawdowns. |
+| **Asset Location Review** | `md_iv_skill_asset_location_review` | place each asset class in the most tax-efficient account type (bonds/REITs → tax-deferred; broad equity → taxable; highest-expected-return → Roth & HSA). Quantifies the tax-drag of current placement and produces a no-cost migration plan. |
 
 ### 🏖️ Retirement Planner (`md_rp`)
 
@@ -59,6 +62,7 @@ Money Desk ships **12 specialists** with **48 skills** plus 2 discovery tools (`
 | **Contribution Optimizer** | `md_rp_skill_contribution_optimizer` | given cash flow, optimize the order of contributions: 401(k) up to employer match → HSA → max Roth → max 401(k) → backdoor/mega-backdoor Roth → taxable. Flag limits and phase-outs. |
 | **Withdrawal Strategy** | `md_rp_skill_withdrawal_strategy` | sequence of withdrawals across taxable / tax-deferred / Roth in retirement to minimize lifetime tax and preserve Roth. Includes Roth conversion ladder analysis between retirement and RMD age. |
 | **Social Security Review** | `md_rp_skill_social_security_review` | review estimated PIA from SSA statement, model claim ages (62 / FRA / 70), spousal/survivor considerations, and break-even analysis. Not a substitute for SSA's calculator. |
+| **RMD Planner** | `md_rp_skill_rmd_planner` | compute current-year Required Minimum Distributions per account, project the 10-year RMD path against tax brackets + IRMAA tiers, size pre-RMD Roth conversions to level the trajectory, and model QCD (age 70½+) overlays. Cites SECURE 2.0 age rules (73 / 75). |
 
 ### 💳 Debt Strategist (`md_ds`)
 
@@ -86,6 +90,9 @@ Money Desk ships **12 specialists** with **48 skills** plus 2 discovery tools (`
 | **Policy Comparison** | `md_ir_skill_policy_comparison` | side-by-side comparison of two or more quotes/policies on premium, deductible, limits, exclusions, network (health), and total expected cost given assumed utilization. Surfaces apples-to-apples differences. |
 | **Life Insurance Needs** | `md_ir_skill_life_insurance_needs` | compute term-life coverage need using DIME (Debt, Income replacement, Mortgage, Education) plus existing assets and expected Social Security survivor benefits. Recommends term length (e.g. 20y to youngest-child-age-22). |
 | **Deductible Optimizer** | `md_ir_skill_deductible_optimizer` | for auto / home / health: model premium savings at higher deductibles against the marginal out-of-pocket risk; identify the deductible where annual premium savings × expected years > deductible delta. |
+| **Disability Insurance Review** | `md_ir_skill_disability_insurance_review` | audit group LTD (definition of disability, benefit cap, taxability, mental/nervous limit, portability) and size the supplemental individual policy gap. Recommends true own-occupation + non-cancelable + future-purchase rider for high earners and specialty professions. |
+| **Medicare & IRMAA Review** | `md_ir_skill_medicare_irmaa_review` | plan Parts A/B/C/D enrollment timing (IEP/SEP, late penalties), Medigap vs Medicare Advantage tradeoffs, HSA shutdown timing, and the 2-year MAGI lookback that drives IRMAA surcharges. Flags SSA-44 appeal opportunities after life-changing events. |
+| **Long-Term Care Planning** | `md_ir_skill_ltc_planning` | size the LTC liability against state-specific cost data; choose between self-insure / traditional LTC insurance / hybrid life+LTC / annuity+LTC / Medicaid planning. Surfaces partnership-program state-asset protection and prioritizes wife-coverage in couples. |
 
 ### 📜 Estate & Legacy (`md_el`)
 
@@ -95,6 +102,7 @@ Money Desk ships **12 specialists** with **48 skills** plus 2 discovery tools (`
 | **Beneficiary Audit** | `md_el_skill_beneficiary_audit` | audit primary + contingent beneficiaries across retirement accounts, life insurance, TOD/POD accounts. Flag stale designations (ex-spouse, deceased, minor child without trust). Beneficiary designations OVERRIDE wills — getting this right matters. |
 | **Basics Checklist** | `md_el_skill_basics_checklist` | minimum-viable estate hygiene checklist appropriate for the user's situation (single / married / kids / business owner): will, POA, advance directive, beneficiary designations, digital estate, letter of intent. Outputs a status list (have / need / outdated). |
 | **Digital Estate Review** | `md_el_skill_digital_estate_review` | inventory digital assets (password manager, crypto, cloud storage, social accounts, domain names, subscriptions) and document access provisions for the executor. References platform-specific legacy-contact features (Apple, Google, Facebook). |
+| **Gifting Strategy** | `md_el_skill_gifting_strategy` | plan lifetime gifts (annual exclusion, direct-pay medical & tuition, 529 superfunding, appreciated securities, lifetime estate-exemption usage) and track Form 709 triggers. Flags the 2025 federal exemption sunset and state-estate-tax exposure (NY/MA/OR/WA cliffs). |
 
 ### 🛒 Purchase Advisor (`md_pa`)
 

@@ -7,7 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.0] — 2026-05-26
+## [0.3.0] — 2026-05-26
+
+Phase 2 of the deep-review expansion: 8 new skills backfilled into 5 existing
+specialists. Total: **12 specialists / 56 skills / 82 tools** (up from 12 / 48
+/ 74). Lifts CFP Board topic coverage from ~80% to ~95%.
+
+### Added
+
+- 💝 **Charitable Giving Strategy** (`md_tx_skill_charitable_giving_strategy`)
+  — cash vs appreciated securities vs QCD vs DAF bunching with AGI caps.
+- 📋 **Investment Policy Statement** (`md_iv_skill_investment_policy_statement`)
+  — one-page personal IPS with allocation, rebalancing rule, behavioral guardrails.
+- 🗂️ **Asset Location Review** (`md_iv_skill_asset_location_review`) — place
+  bonds/REITs in tax-deferred, equity in taxable, high-growth in Roth/HSA.
+- 📐 **RMD Planner** (`md_rp_skill_rmd_planner`) — SECURE 2.0 RMD calc + 10-year
+  projection, pre-RMD Roth conversion sizing, QCD overlay.
+- 🏥 **Medicare & IRMAA Review** (`md_ir_skill_medicare_irmaa_review`) —
+  Parts A/B/C/D enrollment, Medigap vs Advantage, 2-year MAGI lookback, SSA-44 appeal.
+- 🏡 **Long-Term Care Planning** (`md_ir_skill_ltc_planning`) — state-specific
+  cost sizing, self-insure / traditional LTC / hybrid life+LTC / Medicaid paths.
+- 🦽 **Disability Insurance Review** (`md_ir_skill_disability_insurance_review`)
+  — group LTD audit + individual gap-fill (own-occupation, non-cancelable).
+- 🎁 **Gifting Strategy** (`md_el_skill_gifting_strategy`) — annual exclusion,
+  direct-pay medical/tuition, 529 superfunding, lifetime exemption tracking,
+  2025 sunset action items.
+
+### Changed
+
+- `md_tx`, `md_iv`, `md_rp`, `md_ir`, `md_el` route regexes expanded with new
+  trigger keywords (QCD, DAF, IPS, asset location, RMD, Medicare, IRMAA, LTC,
+  long-term care, disability, own-occupation, gift tax, Form 709, etc.).
+- Orchestrators updated to list new skills.
+
+
 
 Phase 1 of the deep-review expansion: 3 new specialists × 4 skills each (12 new
 skills, 18 new tools). Total: **12 specialists / 48 skills / 74 tools** (up from
@@ -88,6 +121,7 @@ Initial release.
 - 82 tests covering: tool manifest consistency, route regex coverage,
   installer smoke, `[UNSOURCED]` guardrail coverage, docs sync.
 
-[Unreleased]: https://github.com/dmauser/money-desk/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/dmauser/money-desk/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/dmauser/money-desk/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/dmauser/money-desk/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/dmauser/money-desk/releases/tag/v0.1.0

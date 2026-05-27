@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js >= 18](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
 
-**Your personal-finance AI team for GitHub Copilot CLI.** 12 specialist agents with 74 tools covering budgeting, taxes, investing, retirement, debt, credit, insurance, estate hygiene, major purchase decisions, education / 529 planning, net worth & goals tracking, and self-employed / 1099 planning — routed automatically. Zero runtime dependencies.
+**Your personal-finance AI team for GitHub Copilot CLI.** 12 specialist agents with 82 tools covering budgeting, taxes, investing, retirement, debt, credit, insurance, estate hygiene, major purchase decisions, education / 529 planning, net worth & goals tracking, and self-employed / 1099 planning — routed automatically. Zero runtime dependencies.
 
 ---
 
@@ -67,7 +67,7 @@ Each specialist exposes:
 
 - `<prefix>_role` — the specialist's persona and workflow.
 - `<prefix>_orchestrate` — step-by-step orchestration prompt.
-- `<prefix>_skill_<id>` — one per skill (4 per specialist).
+- `<prefix>_skill_<id>` — one per skill (4 per specialist, except Insurance Reviewer 7, Investing Advisor 6, Retirement Planner 5, Tax Planner 5, Estate & Legacy 5).
 
 Plus two top-level discovery tools:
 
@@ -304,7 +304,7 @@ You don't need to call these manually — just describe what you need and the ro
 
 ### Registry as the source of truth
 
-All 74 tools are derived from a single declarative `SPECIALISTS` table in [`extensions/money-desk/registry.mjs`](extensions/money-desk/registry.mjs). That table — not `extension.mjs` — is what you edit to add or modify a specialist or skill. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full how-to.
+All 82 tools are derived from a single declarative `SPECIALISTS` table in [`extensions/money-desk/registry.mjs`](extensions/money-desk/registry.mjs). That table — not `extension.mjs` — is what you edit to add or modify a specialist or skill. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full how-to.
 
 ### Privacy
 

@@ -1,6 +1,6 @@
 {
   "name": "money-desk",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Your personal-finance AI team for GitHub Copilot CLI — 12 specialist agents (budget, tax, investing, retirement, debt, credit, insurance, estate, purchase decisions, education / 529, net worth & goals, self-employed / 1099), one install.",
   "type": "module",
   "bin": {

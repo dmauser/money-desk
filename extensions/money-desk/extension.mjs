@@ -38,7 +38,7 @@ const MD_MENTION = /(^|[^\w])@?money[\s-]?desk\b/i;
 
 const MD_DIRECT_INSTRUCTION =
     "[money-desk — DIRECT MENTION] The user just referenced the money-desk extension by name. " +
-    "It IS loaded in this session (74 tools, 12 specialists). " +
+    "It IS loaded in this session (82 tools, 12 specialists). " +
     "Do NOT tell the user money-desk is unavailable, unknown, or not part of the CLI. " +
     "REQUIRED next action: call the `md_capabilities` tool now to retrieve the specialist map, " +
     "then answer the user's question using that information. " +
