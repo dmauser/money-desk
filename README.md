@@ -51,42 +51,45 @@ Each specialist runs with its own domain expertise, guardrails, and step-by-step
 
 ## The Team
 
+Twenty specialists, one coordinator. Say what you need in plain English — the router picks the right desk.
+
 | Specialist | Prefix | What They Do |
 |------------|--------|--------------|
-| **Budget Coach** | `md_bc` | Cashflow reviews, category audits, zero-based monthly plans, subscription cleanup |
-| **Tax Planner** | `md_tx` | Return-prep checklists, withholding checks, deductions reviews, tax-loss harvesting |
-| **Investing Advisor** | `md_iv` | Portfolio reviews, allocation checks, rebalance plans, fund-expense audits |
-| **Retirement Planner** | `md_rp` | Retirement projections, contribution optimization, withdrawal sequencing, Social Security |
-| **Debt Strategist** | `md_ds` | Payoff plans (avalanche/snowball), refinance analysis, credit-card strategy, student loans |
-| **Credit & Identity** | `md_ci` | Credit-report reviews, score-improvement plans, dispute letters, ID-theft response |
-| **Insurance — Health & Medicare** | `md_ih` | Health-plan selection (HDHP+HSA vs PPO), Medicare IRMAA, LTC planning |
-| **Insurance — Property & Casualty** | `md_pc` | Auto / home / renters declarations-page audit, deductible optimizer, umbrella sizing |
-| **Insurance — Life & Disability** | `md_lp` | Life-insurance needs (DIME/HLV), individual disability review, beneficiary audit |
-| **Estate & Legacy** | `md_el` | Document inventories, beneficiary audits, basics checklist, digital-estate review |
-| **Purchase Advisor** | `md_pa` | Buy-vs-lease, rent-vs-buy, big-purchase reviews, total cost of ownership |
-| **Education Planner** | `md_ed` | 529 reviews, college-cost projections, FAFSA / financial-aid positioning, account-type selection |
-| **Net Worth & Goals** | `md_nw` | Net-worth snapshots, emergency-fund sizing, goal-based savings plans, sinking funds |
-| **Self-Employed Planner** | `md_se` | Solo 401k / SEP / SIMPLE selector, quarterly estimated taxes, S-corp election, Schedule C / QBI review |
-| **Life Events** | `md_le` | Cross-specialist orchestrator — annual review, new baby, job change, home purchase, inheritance, layoff playbooks |
-| **Real Estate Investor** | `md_re` | Rental-property underwriting (cap rate, cash-on-cash, DSCR), mortgage/refi strategy, house-hacking, real-estate tax strategy (depreciation, 1031, cost segregation), sell-vs-hold |
-| **Behavioral Coach** | `md_bh` | Panic / FOMO circuit-breaker, money-script diagnostic, decision journal, couples money alignment, lifestyle-inflation audit |
-| **International / Expat** | `md_in` | US-expat tax overview (FBAR, FATCA, FEIE vs FTC), cross-border investing (PFIC traps), currency/FX exposure, moving-country checklist |
-| **Financial Literacy** | `md_fl` | Plain-language concept explainer (depth-calibrated), glossary lookups, paycheck walkthrough, account-type map, money-myths debunk, statement walkthrough (brokerage/401k/mortgage/EOB), 12-month beginner roadmap, teach-a-kid lessons + custodial Roth IRA pitch |
-| **FIRE Planner** 🔥 | `md_fi` | Financial-Independence / Retire-Early strategy: FIRE number calculator, safe-withdrawal stress test (Bengen / Trinity / Kitces / VPW), lean / coast / barista / chubby / fat classifier, savings-rate optimizer, pre-59½ bridge strategy (SEPP/72(t), Roth ladder), pre-65 healthcare plan (ACA-MAGI / HSA), withdrawal-order optimizer, geographic arbitrage planner |
+| 💰 **Budget Coach** | `md_bc` | Cashflow reviews, category audits, zero-based monthly plans, subscription cleanup |
+| 🧾 **Tax Planner** | `md_tx` | Return-prep checklists, withholding checks, deductions reviews, tax-loss harvesting |
+| 📈 **Investing Advisor** | `md_iv` | Portfolio reviews, allocation checks, rebalance plans, fund-expense audits |
+| 🏖️ **Retirement Planner** | `md_rp` | Retirement projections, contribution optimization, withdrawal sequencing, Social Security |
+| 💳 **Debt Strategist** | `md_ds` | Payoff plans (avalanche/snowball), refinance analysis, credit-card strategy, student loans |
+| 🛡️ **Credit & Identity** | `md_ci` | Credit-report reviews, score-improvement plans, dispute letters, ID-theft response |
+| 🏥 **Insurance — Health & Medicare** | `md_ih` | Health-plan selection (HDHP+HSA vs PPO), Medicare IRMAA, LTC planning |
+| ☂️ **Insurance — Property & Casualty** | `md_pc` | Auto / home / renters declarations-page audit, deductible optimizer, umbrella sizing |
+| 🪢 **Insurance — Life & Disability** | `md_lp` | Life-insurance needs (DIME/HLV), individual disability review, beneficiary audit |
+| 📜 **Estate & Legacy** | `md_el` | Document inventories, beneficiary audits, basics checklist, digital-estate review |
+| 🛒 **Purchase Advisor** | `md_pa` | Buy-vs-lease, rent-vs-buy, big-purchase reviews, total cost of ownership |
+| 🎓 **Education Planner** | `md_ed` | 529 reviews, college-cost projections, FAFSA / financial-aid positioning, account-type selection |
+| 📊 **Net Worth & Goals** | `md_nw` | Net-worth snapshots, emergency-fund sizing, goal-based savings plans, sinking funds |
+| 🧑‍💻 **Self-Employed Planner** | `md_se` | Solo 401k / SEP / SIMPLE selector, quarterly estimated taxes, S-corp election, Schedule C / QBI review |
+| 🗓️ **Life Events** | `md_le` | Cross-specialist orchestrator — annual review, new baby, job change, home purchase, inheritance, layoff playbooks |
+| 🏘️ **Real Estate Investor** | `md_re` | Rental-property underwriting (cap rate, cash-on-cash, DSCR), mortgage/refi strategy, house-hacking, real-estate tax strategy (depreciation, 1031, cost segregation), sell-vs-hold |
+| 🧠 **Behavioral Coach** | `md_bh` | Panic / FOMO circuit-breaker, money-script diagnostic, decision journal, couples money alignment, lifestyle-inflation audit |
+| 🌍 **International / Expat** | `md_in` | US-expat tax overview (FBAR, FATCA, FEIE vs FTC), cross-border investing (PFIC traps), currency/FX exposure, moving-country checklist |
+| 📚 **Financial Literacy** | `md_fl` | Plain-language concept explainer (depth-calibrated), glossary lookups, paycheck walkthrough, account-type map, money-myths debunk, statement walkthrough (brokerage/401k/mortgage/EOB), 12-month beginner roadmap, teach-a-kid lessons + custodial Roth IRA pitch |
+| 🔥 **FIRE Planner** | `md_fi` | Financial-Independence / Retire-Early strategy: FIRE number calculator, safe-withdrawal stress test (Bengen / Trinity / Kitces / VPW), lean / coast / barista / chubby / fat classifier, savings-rate optimizer, pre-59½ bridge strategy (SEPP/72(t), Roth ladder), pre-65 healthcare plan (ACA-MAGI / HSA), withdrawal-order optimizer, geographic arbitrage planner |
 
 Each specialist exposes:
 
-- `<prefix>_role` — the specialist's persona and workflow.
-- `<prefix>_orchestrate` — step-by-step orchestration prompt.
-- `<prefix>_skill_<id>` — one per skill (typically 3–5 per specialist).
+- 🎭 `<prefix>_role` — the specialist's persona and workflow.
+- 🧭 `<prefix>_orchestrate` — step-by-step orchestration prompt.
+- 🛠️ `<prefix>_skill_<id>` — one per skill (typically 3–5 per specialist).
 
-Plus four top-level discovery / reference tools:
+Plus six top-level discovery / reference tools:
 
-- `md_capabilities` — list the full team and their skills.
-- `md_route` — given a query, return the most relevant specialist(s).
-- `md_facts` — curated 2026 reference data (IRS contribution limits, tax brackets, IRMAA brackets, FAFSA / Pell, Social Security wage base, Medicare premiums, estate exemptions, FEIE, conforming-loan limits, Section 121 exclusion, Federal Poverty Level, ~30 topics total). Specialists cite from this table using the topic's friendly label (e.g. `[IRS 2026 limits]`, `[CMS Medicare 2026]`) instead of `[UNSOURCED]`.
-- `md_intake` — returns the structured "Inputs needed" checklist for any skill BEFORE you run it, so the agent can ask the user for missing inputs (grouped into one message) instead of inventing values. Pass the skill tool id, the `prefix:id` form, or the friendly name (e.g. `Life Insurance Needs`). Omit `skill` to list every skill.
-- `md_citation_conventions` — the 4-tag honesty vocabulary (`[USER-PROVIDED]`, `[ASSUMPTION: <value>]`, `[<Friendly Source Label>]`, `[UNSOURCED]`) used across every specialist.
+- 🗺️ `md_capabilities` — list the full team and their skills.
+- 🧭 `md_route` — given a query, return the most relevant specialist(s).
+- ⚙️ `md_preferences` — read the persisted source-selection config (e.g. DepositAccounts as default for HYSA/MMA/CD rates).
+- 📚 `md_facts` — curated 2026 reference data (IRS contribution limits, tax brackets, IRMAA brackets, FAFSA / Pell, Social Security wage base, Medicare premiums, estate exemptions, FEIE, conforming-loan limits, Section 121 exclusion, Federal Poverty Level, ~30 topics total). Specialists cite from this table using the topic's friendly label (e.g. `[IRS 2026 limits]`, `[CMS Medicare 2026]`) instead of `[UNSOURCED]`.
+- 📝 `md_intake` — returns the structured "Inputs needed" checklist for any skill BEFORE you run it, so the agent can ask the user for missing inputs (grouped into one message) instead of inventing values. Pass the skill tool id, the `prefix:id` form, or the friendly name (e.g. `Life Insurance Needs`). Omit `skill` to list every skill.
+- 🏷️ `md_citation_conventions` — the 4-tag honesty vocabulary (`[USER-PROVIDED]`, `[ASSUMPTION: <value>]`, `[<Friendly Source Label>]`, `[UNSOURCED]`) used across every specialist.
 
 ## Installation
 
