@@ -20,14 +20,51 @@ preferred_sources:
   mmf_yields:    issuer pages (Vanguard / Fidelity / Schwab)   # VMFXX, SPAXX, SWVXX, SPRXX, VUSXX, FZDXX, etc.
   treasuries:    https://www.treasurydirect.gov/   # T-bills, T-notes; SGOV / BIL → ETF issuer page
 
+# Per-domain fetch strategy (avoids known scraping blocks).
+# Apply in order; stop at the first method that returns usable data.
+fetch_strategy:
+  depositaccounts.com:
+    # KNOWN: web_fetch returns HTTP 403 — the site blocks automated user-agents.
+    # Do NOT attempt web_fetch on this domain; it wastes a turn.
+    - method: web_search
+      query_template: "site:depositaccounts.com {product} rates"
+      examples:
+        - "site:depositaccounts.com best HYSA rates"
+        - "site:depositaccounts.com 6 month CD rates"
+        - "site:depositaccounts.com money market account rates"
+        - "site:depositaccounts.com reward checking accounts"
+        - "site:depositaccounts.com no penalty CD"
+      notes: "Snippets contain APYs and as-of dates; cite the DepositAccounts URL from the result."
+    - method: web_fetch
+      target: issuer_product_page
+      notes: "Individual bank / credit-union product pages generally do not block. Use these to cross-check the headline APY per rule 3 of the source policy."
+    - method: web_search
+      query_template: "site:bankrate.com OR site:nerdwallet.com OR site:doctorofcredit.com {product} rates"
+      notes: "LAST RESORT only — explicitly note the fallback in the report's source footer."
+    - method: stop
+      notes: "If web_search is also unavailable in this runtime, STOP and tell the user. Never fabricate APYs from memory."
+  issuer_mmf_pages:
+    - method: web_fetch
+      target: "fund issuer's 7-day-yield page (Vanguard / Fidelity / Schwab)"
+      notes: "Usually unblocked. Required source for MMF yields + net expense ratio + year-end USGO%."
+  treasurydirect.gov:
+    - method: web_fetch
+      target: "https://www.treasurydirect.gov/auctions/auction-query/"
+      notes: "Usually unblocked. Required source for T-bill auction results / current yields."
+    - method: web_fetch
+      target: "brokerage T-bill auction page (Fidelity / Schwab / Vanguard fixed-income center)"
+      notes: "Fallback for users who prefer brokerage auction over TreasuryDirect."
+
 # How specialists must apply these defaults (enforcement rules):
 #
 #   1. For any "best / top / highest" rate on HYSA, MMA, CDs (incl. no-penalty
 #      and bump-up), reward-checking, or credit-union specials → query
 #      `preferred_sources.deposit_rates` FIRST, before Bankrate, NerdWallet,
-#      DoctorOfCredit, Investopedia, or any other aggregator. Use direct
-#      `web_fetch`; if blocked, fall back to a site-restricted web search
-#      (`site:depositaccounts.com <product> rates`).
+#      DoctorOfCredit, Investopedia, or any other aggregator. ⚠️ DO NOT use
+#      `web_fetch` on depositaccounts.com — it returns HTTP 403 (the site
+#      blocks scrapers). Use `web_search` with `site:depositaccounts.com
+#      <product> rates` instead (see `fetch_strategy.depositaccounts.com`
+#      above for the full fallback chain).
 #   2. Cite the DepositAccounts.com URL (category page or product page) in the
 #      OUTPUT REPORT, with the as-of timestamp shown on that page, and tag the
 #      figure `[UNSOURCED — verify on issuer page]`. Deposit rates change daily.

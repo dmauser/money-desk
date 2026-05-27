@@ -77,7 +77,7 @@ For US deposit products — **HYSA, money-market deposit accounts (MMA / MMDA), 
 
 Rules (apply on every "best / top / highest rate" request):
 
-1. **Query DepositAccounts.com FIRST.** Before any other aggregator (Bankrate, NerdWallet, DoctorOfCredit, Investopedia, etc.), hit the relevant category page on DepositAccounts.com — either by direct `web_fetch`, or by a site-restricted web search (`site:depositaccounts.com <product> rates`) if direct fetch is blocked. Category pages:
+1. **Query DepositAccounts.com FIRST.** Before any other aggregator (Bankrate, NerdWallet, DoctorOfCredit, Investopedia, etc.), hit the relevant category page on DepositAccounts.com. ⚠️ **Known issue:** `web_fetch` on `depositaccounts.com` returns **HTTP 403** (the site blocks automated user-agents) — do NOT attempt `web_fetch` on that domain. Use **`web_search` with `site:depositaccounts.com <product> rates`** instead; the search snippets contain the current APYs and as-of dates. Category pages to use as `site:` targets and to link from the report:
    - Savings (HYSA): <https://www.depositaccounts.com/savings/>
    - Money market (MMA / MMDA): <https://www.depositaccounts.com/moneymarket/>
    - CDs: <https://www.depositaccounts.com/cd/>

@@ -6,7 +6,7 @@ description: Survey current **high-yield savings (HYSA)**, **money-market (MMA)*
 
 **DepositAccounts.com (<https://www.depositaccounts.com/>) is the DEFAULT preferred source** for current US deposit-product rates: HYSA, money market accounts (MMA / MMDA), CDs (including no-penalty and bump-up CDs), reward-checking accounts, and credit-union specials. Rules:
 
-1. Query **DepositAccounts.com FIRST** for any "best / top / highest" rate request — before Bankrate, NerdWallet, DoctorOfCredit, or any other aggregator. Use direct `web_fetch`; if the fetch is blocked, fall back to a site-restricted search (`site:depositaccounts.com <product>`).
+1. Query **DepositAccounts.com FIRST** for any "best / top / highest" rate request — before Bankrate, NerdWallet, DoctorOfCredit, or any other aggregator. ⚠️ `web_fetch` on `depositaccounts.com` returns **HTTP 403** (the site blocks scrapers), so use `web_search` with a site-restricted query like `site:depositaccounts.com <product> rates` — the search snippets contain the current APYs and as-of dates. See the workflow's fetch strategy below for the full fallback chain.
 2. **Cite the DepositAccounts.com URL on every figure in the output report** (category page or product page) and tag the rate **`[UNSOURCED — verify on issuer page]`**. Deposit rates change daily; a number without an as-of date is stale.
 3. **Cross-check the headline APY against the bank or credit-union's OWN product page** before recommending action. If they disagree, quote the issuer page as live and note the DepositAccounts figure as indexed.
 4. **Money-market MUTUAL FUNDS (VMFXX, SPAXX, SWVXX, SPRXX, VUSXX, FZDXX, etc.) are NOT in DepositAccounts' scope.** Use the **fund issuer's official 7-day-yield page** (Vanguard / Fidelity / Schwab) and cite that URL. Call out the FDIC-vs-SIPC distinction explicitly when contrasting with deposit accounts.
@@ -34,7 +34,19 @@ description: Survey current **high-yield savings (HYSA)**, **money-market (MMA)*
 ## Workflow
 
 1. **Echo inputs** so the user can verify the bucket, amount, horizon, and access constraints before any rate work.
-2. **Pull current rates from depositaccounts.com — the DEFAULT preferred source per the policy above.** Use whatever web-fetch / web-search tool the runtime exposes (e.g. `web_fetch`, `web_search`). If `web_fetch` is blocked, fall back to `site:depositaccounts.com <product> rates` via `web_search`. Hit the relevant category page(s):
+2. **Pull current rates from depositaccounts.com — the DEFAULT preferred source per the policy above.** ⚠️ **Known issue:** `web_fetch` against `depositaccounts.com` returns **HTTP 403** (they block automated user-agents). Do NOT attempt `web_fetch` on that domain — it will fail every time and waste a turn. Use this fetch strategy instead, in order:
+
+   - **Primary — `web_search` with a site-restricted query.** This returns snippet text from Google/Bing that contains the current APYs and as-of dates, without triggering the 403. Examples:
+     - `site:depositaccounts.com best HYSA rates`
+     - `site:depositaccounts.com 6 month CD rates`
+     - `site:depositaccounts.com money market account rates`
+     - `site:depositaccounts.com reward checking accounts`
+     - `site:depositaccounts.com no penalty CD`
+   - **Secondary — direct `web_fetch` on the bank or credit-union's OWN product page** for each candidate surfaced by the search. Individual issuer sites generally don't block fetches and are also the authoritative source for the cross-check step (rule 3 of the source policy).
+   - **Last resort — `web_search` against another aggregator** (Bankrate, NerdWallet, DoctorOfCredit) if both of the above fail to surface enough candidates. When you do this, **say so explicitly in the report's source footer**: "DepositAccounts.com `web_fetch` returned 403; results above sourced via `web_search site:depositaccounts.com` and cross-checked on issuer pages. <Aggregator X> used as a secondary cross-check."
+   - **Never fabricate APYs from memory.** If `web_search` is also unavailable in this runtime, STOP and tell the user — do not invent numbers. Every rate must cite either a DepositAccounts URL (from the search-result snippet), an issuer product-page URL, or both. Rates change daily.
+
+   Relevant DepositAccounts.com category pages to use as `site:` targets (and to link from the report even if you didn't fetch them directly):
    - Savings: <https://www.depositaccounts.com/savings/>
    - Money market: <https://www.depositaccounts.com/moneymarket/>
    - CDs (use the term the user needs): <https://www.depositaccounts.com/cd/>
