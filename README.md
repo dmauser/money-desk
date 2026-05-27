@@ -229,11 +229,39 @@ You should see all 20 specialists listed with their tools.
 
 ### Updating
 
-To update to the latest version, re-run the install command. It safely replaces the existing installation:
+There is **no auto-update**. The installer is a one-shot copy from the source repo into `~/.copilot/extensions/money-desk/` (or `.github/extensions/money-desk/` for project installs) — the Copilot CLI loads whatever files are sitting in that folder at session start. To get the latest you must:
 
-```bash
-npx github:dmauser/money-desk init
-```
+1. **Refresh the source** (whichever way you originally installed):
+
+   | Original install method | How to refresh the source |
+   |---|---|
+   | `npx github:dmauser/money-desk init` | nothing to do — `npx` re-fetches `main` on every invocation |
+   | `npm install -g github:dmauser/money-desk` | `npm install -g github:dmauser/money-desk` again (re-pulls `main`) |
+   | Clone + `node bin/cli.mjs init` | `git pull` in the clone |
+   | Manual / offline copy | re-download the latest release zip |
+
+2. **Re-run the installer** — it safely overwrites the existing install:
+
+   ```bash
+   # User-level
+   npx github:dmauser/money-desk init
+
+   # Project-level (run from inside the repo)
+   npx github:dmauser/money-desk init --project
+   ```
+
+3. **Restart the Copilot CLI session.** The extension is loaded once at session start; running sessions do not hot-reload. Quit and re-launch `copilot` (use `copilot --experimental` for user-level installs).
+
+4. **Verify** the new version is live:
+
+   ```bash
+   money-desk --version
+   money-desk status
+   ```
+
+   Inside a new Copilot CLI session, `md_capabilities` should reflect any newly added tools (e.g. `md_preferences`).
+
+> **Tip — check before you reinstall.** `money-desk status` prints the on-disk version side-by-side with the source-package version, so you can see whether a refresh actually changed anything before restarting Copilot CLI.
 
 ### Uninstall
 
