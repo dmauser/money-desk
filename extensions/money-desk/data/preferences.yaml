@@ -1,0 +1,47 @@
+# Money Desk — user preferences (persisted across all sessions)
+#
+# This file is the single source of truth for source-selection preferences.
+# It is read by the `md_preferences` tool and is referenced from the role
+# markdown of every specialist that quotes deposit-product / cash-yield rates
+# (Investing Advisor, Budget Coach, Net Worth & Goals, Retirement Planner,
+# Life Events).
+#
+# Override syntax for a single turn:
+#   "use Bankrate instead this time"  →  honored for that turn only; the
+#                                         default below is restored on the
+#                                         next deposit-rate question.
+#
+# Permanent override: edit the relevant value below.
+# After editing, run `npm test` from the repo root to confirm the manifest
+# still loads cleanly.
+
+preferred_sources:
+  deposit_rates: https://www.depositaccounts.com/   # HYSA, MMA, CD (incl. no-penalty + bump-up), reward-checking, credit-union specials
+  mmf_yields:    issuer pages (Vanguard / Fidelity / Schwab)   # VMFXX, SPAXX, SWVXX, SPRXX, VUSXX, FZDXX, etc.
+  treasuries:    https://www.treasurydirect.gov/   # T-bills, T-notes; SGOV / BIL → ETF issuer page
+
+# How specialists must apply these defaults (enforcement rules):
+#
+#   1. For any "best / top / highest" rate on HYSA, MMA, CDs (incl. no-penalty
+#      and bump-up), reward-checking, or credit-union specials → query
+#      `preferred_sources.deposit_rates` FIRST, before Bankrate, NerdWallet,
+#      DoctorOfCredit, Investopedia, or any other aggregator. Use direct
+#      `web_fetch`; if blocked, fall back to a site-restricted web search
+#      (`site:depositaccounts.com <product> rates`).
+#   2. Cite the DepositAccounts.com URL (category page or product page) in the
+#      OUTPUT REPORT, with the as-of timestamp shown on that page, and tag the
+#      figure `[UNSOURCED — verify on issuer page]`. Deposit rates change daily.
+#   3. Cross-check the headline APY on the bank or credit-union's OWN product
+#      page before recommending action. If the issuer page disagrees, quote the
+#      issuer figure as live and note the DepositAccounts figure as indexed.
+#   4. Money-market mutual funds are out of scope for DepositAccounts. Use
+#      `preferred_sources.mmf_yields` (the fund issuer's 7-day-yield page) and
+#      cite that URL. Make the FDIC-vs-SIPC distinction explicit when
+#      contrasting MMFs with deposit accounts.
+#   5. Treasury bills are out of scope for DepositAccounts. Use
+#      `preferred_sources.treasuries` or the brokerage's T-bill auction page.
+#   6. One-off override ("use Bankrate instead this time" or any other named
+#      aggregator) is turn-scoped: honor it for that single response, then
+#      revert to the default on the next deposit-rate question.
+
+# Saved: 2026-05-27
