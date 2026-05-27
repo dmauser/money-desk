@@ -250,6 +250,71 @@ When listing or referring to skills in user-facing output, always use the friend
             { id: "total_cost_of_ownership", displayName: "Total Cost of Ownership", description: "**Total Cost of Ownership** — multi-year TCO model for any asset: purchase price, financing cost, insurance, fuel/utilities, maintenance & repairs, depreciation, opportunity cost of capital tied up, taxes & fees, and disposal/resale value. Outputs annualized TCO and per-unit-of-use cost (e.g. cost per mile, cost per night, cost per use)." },
         ],
     },
+    {
+        prefix: "md_ed",
+        name: "education-planner",
+        icon: "🎓",
+        domain: "Education Planner",
+        route: /\b(college(\s+(savings|fund|cost))?|529|UTMA|UGMA|Coverdell|tuition|FAFSA|EFC|SAI|financial[-\s]?aid|education\s+(savings|fund)|student\s+aid|scholarship|grandparent\s+529)\b/i,
+        roleDescription: "Money Desk specialist: Education Planner. Use when the user mentions college, 529 plans, Coverdell, UTMA/UGMA, FAFSA, financial aid, SAI/EFC, college costs, education savings, or grandparent college contributions. Loads the education-planner role. Call this first for any college-funding or education-savings task.",
+        orchestrateDescription: "Return the orchestration prompt that turns the current agent into the education-planner. Use when the user asks about 529s, college savings, FAFSA / financial aid, or account-type selection for education.",
+        orchestrator: `You are now operating as the **education-planner** agent.
+Call \`md_ed_role\` first, then use: 529 Plan Review (\`md_ed_skill_529_plan_review\`), College Cost Projection (\`md_ed_skill_college_cost_projection\`), Financial Aid Positioning (\`md_ed_skill_aid_positioning\`), Savings Account Selector (\`md_ed_skill_savings_account_selector\`).
+Analysis only — never opens accounts, changes beneficiaries, or submits FAFSAs. Cite every number (529 statement, College Board cost data, IRS Pub 970 limits) or mark [UNSOURCED].
+Retirement comes first — if the user is under-saving for retirement, lead with that (there are loans for college, not for retirement).
+State-specific: flag the user's state for 529 tax-deduction and recapture rules. Cite the FAFSA aid year (e.g., 2025–26 uses 2023 tax return).
+Not professional advice — informational only. Recommend a fee-only CFP or college-funding specialist for high-net-worth or special-needs situations.
+When listing or referring to skills in user-facing output, always use the friendly name; treat the \`md_ed_skill_*\` form as the underlying tool id, not the label.`,
+        skills: [
+            { id: "529_plan_review", displayName: "529 Plan Review", description: "**529 Plan Review** — audit an existing 529: state plan choice, fund lineup and expense ratios, age-based glidepath, beneficiary, state tax deduction or recapture exposure, and whether to roll to a better plan. Flags funds with expense ratios > 0.20% and glidepaths that are off-target for the beneficiary's age." },
+            { id: "college_cost_projection", displayName: "College Cost Projection", description: "**College Cost Projection** — project total cost of college (in-state public / out-of-state / private) inflated to the beneficiary's college years; compare against current savings + monthly contribution; quantify the gap and required monthly savings to close it. Shows sensitivity to education inflation and investment return." },
+            { id: "aid_positioning", displayName: "Financial Aid Positioning", description: "**Financial Aid Positioning** — estimate Student Aid Index (SAI, formerly EFC) from FAFSA Simplification formulas, surface legal asset-positioning moves (UTMA spend-down, retirement maxing, grandparent-529 timing), and flag CSS Profile differences. Cites the academic-aid year and base-year tax return." },
+            { id: "savings_account_selector", displayName: "Savings Account Selector", description: "**Savings Account Selector** — compare 529 vs Coverdell ESA vs UTMA/UGMA vs Roth IRA vs taxable brokerage for education savings across tax treatment, contribution limits, control, financial-aid impact, and flexibility for non-college outcomes. Recommends a primary + secondary stack." },
+        ],
+    },
+    {
+        prefix: "md_nw",
+        name: "net-worth-goals",
+        icon: "📊",
+        domain: "Net Worth & Goals",
+        route: /\b(net\s+worth|emergency\s+fund|sinking\s+fund(s)?|savings\s+goal(s)?|financial\s+goal(s)?|goal[-\s]?based\s+saving|asset\s+inventory|liabilit(y|ies)\s+(track|review)|months\s+of\s+expenses|HYSA|high[-\s]?yield\s+savings)\b/i,
+        roleDescription: "Money Desk specialist: Net Worth & Goals. Use when the user mentions net worth, emergency fund, sinking funds, goal-based savings, savings for a down payment / wedding / sabbatical / big purchase, irregular-expense planning, or 'help me get organized financially'. Foundation layer that other specialists build on. Call this first for any net-worth-tracking or goal-setting task.",
+        orchestrateDescription: "Return the orchestration prompt that turns the current agent into the net-worth-goals coach. Use when the user asks about net worth, emergency fund sizing, or goal-based savings.",
+        orchestrator: `You are now operating as the **net-worth-goals** agent.
+Call \`md_nw_role\` first, then use: Net Worth Snapshot (\`md_nw_skill_net_worth_snapshot\`), Emergency Fund Assessment (\`md_nw_skill_emergency_fund_assessment\`), Goal-Based Savings Plan (\`md_nw_skill_goal_based_savings_plan\`), Sinking Funds Setup (\`md_nw_skill_sinking_funds_setup\`).
+Analysis only — never opens accounts, moves money, or executes investments. Cite every balance (account, last-4, statement date) or mark [UNSOURCED]. Mask account numbers to last-4.
+Use horizon-appropriate return assumptions and state them: <2y → cash rate; 2–5y → conservative blend; 5+y → equity blend.
+Don't over-engineer: 1 emergency fund + 2–3 active goals + simple sinking funds is enough for most users.
+Not professional financial advice — informational only.
+When listing or referring to skills in user-facing output, always use the friendly name; treat the \`md_nw_skill_*\` form as the underlying tool id, not the label.`,
+        skills: [
+            { id: "net_worth_snapshot", displayName: "Net Worth Snapshot", description: "**Net Worth Snapshot** — point-in-time assets minus liabilities, grouped into cash / taxable / retirement / real estate / other, with sub-totals and ratios (liquid NW, investable NW, home-equity %, liability-to-asset). Plots trend if prior snapshots exist; flags single-asset concentrations > 25% of NW." },
+            { id: "emergency_fund_assessment", displayName: "Emergency Fund Assessment", description: "**Emergency Fund Assessment** — compute months-of-essential-expenses currently covered, recommend a target (3 / 6 / 9–12 months) by income stability + dependents, and suggest account placement (HYSA / money market / T-bill ladder / I-Bonds tier). Includes build-up plan if underfunded and excess-cash deployment plan if over." },
+            { id: "goal_based_savings_plan", displayName: "Goal-Based Savings Plan", description: "**Goal-Based Savings Plan** — for each named goal (home down payment, wedding, sabbatical, big trip), compute required monthly contribution given target $, time horizon, and horizon-appropriate return. Aggregates and sequences across all goals; surfaces trade-offs when capacity is short." },
+            { id: "sinking_funds_setup", displayName: "Sinking Funds Setup", description: "**Sinking Funds Setup** — convert known irregular expenses (annual insurance, car maintenance, property tax, holiday gifts, annual subscriptions) into smooth monthly sinking-fund contributions. Recommends HYSA bucket structure and per-fund monthly amount; produces a month-by-month spend calendar." },
+        ],
+    },
+    {
+        prefix: "md_se",
+        name: "self-employed-planner",
+        icon: "💼",
+        domain: "Self-Employed Planner",
+        route: /\b(self[-\s]?employ|freelanc(e|er|ing)|1099(\s+(income|tax))?|gig\s+(work|economy)|side[-\s]?gig|sole[-\s]?prop|S[-\s]?corp|LLC(\s+vs)?|solo[-\s]?401|SEP[-\s]?IRA|SIMPLE[-\s]?IRA|QBI|199A|Section\s+199A|business\s+(expense|deduction|tax)|quarterly\s+(estimat|tax|payment)|Schedule\s+C|home\s+office\s+deduction|reasonable\s+(comp|compensation))\b/i,
+        roleDescription: "Money Desk specialist: Self-Employed Planner. Use when the user mentions self-employment, freelance / 1099 / gig income, sole prop, single-member LLC, S-corp election, Solo 401(k), SEP IRA, SIMPLE IRA, quarterly estimated taxes, Schedule C deductions, home office, mileage, or QBI / Section 199A. Loads the self-employed-planner role. Call this first for any 1099-income or small-business-owner task.",
+        orchestrateDescription: "Return the orchestration prompt that turns the current agent into the self-employed-planner. Use when the user asks about 1099 taxes, self-employed retirement plans, S-corp election, or Schedule C deductions.",
+        orchestrator: `You are now operating as the **self-employed-planner** agent.
+Call \`md_se_role\` first, then use: Retirement Plan Selector (\`md_se_skill_retirement_plan_selector\`), Quarterly Estimated Taxes (\`md_se_skill_quarterly_estimated_taxes\`), Entity & S-Corp Election Review (\`md_se_skill_entity_election_review\`), Business Deductions & QBI Review (\`md_se_skill_business_deductions_review\`).
+Analysis only — doesn't file 1040-ES, doesn't run payroll, doesn't open the Solo 401(k), doesn't file Form 2553. Cite every number (Schedule C line, 1099-NEC, K-1 box, prior return) or mark [UNSOURCED].
+Tax-year-specific: cite the tax year for every limit / threshold; rules change annually. Show SE tax breakdown explicitly (12.4% SS up to wage base + 2.9% Medicare + 0.9% additional).
+S-corp election is "easy to make, painful to undo" — strongly recommend CPA + bookkeeper combo before electing. Not professional tax/legal advice.
+When listing or referring to skills in user-facing output, always use the friendly name; treat the \`md_se_skill_*\` form as the underlying tool id, not the label.`,
+        skills: [
+            { id: "retirement_plan_selector", displayName: "Retirement Plan Selector", description: "**Retirement Plan Selector** — compare Solo 401(k) vs SEP IRA vs SIMPLE IRA vs Defined Benefit / Cash Balance at the user's net SE income. Computes contribution headroom under each, deadlines (open-by vs fund-by), Roth availability, admin complexity. Recommends a primary plan with reasoning." },
+            { id: "quarterly_estimated_taxes", displayName: "Quarterly Estimated Taxes", description: "**Quarterly Estimated Taxes** — compute Form 1040-ES Q1–Q4 amounts (federal + state) using safe-harbor (100% / 110% of prior-year tax) or annualized-income method for lumpy income. Includes self-employment tax (12.4% SS + 2.9% Medicare + 0.9% additional). Does NOT make the payment." },
+            { id: "entity_election_review", displayName: "Entity & S-Corp Election Review", description: "**Entity & S-Corp Election Review** — analyze whether electing S-corp tax treatment saves more in payroll taxes than it adds in admin cost. Includes reasonable-compensation analysis, payroll-service + CPA + state-franchise cost itemization, break-even net-income threshold, and the hidden trade-offs (retirement contribution capacity, mortgage qualification, audit risk)." },
+            { id: "business_deductions_review", displayName: "Business Deductions & QBI Review", description: "**Business Deductions & QBI Review** — audit Schedule C deductions line-by-line (home office, mileage vs actual, SEHI, retirement, Sec 179, supplies, software, professional fees), surface common omissions, and compute QBI / Section 199A 20% deduction with income-threshold phase-outs and SSTB rules." },
+        ],
+    },
 ];
 
 // ── Per-specialist loader factories ────────────────────────────────────
@@ -324,7 +389,7 @@ function buildTools() {
     const out = [
         {
             name: "md_capabilities",
-            description: "Money Desk entry-point (a.k.a. money-desk / @money-desk). Returns the map of all 9 personal-finance specialists bundled in this extension: Budget Coach, Tax Planner, Investing Advisor, Retirement Planner, Debt Strategist, Credit & Identity, Insurance Reviewer, Estate & Legacy, Purchase Advisor. Call this FIRST whenever the user mentions personal finance, budgeting, taxes, investing, retirement, debt, credit, insurance, estate planning, or a major purchase decision (buy vs lease, rent vs buy) — or says 'money-desk' or '@money-desk' in any form. Lists each specialist's role tool and orchestrator so the agent can pick the right one without guessing. When rendering skills/specialists to the user, use the friendly name (e.g. 'Portfolio Review') — never the raw `md_<prefix>_skill_*` tool id as a label.",
+            description: "Money Desk entry-point (a.k.a. money-desk / @money-desk). Returns the map of all 12 personal-finance specialists bundled in this extension: Budget Coach, Tax Planner, Investing Advisor, Retirement Planner, Debt Strategist, Credit & Identity, Insurance Reviewer, Estate & Legacy, Purchase Advisor, Education Planner, Net Worth & Goals, Self-Employed Planner. Call this FIRST whenever the user mentions personal finance, budgeting, taxes, investing, retirement, debt, credit, insurance, estate planning, college / 529 / FAFSA, net worth, emergency fund, savings goals, self-employment / 1099 / S-corp, or a major purchase decision (buy vs lease, rent vs buy) — or says 'money-desk' or '@money-desk' in any form. Lists each specialist's role tool and orchestrator so the agent can pick the right one without guessing. When rendering skills/specialists to the user, use the friendly name (e.g. 'Portfolio Review') — never the raw `md_<prefix>_skill_*` tool id as a label.",
             parameters: { type: "object", properties: {} },
             skipPermission: true,
             handler: async () => buildCapabilitiesSummary(),

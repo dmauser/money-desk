@@ -16,6 +16,9 @@ const CANONICAL_PHRASES = {
     md_ir: "Audit my auto and umbrella insurance coverage for gaps.",
     md_el: "Inventory my estate documents and audit beneficiaries.",
     md_pa: "Should I buy or lease a new car? Run a total cost of ownership comparison.",
+    md_ed: "Review my 529 plan and project college costs for my kid; how does FAFSA work?",
+    md_nw: "What's my net worth and how much emergency fund do I need for sinking funds?",
+    md_se: "I just went 1099 — should I set up a Solo 401k or SEP IRA, and what about quarterly estimated taxes?",
 };
 
 test("every prefix has a canonical phrase fixture", () => {

@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-05-26
+
+Phase 1 of the deep-review expansion: 3 new specialists × 4 skills each (12 new
+skills, 18 new tools). Total: **12 specialists / 48 skills / 74 tools** (up from
+9 / 36 / 56). Lifts CFP Board topic coverage from ~55% to ~80%; fully addresses
+the previously missing **Education Planning** category and meaningfully expands
+**Financial Position** and **Special Situations (Self-Employed)** coverage.
+
+### Added
+
+- 🎓 **Education Planner** (`md_ed`) — 529 plan review, college cost projection,
+  financial-aid (FAFSA / SAI) positioning, and education savings account
+  selector (529 vs Coverdell vs UTMA/UGMA vs Roth IRA vs taxable).
+- 📊 **Net Worth & Goals** (`md_nw`) — net worth snapshot, emergency fund
+  assessment, goal-based savings plan, and sinking funds setup. Foundational
+  layer that other specialists build on.
+- 💼 **Self-Employed Planner** (`md_se`) — retirement plan selector (Solo 401k /
+  SEP / SIMPLE / DB), quarterly estimated taxes (Form 1040-ES), entity & S-corp
+  election review, and business deductions & QBI / Section 199A review.
+
+### Changed
+
+- `md_capabilities` description and presence note updated to enumerate all 12
+  specialists.
+- `extension.mjs` direct-mention instruction expanded with 3 new example
+  prompts (529 / net worth / self-employed).
+
 ## [0.1.0] — 2026-05-26
 
 Initial release.
@@ -61,5 +88,6 @@ Initial release.
 - 82 tests covering: tool manifest consistency, route regex coverage,
   installer smoke, `[UNSOURCED]` guardrail coverage, docs sync.
 
-[Unreleased]: https://github.com/dmauser/money-desk/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/dmauser/money-desk/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/dmauser/money-desk/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/dmauser/money-desk/releases/tag/v0.1.0

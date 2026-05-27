@@ -3,7 +3,7 @@
 
 # Money Desk Capabilities
 
-Money Desk ships **9 specialists** with **36 skills** plus 2 discovery tools (`md_capabilities`, `md_route`) — a total of **56 tools** registered with Copilot CLI.
+Money Desk ships **12 specialists** with **48 skills** plus 2 discovery tools (`md_capabilities`, `md_route`) — a total of **74 tools** registered with Copilot CLI.
 
 ## Specialists
 
@@ -18,6 +18,9 @@ Money Desk ships **9 specialists** with **36 skills** plus 2 discovery tools (`m
 | 7 | 🛡️ Insurance Reviewer | `md_ir` | `md_ir_role` | `md_ir_orchestrate` | `insurance`, `policy`, `review`, `comparison` |
 | 8 | 📜 Estate & Legacy | `md_el` | `md_el_role` | `md_el_orchestrate` | `estate`, `plan`, `planning`, `hygiene` |
 | 9 | 🛒 Purchase Advisor | `md_pa` | `md_pa_role` | `md_pa_orchestrate` | `lease`, `lease`, `rent`, `rent` |
+| 10 | 🎓 Education Planner | `md_ed` | `md_ed_role` | `md_ed_orchestrate` | `college`, `savings`, `fund`, `cost` |
+| 11 | 📊 Net Worth & Goals | `md_nw` | `md_nw_role` | `md_nw_orchestrate` | `worth`, `emergency`, `fund`, `sinking` |
+| 12 | 💼 Self-Employed Planner | `md_se` | `md_se_role` | `md_se_orchestrate` | `self`, `employ`, `freelanc`, `income` |
 
 ## Skills by specialist
 
@@ -101,6 +104,33 @@ Money Desk ships **9 specialists** with **36 skills** plus 2 discovery tools (`m
 | **Rent vs Buy** | `md_pa_skill_rent_vs_buy` | housing rent-vs-buy analysis: compute price-to-rent ratio, break-even hold period using a 5%-rule heuristic + full NPV (mortgage interest, property tax, insurance, maintenance, HOA, transaction costs, equity buildup) vs renting + investing the difference. Outputs break-even years and sensitivity to home-price growth, rate of return on alternative investment, and stay duration. |
 | **Big Purchase Review** | `md_pa_skill_big_purchase_review` | generic large purchase decision framework: need vs want, new vs used vs refurbished, financing options (cash / 0% promo / installment / personal loan / credit-card-with-payoff), warranty / extended-warranty math, depreciation curve, and impact on the user's emergency fund and savings rate. |
 | **Total Cost of Ownership** | `md_pa_skill_total_cost_of_ownership` | multi-year TCO model for any asset: purchase price, financing cost, insurance, fuel/utilities, maintenance & repairs, depreciation, opportunity cost of capital tied up, taxes & fees, and disposal/resale value. Outputs annualized TCO and per-unit-of-use cost (e.g. cost per mile, cost per night, cost per use). |
+
+### 🎓 Education Planner (`md_ed`)
+
+| Skill | Tool | What it does |
+|-------|------|--------------|
+| **529 Plan Review** | `md_ed_skill_529_plan_review` | audit an existing 529: state plan choice, fund lineup and expense ratios, age-based glidepath, beneficiary, state tax deduction or recapture exposure, and whether to roll to a better plan. Flags funds with expense ratios > 0.20% and glidepaths that are off-target for the beneficiary's age. |
+| **College Cost Projection** | `md_ed_skill_college_cost_projection` | project total cost of college (in-state public / out-of-state / private) inflated to the beneficiary's college years; compare against current savings + monthly contribution; quantify the gap and required monthly savings to close it. Shows sensitivity to education inflation and investment return. |
+| **Financial Aid Positioning** | `md_ed_skill_aid_positioning` | estimate Student Aid Index (SAI, formerly EFC) from FAFSA Simplification formulas, surface legal asset-positioning moves (UTMA spend-down, retirement maxing, grandparent-529 timing), and flag CSS Profile differences. Cites the academic-aid year and base-year tax return. |
+| **Savings Account Selector** | `md_ed_skill_savings_account_selector` | compare 529 vs Coverdell ESA vs UTMA/UGMA vs Roth IRA vs taxable brokerage for education savings across tax treatment, contribution limits, control, financial-aid impact, and flexibility for non-college outcomes. Recommends a primary + secondary stack. |
+
+### 📊 Net Worth & Goals (`md_nw`)
+
+| Skill | Tool | What it does |
+|-------|------|--------------|
+| **Net Worth Snapshot** | `md_nw_skill_net_worth_snapshot` | point-in-time assets minus liabilities, grouped into cash / taxable / retirement / real estate / other, with sub-totals and ratios (liquid NW, investable NW, home-equity %, liability-to-asset). Plots trend if prior snapshots exist; flags single-asset concentrations > 25% of NW. |
+| **Emergency Fund Assessment** | `md_nw_skill_emergency_fund_assessment` | compute months-of-essential-expenses currently covered, recommend a target (3 / 6 / 9–12 months) by income stability + dependents, and suggest account placement (HYSA / money market / T-bill ladder / I-Bonds tier). Includes build-up plan if underfunded and excess-cash deployment plan if over. |
+| **Goal-Based Savings Plan** | `md_nw_skill_goal_based_savings_plan` | for each named goal (home down payment, wedding, sabbatical, big trip), compute required monthly contribution given target $, time horizon, and horizon-appropriate return. Aggregates and sequences across all goals; surfaces trade-offs when capacity is short. |
+| **Sinking Funds Setup** | `md_nw_skill_sinking_funds_setup` | convert known irregular expenses (annual insurance, car maintenance, property tax, holiday gifts, annual subscriptions) into smooth monthly sinking-fund contributions. Recommends HYSA bucket structure and per-fund monthly amount; produces a month-by-month spend calendar. |
+
+### 💼 Self-Employed Planner (`md_se`)
+
+| Skill | Tool | What it does |
+|-------|------|--------------|
+| **Retirement Plan Selector** | `md_se_skill_retirement_plan_selector` | compare Solo 401(k) vs SEP IRA vs SIMPLE IRA vs Defined Benefit / Cash Balance at the user's net SE income. Computes contribution headroom under each, deadlines (open-by vs fund-by), Roth availability, admin complexity. Recommends a primary plan with reasoning. |
+| **Quarterly Estimated Taxes** | `md_se_skill_quarterly_estimated_taxes` | compute Form 1040-ES Q1–Q4 amounts (federal + state) using safe-harbor (100% / 110% of prior-year tax) or annualized-income method for lumpy income. Includes self-employment tax (12.4% SS + 2.9% Medicare + 0.9% additional). Does NOT make the payment. |
+| **Entity & S-Corp Election Review** | `md_se_skill_entity_election_review` | analyze whether electing S-corp tax treatment saves more in payroll taxes than it adds in admin cost. Includes reasonable-compensation analysis, payroll-service + CPA + state-franchise cost itemization, break-even net-income threshold, and the hidden trade-offs (retirement contribution capacity, mortgage qualification, audit risk). |
+| **Business Deductions & QBI Review** | `md_se_skill_business_deductions_review` | audit Schedule C deductions line-by-line (home office, mileage vs actual, SEHI, retirement, Sec 179, supplies, software, professional fees), surface common omissions, and compute QBI / Section 199A 20% deduction with income-threshold phase-outs and SSTB rules. |
 
 ## Discovery tools
 
