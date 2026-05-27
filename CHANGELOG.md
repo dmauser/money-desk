@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.1] — 2026-05-27
+
+### Added
+
+- **Per-response disclaimer footer.** `PRESENCE_NOTE` and the direct-mention
+  instruction in `extension.mjs` now tell the agent to append a one-line
+  disclaimer ("Money Desk is informational only and is not professional
+  financial, tax, legal, or insurance advice…") at the end of every response
+  that touches a personal-finance topic or invokes an `md_*` tool. The
+  Copilot SDK exposes no after-response hook, so the rule is enforced via
+  session-start context injection (belt-and-suspenders: it's re-stated on
+  the first user prompt and on every direct `@money-desk` mention).
+
 ## [0.11.0] — 2026-05-27
 
 New **FIRE Planner** specialist (`md_fi`, 🔥) — the strategist for Financial

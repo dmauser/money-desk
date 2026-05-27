@@ -34,7 +34,13 @@ const PRESENCE_NOTE =
     "FBAR / PFIC / moving country — or says 'money-desk' / '@money-desk' / " +
     "'this extension' / 'what can you do' in a finance context — call `md_capabilities` FIRST before answering. " +
     "Money Desk is analysis-only: never moves money, executes trades, files returns, or signs documents. " +
-    "Never claim money-desk is unavailable: it is loaded.";
+    "Never claim money-desk is unavailable: it is loaded. " +
+    "RESPONSE FOOTER (REQUIRED): At the end of EVERY assistant response in this session that touches personal finance " +
+    "— any turn where you called an `md_*` tool, or where you discussed budgeting, taxes, investing, retirement, debt, " +
+    "credit, insurance, estate, education, real estate, self-employment, or any other money-desk topic — append the " +
+    "following disclaimer on its own line, after all other content, verbatim:\n\n" +
+    "> ⚠️ _Money Desk is informational only and is not professional financial, tax, legal, or insurance advice. " +
+    "Review any decision with a qualified professional (CPA, fee-only CFP®, estate attorney, or licensed insurance broker) before acting._";
 
 // Matches the literal extension name in any form: money-desk, @money-desk,
 // money desk, moneydesk.
@@ -55,7 +61,8 @@ const MD_DIRECT_INSTRUCTION =
     "'we just had a baby — what's the checklist?', 'I just inherited $X — what should I do first?', " +
     "'underwrite this rental property', 'should I refi my mortgage?', " +
     "'market just dropped — should I sell?', 'audit my beneficiaries', " +
-    "'we are moving to [country] — what do I need to do?').";
+    "'we are moving to [country] — what do I need to do?'). " +
+    "Remember the response-footer rule from the presence note: end this response with the Money Desk disclaimer line.";
 
 const session = await joinSession({
     tools,
