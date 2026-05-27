@@ -3,7 +3,7 @@
 
 # Money Desk Capabilities
 
-Money Desk ships **20 specialists** with **94 skills** plus 2 discovery tools (`md_capabilities`, `md_route`) — a total of **136 tools** registered with Copilot CLI.
+Money Desk ships **20 specialists** with **95 skills** plus 2 discovery tools (`md_capabilities`, `md_route`) — a total of **137 tools** registered with Copilot CLI.
 
 ## Specialists
 
@@ -61,6 +61,7 @@ Money Desk ships **20 specialists** with **94 skills** plus 2 discovery tools (`
 | **Fund Expense Audit** | `md_iv_skill_fund_expense_audit` | audit expense ratios across all funds; identify high-cost funds, suggest comparable low-cost replacements, and quantify annual & 30-year cost drag of current lineup. |
 | **Investment Policy Statement** | `md_iv_skill_investment_policy_statement` | draft a one-page personal IPS codifying goals, time horizon, target allocation, account placement, contribution waterfall, rebalancing rule, and behavioral guardrails. The pre-commitment device that prevents panic-selling during drawdowns. |
 | **Asset Location Review** | `md_iv_skill_asset_location_review` | place each asset class in the most tax-efficient account type (bonds/REITs → tax-deferred; broad equity → taxable; highest-expected-return → Roth & HSA). Quantifies the tax-drag of current placement and produces a no-cost migration plan. |
+| **Cash Yield Check** | `md_iv_skill_cash_yield_check` | survey current high-yield savings, money-market, and short-term CD APYs from depositaccounts.com to find the best parking spot for an emergency fund or short-term cash bucket. Flags FDIC/NCUA insurance, minimum-balance / direct-deposit requirements, monthly fees, transfer limits, and rate-tier gotchas. Output is a shortlist with citations and as-of timestamps — not a recommendation to open any specific account. |
 
 ### 🏖️ Retirement Planner (`md_rp`)
 

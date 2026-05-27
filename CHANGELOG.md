@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.2] — 2026-05-27
+
+### Added
+
+- **Investing Advisor → Cash Yield Check** (`md_iv_skill_cash_yield_check`).
+  New skill that surveys current high-yield savings, money-market, and
+  short-term CD APYs from [depositaccounts.com](https://www.depositaccounts.com/)
+  to find the best parking spot for an emergency fund or short-term cash
+  bucket. Filters by minimum-balance, fee, and access constraints; computes
+  pre- and after-tax dollar pickup vs the user's current APY; flags
+  teaser-rate and tier-cap traps; optionally compares to money-market mutual
+  funds and short-term Treasury ETFs (with the FDIC-vs-SIPC and state-tax
+  distinction called out). Analysis only — never opens accounts.
+- The Investing Advisor route regex now matches "money market",
+  "high-yield savings / HYSA", "savings rate / APY", "where to park cash",
+  and "CD rate / ladder / APY" so the auto-routing hook nudges the agent
+  toward this specialist for cash-yield questions.
+
 ## [0.11.1] — 2026-05-27
 
 ### Added
