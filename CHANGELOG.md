@@ -7,6 +7,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] — 2026-05-27
+
+Intake gate now emits **ready-to-use `ask_user` JSON schemas** for the 10
+highest-value skills. When the agent hits the gate, it doesn't have to invent
+a form — the gate response hands it a fenced `requestedSchema` JSON block to
+copy verbatim into its built-in `ask_user` elicitation widget. Result: the
+user sees a polished tabbed form for the questions, every time, with **zero
+silent assumptions** for values that should come from them (interest rate,
+tax rate, vacancy %, lease residual, etc.).
+
+### Added
+
+- 📋 **Structured `ask_user` schemas** for 10 priority skills:
+  Contribution Optimizer, Retirement Projection, Social Security Review,
+  Life Insurance Needs, Emergency Fund Assessment, Net Worth Snapshot,
+  Withholding Check, Health Plan Selector, Rental Property Analyzer,
+  Buy vs Lease. Defined in `extensions/money-desk/intake-schemas.mjs`.
+- 🛑 **Gate response includes the form payload** — when a skill ships an
+  intake schema, the first-call gate response emits a fenced ```json block
+  containing the exact `{ message, requestedSchema }` payload for the agent's
+  `ask_user` tool, plus instructions to render the form rather than ask in
+  chat prose. Skills without a schema fall back to the prose path unchanged.
+- 🔍 **`md_intake` surfaces schema availability** — when previewing a skill's
+  intake, the response now flags whether a structured `ask_user` payload is
+  available.
+
+### Design — minimize silent assumptions
+
+The schemas deliberately **omit `default` values** for any field that
+represents a meaningful financial assumption (interest rate, vacancy %, tax
+rate, lease residual, longevity outlook, real return, appreciation). Those
+fields are marked `required` so the form will not submit until the user
+provides them — eliminating the "agent picked 7% interest because that
+sounded reasonable" failure mode. Defaults are reserved for genuine zeros
+("Do you have a HELOC?") and a single technical convention (30-year loan
+term).
+
+### Tests
+
+- New: `INTAKE_SCHEMAS: every key references a real skill tool`.
+- New: `INTAKE_SCHEMAS: every entry is well-formed`.
+- New: `skill loader emits structured ask_user payload when an intake schema
+  is defined` — verifies the JSON block parses cleanly and contains the
+  expected `requestedSchema.properties` and `required` keys.
+- Updated: `skill loader gates on no-inputs call` now accepts either prose
+  ("Ask the user") or structured ("Call `ask_user`") Step 1 wording.
+- **168/168 pass** (was 165).
+
 ## [0.8.0] — 2026-05-26
 
 Intake-first goes from **soft nudge → HARD GATE.** Every `md_<prefix>_skill_<id>`
@@ -351,7 +399,8 @@ Initial release.
 - 82 tests covering: tool manifest consistency, route regex coverage,
   installer smoke, `[UNSOURCED]` guardrail coverage, docs sync.
 
-[Unreleased]: https://github.com/dmauser/money-desk/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/dmauser/money-desk/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/dmauser/money-desk/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/dmauser/money-desk/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/dmauser/money-desk/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/dmauser/money-desk/compare/v0.5.0...v0.6.0

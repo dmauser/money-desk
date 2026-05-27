@@ -5,6 +5,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { tools, SPECIALISTS } from "../extensions/money-desk/registry.mjs";
+import { INTAKE_SCHEMAS } from "../extensions/money-desk/intake-schemas.mjs";
 
 function isFailure(result) {
     return result && typeof result === "object" && result.resultType === "failure";
@@ -114,9 +115,24 @@ test("skill loader gates on no-inputs call: returns intake-required screen", asy
     const lifeInsurance = tools.find((t) => t.name === "md_lp_skill_life_insurance_needs");
     const body = await lifeInsurance.handler();
     assert.match(body, /intake required/i, "first call should return the gated intake-required screen");
-    assert.match(body, /Step 1.*Ask the user/i, "gate should instruct the agent to ask the user");
+    assert.match(body, /Step 1.*(Ask the user|Call `ask_user`)/i, "gate should instruct the agent to ask the user (prose or structured form)");
     assert.match(body, /Step 2.*Re-invoke this tool/i, "gate should instruct the agent to re-invoke with inputs");
     assert.doesNotMatch(body, /## Workflow/, "gate should NOT leak the workflow section on first call");
+});
+
+test("skill loader emits structured ask_user payload when an intake schema is defined", async () => {
+    // life-insurance-needs ships a schema → first-call response should include the requestedSchema
+    const lifeInsurance = tools.find((t) => t.name === "md_lp_skill_life_insurance_needs");
+    const body = await lifeInsurance.handler();
+    assert.match(body, /requestedSchema/, "structured-form path should emit a requestedSchema block");
+    assert.match(body, /"properties":/);
+    assert.match(body, /"required":/);
+    // The JSON block must parse cleanly so the agent can copy it verbatim.
+    const jsonBlock = body.match(/```json\s*\n([\s\S]*?)\n```/);
+    assert.ok(jsonBlock, "must contain a fenced ```json block");
+    const parsed = JSON.parse(jsonBlock[1]);
+    assert.ok(parsed.message, "payload must have a message");
+    assert.ok(parsed.requestedSchema?.properties, "payload must have requestedSchema.properties");
 });
 
 test("skill loader returns workflow + echo when inputs provided", async () => {
@@ -137,6 +153,29 @@ test("every skill tool advertises an `inputs` parameter", () => {
                 `${spec.prefix}_skill_${skill.id} must declare an 'inputs' parameter`,
             );
             assert.equal(t.parameters.properties.inputs.type, "object");
+        }
+    }
+});
+
+test("INTAKE_SCHEMAS: every key references a real skill tool", () => {
+    const toolNames = new Set(tools.map((t) => t.name));
+    for (const key of Object.keys(INTAKE_SCHEMAS)) {
+        assert.ok(toolNames.has(key), `INTAKE_SCHEMAS key '${key}' does not match any registered tool`);
+    }
+});
+
+test("INTAKE_SCHEMAS: every entry is well-formed", () => {
+    for (const [key, entry] of Object.entries(INTAKE_SCHEMAS)) {
+        assert.equal(typeof entry.message, "string", `${key}: message must be a string`);
+        assert.ok(entry.schema && typeof entry.schema === "object", `${key}: schema required`);
+        assert.ok(entry.schema.properties && typeof entry.schema.properties === "object", `${key}: schema.properties required`);
+        assert.ok(Array.isArray(entry.schema.required), `${key}: schema.required must be an array`);
+        for (const [field, def] of Object.entries(entry.schema.properties)) {
+            assert.ok(def.type, `${key}.${field}: type required`);
+            assert.ok(def.title, `${key}.${field}: title required`);
+        }
+        for (const req of entry.schema.required) {
+            assert.ok(entry.schema.properties[req], `${key}: required field '${req}' not in properties`);
         }
     }
 });

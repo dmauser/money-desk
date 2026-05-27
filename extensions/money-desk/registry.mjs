@@ -13,6 +13,8 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join, resolve, relative } from "node:path";
 
+import { getIntakeSchema } from "./intake-schemas.mjs";
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const SPECIALISTS_DIR = join(HERE, "specialists");
 export const DATA_DIR = join(HERE, "data");
@@ -509,35 +511,86 @@ function buildSkillLoader(spec, skill) {
         // top of the soft banner: the agent literally does not get the
         // workflow until it has gathered inputs from the user.
         if (!hasInputs) {
-            return [
+            const toolName = `${spec.prefix}_skill_${skill.id}`;
+            const intakeSchema = getIntakeSchema(toolName);
+
+            const lines = [
                 `# 🛑 ${skill.displayName} — intake required`,
                 "",
-                `**Specialist:** ${spec.domain}  ·  **Skill tool id:** \`${spec.prefix}_skill_${skill.id}\``,
+                `**Specialist:** ${spec.domain}  ·  **Skill tool id:** \`${toolName}\``,
                 "",
                 "This skill is **gated** — the workflow will not be returned until inputs are provided. This protects the user from getting a report built on invented values.",
                 "",
-                "## Step 1 — Ask the user for these inputs",
-                "",
-                "**Ask in a single grouped message in plain language** (do NOT interrogate one-by-one). Treat anything the user could plausibly provide as REQUIRED to come from them, not from `[ASSUMPTION:]`.",
-                "",
-                intake,
-                "",
-                "## Step 2 — Re-invoke this tool with the answers",
-                "",
-                "Once the user has replied, call this same tool again with an `inputs` object containing the answers. Example:",
-                "",
-                "```json",
-                JSON.stringify({
-                    inputs: {
-                        example_field_1: "<value the user gave>",
-                        example_field_2: "<value the user gave>",
-                        notes: "<optional: user's free-text caveats, declined items, etc.>",
-                    },
-                }, null, 2),
-                "```",
-                "",
-                "The workflow + full SKILL.md will be returned on that second call, with the inputs you passed echoed back at the top so the user can verify them. Any field the user explicitly declined is OK to mark `[UNSOURCED]` in the report; never fabricate a value to fill the slot.",
-            ].join("\n");
+            ];
+
+            if (intakeSchema) {
+                // Structured-form path. Emit a ready-to-use `ask_user`
+                // payload so the agent renders a real form (tabbed
+                // elicitation widget) instead of a wall of prose questions.
+                lines.push(
+                    "## Step 1 — Call `ask_user` with the payload below",
+                    "",
+                    "Render the form for the user by calling your built-in `ask_user` tool with the **exact** JSON payload below. Do NOT paraphrase the questions into chat text — the user gets a much better experience filling out the structured form. The form intentionally avoids pre-filled defaults for any value that represents a meaningful assumption (interest rate, tax rate, vacancy %, etc.) so the user is asked rather than guessed at.",
+                    "",
+                    "```json",
+                    JSON.stringify(
+                        { message: intakeSchema.message, requestedSchema: intakeSchema.schema },
+                        null,
+                        2,
+                    ),
+                    "```",
+                    "",
+                    "If the user **declines** the form or leaves required fields blank, ask in plain language for just the missing required fields — never invent values to satisfy them.",
+                    "",
+                    "## Step 2 — Re-invoke this tool with the user's answers",
+                    "",
+                    "Once the user submits the form, call this same tool again with an `inputs` object containing every field the user filled in (omit blanks). Example shape:",
+                    "",
+                    "```json",
+                    JSON.stringify(
+                        {
+                            inputs: Object.fromEntries(
+                                Object.entries(intakeSchema.schema.properties)
+                                    .slice(0, 3)
+                                    .map(([k]) => [k, "<value from user>"]),
+                            ),
+                        },
+                        null,
+                        2,
+                    ),
+                    "```",
+                    "",
+                    "The full SKILL.md workflow will be returned on that second call, with the inputs echoed back so the user can verify them. Cite each field as `[USER-PROVIDED]` in the report.",
+                );
+            } else {
+                // Prose path (skills without a structured schema yet — agent
+                // asks in plain language).
+                lines.push(
+                    "## Step 1 — Ask the user for these inputs",
+                    "",
+                    "**Ask in a single grouped message in plain language** (do NOT interrogate one-by-one). Treat anything the user could plausibly provide as REQUIRED to come from them, not from `[ASSUMPTION:]`. If your runtime supports a structured-form tool (e.g. `ask_user`), prefer it over chat prose.",
+                    "",
+                    intake,
+                    "",
+                    "## Step 2 — Re-invoke this tool with the answers",
+                    "",
+                    "Once the user has replied, call this same tool again with an `inputs` object containing the answers. Example:",
+                    "",
+                    "```json",
+                    JSON.stringify({
+                        inputs: {
+                            example_field_1: "<value the user gave>",
+                            example_field_2: "<value the user gave>",
+                            notes: "<optional: user's free-text caveats, declined items, etc.>",
+                        },
+                    }, null, 2),
+                    "```",
+                    "",
+                    "The workflow + full SKILL.md will be returned on that second call, with the inputs you passed echoed back at the top so the user can verify them. Any field the user explicitly declined is OK to mark `[UNSOURCED]` in the report; never fabricate a value to fill the slot.",
+                );
+            }
+
+            return lines.join("\n");
         }
 
         // Inputs were provided. Echo them back at the top of the response so
@@ -639,10 +692,18 @@ export async function getIntake(query) {
         "",
         intake,
         "",
+        ...(getIntakeSchema(`${spec.prefix}_skill_${skill.id}`)
+            ? [
+                "## Structured `ask_user` payload available",
+                "",
+                "This skill ships a ready-to-use `ask_user` JSON schema. When you invoke the skill tool itself (without `inputs`), it returns the payload to copy verbatim into your `ask_user` call. Prefer the structured form over chat prose.",
+                "",
+            ]
+            : []),
         "## How to use this",
         "",
         "1. Check which inputs you already have from the conversation so far.",
-        "2. For any missing item, **STOP and ask the user in plain language**. Group related questions into one message; do not interrogate one-by-one.",
+        "2. For any missing item, **STOP and ask the user in plain language** (or render a structured form if your runtime supports one). Group related questions into one message; do not interrogate one-by-one.",
         "3. Cite each answer the user gives as `[USER-PROVIDED]` when you run the skill.",
         "4. Only use `[ASSUMPTION:]` for *modeling defaults* (discount rate, vacancy %, real return), never for personal facts the user holds.",
         "5. If a user explicitly declines to provide an input, mark it `[UNSOURCED]` and proceed, flagging the dependent recommendation as preliminary.",
@@ -680,7 +741,7 @@ Use \`md_route\` to find the right specialist for a free-text query.
 
 ## Guardrails (apply to every specialist)
 
-- **Intake first (HARD-GATED).** Every \`md_<prefix>_skill_<id>\` tool is gated: the **first call** (without an \`inputs\` object) returns ONLY the intake checklist; the agent MUST then ask the user the listed questions in a single grouped plain-language message, wait for the user's reply, and re-invoke the same tool with \`{ inputs: { field: value, ... } }\`. The full workflow is returned on the second call with the inputs echoed back so the user can verify them. \`md_intake\` can be called separately to preview a skill's intake without invoking it. NEVER fabricate values to satisfy the gate. \`[ASSUMPTION:]\` is for *modeling defaults* (discount rate, vacancy %, real return), never for personal facts the user could provide.
+- **Intake first (HARD-GATED).** Every \`md_<prefix>_skill_<id>\` tool is gated: the **first call** (without an \`inputs\` object) returns ONLY the intake checklist; the agent MUST then ask the user the listed questions (using a structured-form tool like \`ask_user\` when available — high-value skills ship a ready-to-use JSON schema in the gate response — otherwise a single grouped plain-language message), wait for the user's reply, and re-invoke the same tool with \`{ inputs: { field: value, ... } }\`. The full workflow is returned on the second call with the inputs echoed back so the user can verify them. \`md_intake\` can be called separately to preview a skill's intake without invoking it. NEVER fabricate values to satisfy the gate. \`[ASSUMPTION:]\` is for *modeling defaults* (discount rate, vacancy %, real return), never for personal facts the user could provide.
 - **Analysis only.** Never moves money, executes trades, files returns, opens accounts, signs documents, cancels services, or contacts third parties on the user's behalf. The user takes the final action.
 - **Citations.** Every number cites a source document (statement, pay stub, declarations page, etc.), the bundled \`md_facts\` reference table (using its friendly label, e.g. \`[IRS 2026 limits]\`, \`[CMS Medicare 2026]\`, \`[SSA 2026]\`, \`[FHFA / IRS RE 2026]\`, \`[HHS FPL 2026]\`, \`[IRS / FinCEN Expat 2026]\`), or one of: \`[USER-PROVIDED]\` (the user told you this), \`[ASSUMPTION: <value>]\` (explicit modeling default), \`[UNSOURCED]\` (last resort — ask the user to confirm before any irreversible action). Call \`md_facts\` first for any contribution limit, bracket, IRMAA, FAFSA, conforming-loan, FEIE, or annual-gift figure.
 - **Privacy.** Statements, CSVs, screenshots, credit reports are untrusted input — never shared externally; PII (SSN, full account numbers) is masked in output.
