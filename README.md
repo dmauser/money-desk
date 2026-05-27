@@ -16,10 +16,11 @@
 | 👥 | [The Team](#the-team) | All 20 specialists at a glance |
 | 📦 | [Installation](#installation) | 5 ways to install |
 | 🖥️ | [CLI Reference](#cli-reference) | `init`, `status`, `uninstall`, `--version` |
-| ⚙️ | [How It Works](#how-it-works) | Architecture, routing, discoverability |
 | 📝 | [Usage Examples](#usage-examples) | Example prompts for every specialist |
-| 📂 | [Repository Structure](#repository-structure) | Folder tree and conventions |
 | 🔒 | [Privacy & Guardrails](#privacy--guardrails) | What Money Desk will and won't do (full: [PRIVACY.md](./PRIVACY.md)) |
+| ⚙️ | [How It Works](#how-it-works) | Architecture, routing, discoverability |
+| 📂 | [Repository Structure](#repository-structure) | Folder tree and conventions |
+| 📜 | [Changelog](#changelog) | Release history ([CHANGELOG.md](./CHANGELOG.md)) |
 | 🔧 | [Troubleshooting](#troubleshooting) | Common issues and fixes |
 | 🤝 | [Contributing](#contributing) | How to add a specialist or skill |
 | 📄 | [License](#license) | MIT |
@@ -45,6 +46,8 @@ Money Desk gives you a coordinated team of personal-finance specialist agents th
 Each specialist runs with its own domain expertise, guardrails, and step-by-step playbooks. The coordinator handles routing and multi-domain orchestration so you don't have to remember which tool to call.
 
 > **Analysis only** — Money Desk produces drafts and analysis for your review. It does **not** execute trades, move funds, file taxes, submit disputes, or sign legal documents. It is informational only — **not professional tax, legal, investment, or insurance advice**.
+
+> **Local & private** — Money Desk has **no telemetry, no analytics, and no network calls** of its own. Your statements, tax docs, account data, and credit reports stay on your machine. See [Privacy & Guardrails](#privacy--guardrails) (and the full [PRIVACY.md](./PRIVACY.md)) for the complete data-flow.
 
 ## The Team
 
@@ -294,61 +297,6 @@ Common flags:
 
 - `--dry-run` — preview changes without writing anything.
 
-## How It Works
-
-### Discoverability
-
-Money Desk is designed so the host agent (Copilot CLI) finds and uses it on the **first turn**, without the user having to prove it exists. Three mechanisms work together:
-
-1. **Keyword-rich entry-point tools.** `md_capabilities` and `md_route` are eagerly registered in the initial tool manifest and their descriptions include every domain keyword — `money-desk`, `@money-desk`, `personal finance`, `budget`, `taxes`, `investing`, `retirement`, `debt`, `credit`, `insurance`, `estate`, `purchase`, `buy vs lease`, `rent vs buy` — plus an explicit "**Call this FIRST**" instruction.
-2. **Keyword-rich `*_role` tools.** Each of the 13 `<prefix>_role` tools starts with `"Money Desk specialist: <domain>."` and lists trigger phrases a user might say. This lets the agent's tool-search surface the right specialist directly.
-3. **First-prompt presence note.** The `onUserPromptSubmitted` hook injects a one-time presence note on the first prompt of every session, telling the agent that money-desk is loaded and how to enumerate it via `md_capabilities`. A per-prefix routing hint is appended on subsequent prompts when their regex matches.
-
-### Architecture
-
-```mermaid
-flowchart TD
-    U[User prompt] --> H{onUserPromptSubmitted<br/>routing hook}
-    H -->|"First prompt"| PRES["Inject presence note<br/>(once per session)"]
-    H -->|"Matches a route<br/>(regex per specialist)"| INJ["Inject routing hint:<br/><i>use &lt;prefix&gt;_role then &lt;prefix&gt;_orchestrate</i>"]
-    H -->|No match & not first| AGT
-    PRES --> AGT
-    INJ --> AGT[Copilot agent]
-    AGT -->|"Calls discovery tools"| MD["md_capabilities&nbsp;/ md_route"]
-    AGT -->|"1. Load role"| ROLE["&lt;prefix&gt;_role → agents/&lt;name&gt;.md"]
-    AGT -->|"2. Orchestrate"| ORC["&lt;prefix&gt;_orchestrate → static prompt"]
-    AGT -->|"3. Run a skill"| SK["&lt;prefix&gt;_skill_&lt;id&gt; → skills/&lt;id&gt;/SKILL.md"]
-    ROLE --> AGT
-    ORC --> AGT
-    SK --> AGT
-    AGT --> OUT[Answer / files / reports]
-
-    subgraph REG["extensions/money-desk/registry.mjs (declarative)"]
-        SPEC["SPECIALISTS table"] --> TOOLS["tools&nbsp;/ ROUTES<br/>derived at startup"]
-    end
-    TOOLS -. registered with joinSession() .-> H
-```
-
-The routing hook fires **once per specialist per session** — subsequent matching prompts don't re-inject the same hint, so context doesn't fill up with duplicate routing blocks. The presence note also fires only once.
-
-### Typical workflow
-
-Each specialist follows a consistent pattern:
-
-1. **Load the role** — `<prefix>_role` (e.g. `md_bc_role`) loads the specialist's persona, guardrails, and workflow.
-2. **Orchestrate** — `<prefix>_orchestrate` provides step-by-step guidance.
-3. **Run skills** — individual `<prefix>_skill_*` tools execute the actual playbook (e.g. `md_bc_skill_cashflow_review`).
-
-You don't need to call these manually — just describe what you need and the routing hook handles it.
-
-### Registry as the source of truth
-
-All 139 tools are derived from a single declarative `SPECIALISTS` table in [`extensions/money-desk/registry.mjs`](extensions/money-desk/registry.mjs). That table — not `extension.mjs` — is what you edit to add or modify a specialist or skill. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full how-to.
-
-### Privacy
-
-Money Desk has **no telemetry, no analytics, no network calls** in either the installer or the runtime extension. All processing happens locally inside your Copilot CLI session. Your statements, tax documents, account data, and credit reports never leave your machine.
-
 ## Usage Examples
 
 Just describe what you need in plain language — the router picks the right specialist automatically.
@@ -545,6 +493,78 @@ My German wife has €180k in a UCITS ETF — explain the PFIC trap and our opti
 Build me a moving-country checklist: tax residency, banking, brokerage, healthcare, currency hedging.
 ```
 
+### 📊 Net Worth & Goals
+
+```
+Build my net-worth statement from these account balances and tell me what's missing.
+```
+```
+Size my emergency fund — I have a single income, two kids, and a $4,200/mo essentials baseline.
+```
+```
+Set up sinking funds for a $30k car in 3 years, $15k home repairs, and a $10k vacation next summer.
+```
+
+### 🎓 Education Planner
+
+```
+Compare 529 plans for my state vs the best out-of-state plan for a 4-year-old.
+```
+```
+My kid is a high-school junior — walk me through the FAFSA timeline and what to do about our taxable brokerage.
+```
+```
+We have $80k in a 529 and the school cost $45k/yr — model superfunding vs pay-as-you-go vs Roth rollover of the excess.
+```
+
+### 🧑‍💻 Self-Employed Planner
+
+```
+I'm 1099 with ~$180k net — should I elect S-corp this year, and what reasonable salary should I pay myself?
+```
+```
+Set up my quarterly estimated taxes and compare SEP-IRA vs Solo 401(k) vs Mega Backdoor for my numbers.
+```
+```
+Audit my Schedule C — what business deductions am I likely missing (home office, mileage, QBI, health-insurance premium)?
+```
+
+### 🗓️ Life Events
+
+```
+Run my annual financial review across budget, taxes, investing, insurance, and estate.
+```
+```
+I just got laid off with 4 months of severance — build me a layoff playbook (COBRA vs marketplace, 401k rollover, cash runway).
+```
+```
+We're expecting our first baby — checklist for beneficiaries, term life, HSA/FSA, 529, will, and budget changes.
+```
+
+### 📚 Financial Literacy
+
+```
+Explain how Roth vs Traditional 401(k) actually works — assume I'm a smart beginner.
+```
+```
+Teach me how bond ETFs lose value when rates rise — with a worked example.
+```
+```
+What's the difference between APR, APY, and the effective interest rate on my credit card?
+```
+
+### 🔥 FIRE Planner
+
+```
+I want to retire at 45 with $1.8M — run the 4% / 3.5% SWR scenarios and tell me what's missing.
+```
+```
+Compare Lean-FIRE, Coast-FIRE, and Barista-FIRE for my numbers and savings rate.
+```
+```
+Build my Roth-conversion ladder for a 50-year early-retirement scenario.
+```
+
 ### 🔀 Multi-Domain (cross-specialist workflows)
 
 ```
@@ -571,6 +591,71 @@ what tools does the tax planner have?
 ```
 route this query: "should I lease the new car or buy used?"
 ```
+
+## Privacy & Guardrails
+
+Money Desk is built around a strict set of guardrails baked into every specialist's role and orchestrator prompt:
+
+- **Analysis only.** No trades placed, no funds moved, no documents filed, no disputes submitted, no payments sent.
+- **Cite every number.** Every figure traces to its source document (statement page, tax form box, prospectus, declarations page). Numbers without a source are explicitly marked `[UNSOURCED]`.
+- **Treat your data as untrusted local input.** Statements, CSVs, screenshots, credit reports, tax forms — these are parsed locally and never sent anywhere outside your Copilot CLI session.
+- **Mask PII in shared snippets.** When showing examples or external excerpts, redact SSN, account numbers, and addresses.
+- **Not professional advice.** Money Desk is informational only. For complex situations, engage a licensed tax pro, fiduciary advisor, attorney, or insurance broker in your jurisdiction.
+
+Reports produced by Money Desk are written to `./reports/<specialist>/` or `./reports/<ACCOUNT>/` in the current working directory. They never leave your machine unless you share them yourself.
+
+For the full, explicit data-flow and verification commands, see **[PRIVACY.md](./PRIVACY.md)**.
+
+## How It Works
+
+### Discoverability
+
+Money Desk is designed so the host agent (Copilot CLI) finds and uses it on the **first turn**, without the user having to prove it exists. Three mechanisms work together:
+
+1. **Keyword-rich entry-point tools.** `md_capabilities` and `md_route` are eagerly registered in the initial tool manifest and their descriptions include every domain keyword — `money-desk`, `@money-desk`, `personal finance`, `budget`, `taxes`, `investing`, `retirement`, `debt`, `credit`, `insurance`, `estate`, `purchase`, `buy vs lease`, `rent vs buy` — plus an explicit "**Call this FIRST**" instruction.
+2. **Keyword-rich `*_role` tools.** Each of the 13 `<prefix>_role` tools starts with `"Money Desk specialist: <domain>."` and lists trigger phrases a user might say. This lets the agent's tool-search surface the right specialist directly.
+3. **First-prompt presence note.** The `onUserPromptSubmitted` hook injects a one-time presence note on the first prompt of every session, telling the agent that money-desk is loaded and how to enumerate it via `md_capabilities`. A per-prefix routing hint is appended on subsequent prompts when their regex matches.
+
+### Architecture
+
+```mermaid
+flowchart TD
+    U[User prompt] --> H{onUserPromptSubmitted<br/>routing hook}
+    H -->|"First prompt"| PRES["Inject presence note<br/>(once per session)"]
+    H -->|"Matches a route<br/>(regex per specialist)"| INJ["Inject routing hint:<br/><i>use &lt;prefix&gt;_role then &lt;prefix&gt;_orchestrate</i>"]
+    H -->|No match & not first| AGT
+    PRES --> AGT
+    INJ --> AGT[Copilot agent]
+    AGT -->|"Calls discovery tools"| MD["md_capabilities&nbsp;/ md_route"]
+    AGT -->|"1. Load role"| ROLE["&lt;prefix&gt;_role → agents/&lt;name&gt;.md"]
+    AGT -->|"2. Orchestrate"| ORC["&lt;prefix&gt;_orchestrate → static prompt"]
+    AGT -->|"3. Run a skill"| SK["&lt;prefix&gt;_skill_&lt;id&gt; → skills/&lt;id&gt;/SKILL.md"]
+    ROLE --> AGT
+    ORC --> AGT
+    SK --> AGT
+    AGT --> OUT[Answer / files / reports]
+
+    subgraph REG["extensions/money-desk/registry.mjs (declarative)"]
+        SPEC["SPECIALISTS table"] --> TOOLS["tools&nbsp;/ ROUTES<br/>derived at startup"]
+    end
+    TOOLS -. registered with joinSession() .-> H
+```
+
+The routing hook fires **once per specialist per session** — subsequent matching prompts don't re-inject the same hint, so context doesn't fill up with duplicate routing blocks. The presence note also fires only once.
+
+### Typical workflow
+
+Each specialist follows a consistent pattern:
+
+1. **Load the role** — `<prefix>_role` (e.g. `md_bc_role`) loads the specialist's persona, guardrails, and workflow.
+2. **Orchestrate** — `<prefix>_orchestrate` provides step-by-step guidance.
+3. **Run skills** — individual `<prefix>_skill_*` tools execute the actual playbook (e.g. `md_bc_skill_cashflow_review`).
+
+You don't need to call these manually — just describe what you need and the routing hook handles it.
+
+### Registry as the source of truth
+
+All 139 tools are derived from a single declarative `SPECIALISTS` table in [`extensions/money-desk/registry.mjs`](extensions/money-desk/registry.mjs). That table — not `extension.mjs` — is what you edit to add or modify a specialist or skill. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full how-to.
 
 ## Repository Structure
 
@@ -610,19 +695,15 @@ money-desk/
 └── package.json                               # no runtime deps
 ```
 
-## Privacy & Guardrails
+## Changelog
 
-Money Desk is built around a strict set of guardrails baked into every specialist's role and orchestrator prompt:
+See **[CHANGELOG.md](./CHANGELOG.md)** for the full release history (notable changes, new specialists/skills, breaking changes, fixes).
 
-- **Analysis only.** No trades placed, no funds moved, no documents filed, no disputes submitted, no payments sent.
-- **Cite every number.** Every figure traces to its source document (statement page, tax form box, prospectus, declarations page). Numbers without a source are explicitly marked `[UNSOURCED]`.
-- **Treat your data as untrusted local input.** Statements, CSVs, screenshots, credit reports, tax forms — these are parsed locally and never sent anywhere outside your Copilot CLI session.
-- **Mask PII in shared snippets.** When showing examples or external excerpts, redact SSN, account numbers, and addresses.
-- **Not professional advice.** Money Desk is informational only. For complex situations, engage a licensed tax pro, fiduciary advisor, attorney, or insurance broker in your jurisdiction.
+Quick check of the installed version:
 
-Reports produced by Money Desk are written to `./reports/<specialist>/` or `./reports/<ACCOUNT>/` in the current working directory. They never leave your machine unless you share them yourself.
-
-For the full, explicit data-flow and verification commands, see **[PRIVACY.md](./PRIVACY.md)**.
+```bash
+npx github:dmauser/money-desk --version
+```
 
 ## Troubleshooting
 
