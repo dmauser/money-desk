@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] — 2026-05-26
+
+Intake-first goes from **soft nudge → HARD GATE.** Every `md_<prefix>_skill_<id>`
+tool now refuses to return its workflow on the first call. Instead it returns
+an "intake required" screen listing the required inputs and explicit
+instructions to (1) ask the user in plain language and (2) re-invoke the same
+tool with `{ inputs: { ... } }`. The workflow is returned on the second call
+with the inputs echoed back so the user can verify them. This is structural
+enforcement — the model literally does not get the workflow until inputs are
+gathered from the user.
+
+### Changed (BREAKING for agent invocation flow)
+
+- 🛑 **All 78 skill tools are now gated.** First call with no `inputs` arg →
+  intake-required screen. Second call with `{ inputs: { ... } }` → workflow
+  + echo block at the top. This eliminates the "agent runs the skill on
+  invented `[ASSUMPTION:]` values for personal facts" failure mode that the
+  v0.7.0 soft banner couldn't prevent.
+- 📋 **Inputs echo.** Whatever the agent passes in `inputs` is rendered at the
+  top of the second-call response so the user sees what the agent thinks they
+  said — making any hallucination visible immediately.
+- ⚙️ **Every skill tool advertises an `inputs` object parameter** in its JSON
+  schema, with description guiding the agent to snake_case keys keyed off the
+  intake field names. The SDK now surfaces the parameter to the model.
+- 🔔 **Orchestrator nudges rewritten** in all 18 specialists to describe the
+  hard-gating contract: "FIRST call returns intake only; you MUST ask the user
+  and re-invoke with `{ inputs: ... }`."
+- 🏠 **Capabilities-summary guardrail** rewritten to call out the gate.
+
+### Tests
+
+- `skill loader gates on no-inputs call` — asserts the first-call response
+  contains the "intake required" screen, the Step 1 / Step 2 instructions, and
+  does NOT leak the workflow.
+- `skill loader returns workflow + echo when inputs provided` — asserts the
+  second-call response echoes the inputs and returns the workflow.
+- `every skill tool advertises an 'inputs' parameter` — schema regression test.
+
+### Why this version
+
+User feedback after v0.7.0: "Not sure the intake is working as I expected. My
+intention was before generating a response, Copilot would ask each one of the
+required questions." The v0.7.0 banner was a soft nudge the model could ignore.
+v0.8.0 makes refusal structural — the model can't get the workflow without
+going through the user.
+
 ## [0.7.0] — 2026-05-26
 
 Intake-first overhaul. Adds a new `md_intake` discovery tool, prepends a prominent
@@ -305,7 +351,8 @@ Initial release.
 - 82 tests covering: tool manifest consistency, route regex coverage,
   installer smoke, `[UNSOURCED]` guardrail coverage, docs sync.
 
-[Unreleased]: https://github.com/dmauser/money-desk/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/dmauser/money-desk/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/dmauser/money-desk/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/dmauser/money-desk/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/dmauser/money-desk/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/dmauser/money-desk/compare/v0.4.0...v0.5.0

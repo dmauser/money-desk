@@ -110,9 +110,33 @@ test("md_intake returns helpful error for unknown skill", async () => {
     assert.match(out, /Unknown skill/);
 });
 
-test("skill loader prepends INTAKE FIRST banner", async () => {
+test("skill loader gates on no-inputs call: returns intake-required screen", async () => {
     const lifeInsurance = tools.find((t) => t.name === "md_lp_skill_life_insurance_needs");
     const body = await lifeInsurance.handler();
-    assert.match(body, /INTAKE FIRST/);
-    assert.match(body, /Required inputs/);
+    assert.match(body, /intake required/i, "first call should return the gated intake-required screen");
+    assert.match(body, /Step 1.*Ask the user/i, "gate should instruct the agent to ask the user");
+    assert.match(body, /Step 2.*Re-invoke this tool/i, "gate should instruct the agent to re-invoke with inputs");
+    assert.doesNotMatch(body, /## Workflow/, "gate should NOT leak the workflow section on first call");
+});
+
+test("skill loader returns workflow + echo when inputs provided", async () => {
+    const lifeInsurance = tools.find((t) => t.name === "md_lp_skill_life_insurance_needs");
+    const body = await lifeInsurance.handler({ inputs: { age: 38, income: 185000, kids: 3 } });
+    assert.match(body, /Inputs received/, "second call should echo inputs");
+    assert.match(body, /age:.*38/);
+    assert.match(body, /income:.*185000/);
+    assert.match(body, /## Workflow/, "second call should return the workflow");
+});
+
+test("every skill tool advertises an `inputs` parameter", () => {
+    for (const spec of SPECIALISTS) {
+        for (const skill of spec.skills) {
+            const t = tools.find((x) => x.name === `${spec.prefix}_skill_${skill.id}`);
+            assert.ok(
+                t.parameters?.properties?.inputs,
+                `${spec.prefix}_skill_${skill.id} must declare an 'inputs' parameter`,
+            );
+            assert.equal(t.parameters.properties.inputs.type, "object");
+        }
+    }
 });
