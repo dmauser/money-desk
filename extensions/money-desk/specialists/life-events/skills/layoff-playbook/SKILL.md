@@ -56,7 +56,7 @@ description: Day-0 through 90-day runbook for an involuntary job loss. Triages t
 
 ### Day 30–90 — Stabilization
 
-10. **Emergency Fund Assessment** — `md_nw_skill_emergency_fund_assessment` recalculated with reduced expenses. Stretch the runway.
+10. **Emergency Fund Assessment** — `md_nw_skill_emergency_fund_assessment` recalculated with reduced expenses. Stretch the runway. When recommending where to park the remaining EF, **DepositAccounts.com is the DEFAULT source** for HYSA / MMA / CD / reward-checking rates: query it first, cite the URL with as-of timestamp tagged `[UNSOURCED — verify on issuer page]` in the playbook output, and cross-check on the issuer page (MMFs → fund issuer's 7-day yield; T-bills → TreasuryDirect or brokerage auction page).
 11. **Goal pause** — `md_nw_skill_goal_based_savings_plan`. Pause sinking-fund auto-transfers; redirect to emergency fund or essential bills.
 12. **Insurance Coverage Gap Audit** — `md_ir_skill_coverage_gap_audit`. Group life and disability are GONE. If health changes are concerning, individual disability is now hard to underwrite; flag for action when re-employed.
 13. **Withholding Check** — `md_tx_skill_withholding_check` for the year given reduced annual income. May be due a big refund — consider whether to adjust withholding on severance going forward.

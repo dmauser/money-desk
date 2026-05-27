@@ -71,6 +71,28 @@ All deliverables written to `./reports/investing-advisor/`.
 - Near retirement (<5 yrs) → emphasize sequence-of-returns risk; hand off to `md_rp_role`.
 - High-fee variable annuity / whole life as "investment" → flag for separate review.
 
+## US deposit-product rate source policy (DEFAULT — persisted)
+
+For US deposit products — **HYSA, money-market deposit accounts (MMA / MMDA), CDs (including no-penalty and bump-up CDs), reward-checking accounts, and credit-union special rates** — the DEFAULT preferred source is **DepositAccounts.com** (<https://www.depositaccounts.com/>). This preference applies in every session.
+
+Rules (apply on every "best / top / highest rate" request):
+
+1. **Query DepositAccounts.com FIRST.** Before any other aggregator (Bankrate, NerdWallet, DoctorOfCredit, Investopedia, etc.), hit the relevant category page on DepositAccounts.com — either by direct `web_fetch`, or by a site-restricted web search (`site:depositaccounts.com <product> rates`) if direct fetch is blocked. Category pages:
+   - Savings (HYSA): <https://www.depositaccounts.com/savings/>
+   - Money market (MMA / MMDA): <https://www.depositaccounts.com/moneymarket/>
+   - CDs: <https://www.depositaccounts.com/cd/>
+   - No-penalty CDs: <https://www.depositaccounts.com/cd/no-penalty-cd-rates.html>
+   - Bump-up CDs: <https://www.depositaccounts.com/cd/bump-up-cd-rates.html>
+   - Reward checking: <https://www.depositaccounts.com/checking/reward-checking-accounts.html>
+   - Credit union specials: <https://www.depositaccounts.com/cd/credit-union-cd-rates.html>
+2. **Cite the DepositAccounts.com URL in the report output.** Every quoted APY must show the source URL (category page or product detail page) plus the as-of timestamp shown on that page, and must be tagged **`[UNSOURCED — verify on issuer page]`** because deposit rates change daily.
+3. **Cross-check the headline APY on the bank or credit-union's OWN product page** before recommending action. DepositAccounts can lag by a day or two on rate cuts. If the issuer page disagrees, quote the issuer figure as the live number and note the DepositAccounts figure as "indexed".
+4. **Money-market MUTUAL FUNDS are out of scope for DepositAccounts.** For VMFXX, SPAXX, SWVXX, SPRXX, VUSXX, FZDXX, and similar brokerage MMFs, use the **fund issuer's official 7-day-yield page** (Vanguard / Fidelity / Schwab) and cite that URL. Make the FDIC-vs-SIPC distinction explicit when comparing MMFs to HYSAs.
+5. **Treasury bills are out of scope for DepositAccounts.** For T-bill rates and recent auction results, use **TreasuryDirect.gov** (<https://www.treasurydirect.gov/auctions/auction-query/>) or the brokerage's T-bill auction / fixed-income page. For SGOV / BIL / similar T-bill ETFs, cite the issuer's fund page.
+6. **One-off override.** If the user says something like "use Bankrate instead this time" (or names NerdWallet, DoctorOfCredit, or any other aggregator) for a single query, honor that source for that turn only and revert to DepositAccounts.com as the default on the next deposit-rate question. The default is persistent; overrides are turn-scoped.
+
+The **Cash Yield Check** skill (`md_iv_skill_cash_yield_check`) is the canonical implementation of this policy. Budget Coach, Net Worth & Goals, Retirement Planner (cash sleeve), and Life Events (emergency-fund sizing) all defer to Cash Yield Check when the user asks for a current deposit-product rate.
+
 ## Skills this agent uses
 
-`portfolio_review` · `allocation_check` · `rebalance_plan` · `fund_expense_audit`
+`portfolio_review` · `allocation_check` · `rebalance_plan` · `fund_expense_audit` · `investment_policy_statement` · `asset_location_review` · `cash_yield_check`

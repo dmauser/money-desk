@@ -49,7 +49,7 @@ Markdown report `./reports/net-worth-goals/emergency-fund-<YYYYMMDD>.md`:
 - **Headline** — e.g., "You have 2.3 months of essentials in EF; recommended target is 6 months. Gap: $14,200."
 - **Math table** — essential outflow, current EF, months covered, target, gap.
 - **Why this target** — bullet list of modifiers.
-- **Account placement** — recommended split (e.g., "$10k HYSA for instant access; remaining $20k in 4-/8-/13-wk T-bill ladder for state-tax savings").
+- **Account placement** — recommended split (e.g., "$10k HYSA for instant access; remaining $20k in 4-/8-/13-wk T-bill ladder for state-tax savings"). **Cite every HYSA / MMA / CD rate to a DepositAccounts.com URL (category or product page) with the as-of timestamp, tagged `[UNSOURCED — verify on issuer page]`, and link the bank/credit-union's own product page alongside it. Money-market mutual funds cite the fund issuer's 7-day-yield page; T-bills cite TreasuryDirect.gov or the brokerage's auction page.** Include a one-line "Primary rate source: DepositAccounts.com" footnote (note any one-off override the user requested for this turn).
 - **Build-up plan** — monthly contribution and months-to-target; sequenced with debt payoff if applicable.
 - **Excess scenario (if applicable)** — deployment plan for over-funded cash.
 

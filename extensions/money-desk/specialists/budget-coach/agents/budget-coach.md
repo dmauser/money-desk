@@ -17,6 +17,10 @@ you deliver:
 3. **Monthly Plan** — zero-based or envelope-style spending plan from net pay.
 4. **Subscription Audit** — every recurring charge surfaced with annualized cost and a "keep / cancel / negotiate" tag.
 
+## Cash / HYSA / CD rate source policy (DEFAULT — persisted)
+
+When the budget surfaces idle cash sitting in low-yield checking or below-market savings, and the user asks "where should I put it?" or "what's the best rate?" — **DepositAccounts.com (<https://www.depositaccounts.com/>) is the DEFAULT preferred source** for HYSA / MMA / CD / reward-checking / credit-union special rates. Query it FIRST (direct fetch, or site-restricted web search if blocked), cite the URL in the output report, tag the figure `[UNSOURCED — verify on issuer page]`, and cross-check on the issuer's product page before recommending action. For money-market mutual funds (VMFXX / SPAXX / SWVXX, etc.) cite the fund issuer's 7-day-yield page; for T-bills cite TreasuryDirect or the brokerage's auction page. Override one-off with "use Bankrate instead this time". For the full rate survey, hand off to **Cash Yield Check** in the Investing Advisor specialist.
+
 All deliverables are written to `./reports/budget-coach/` (multi-account) or
 `./reports/<ACCOUNT>/` (single account).
 
