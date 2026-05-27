@@ -7,6 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-05-26
+
+Phase 4 of the deep-review expansion **plus** an Insurance Reviewer split refactor.
+Adds 3 new domain specialists (Real Estate Investor, Behavioral Coach,
+International / Expat) and splits the monolithic `md_ir` Insurance Reviewer into
+3 focused specialists (Health & Medicare, Property & Casualty, Life & Disability).
+Total: **18 specialists / 78 skills / 116 tools** (up from 13 / 62 / 90).
+
+### Added
+
+- 🏘️ **Real Estate Investor** (`md_re`) — 5 skills: rental-property analyzer
+  (cap rate, cash-on-cash, DSCR, 1% rule, stress tests), mortgage-strategy
+  review (refi break-even, PMI removal, ARM-vs-fixed, recasting), house-hacking
+  analysis (duplex / ADU / room-rent), real-estate tax strategy (depreciation,
+  passive-loss rules, STR loophole, 1031, cost segregation), sell-vs-hold
+  decision framework.
+- 🧠 **Behavioral Coach** (`md_bh`) — 5 skills: panic / FOMO circuit-breaker,
+  money-script diagnostic (Klontz-style: avoidance / worship / status / vigilance),
+  decision journal & pre-commitment, couples money alignment (money date format,
+  yours/mine/ours), lifestyle-inflation audit.
+- 🌍 **International / Expat** (`md_in`) — 4 skills: US-expat tax overview
+  (FBAR, FATCA, FEIE vs FTC, totalization), cross-border investing (PFIC trap,
+  US-domiciled vs UCITS, treaty quirks), currency / FX exposure, moving-country
+  checklist (tax residency exit, banking, brokerage, healthcare, hedging).
+- 🏥 **Insurance — Health & Medicare** (`md_ih`) — health-plan selector
+  (HDHP+HSA vs PPO with actuarial worksheet), Medicare IRMAA review (2-year
+  lookback, Roth-conversion modeling), LTC planning (self-insure vs hybrid).
+- ☂️ **Insurance — Property & Casualty** (`md_pc`) — auto / home / renters
+  declarations-page audit, deductible optimizer, umbrella sizing
+  (net-worth + future-earnings floor).
+- 🛡️ **Insurance — Life & Disability** (`md_lp`) — life-insurance needs
+  (DIME / HLV), individual disability review (own-occ definitions, COLA,
+  group vs individual), beneficiary audit across all accounts.
+
+### Changed
+
+- Updated `md_le` (Life Events) orchestrator to reference the 3 new insurance
+  specialists (`md_ih`, `md_pc`, `md_lp`) and added `md_re`, `md_bh`, `md_in`
+  to the list of orchestratable prefixes for cross-specialist playbooks.
+- `md_capabilities` now enumerates the 18-specialist team.
+- README team table rewritten; per-specialist example-prompt sections added
+  for the 6 new / split specialists.
+
+### Removed
+
+- `md_ir` Insurance Reviewer monolithic specialist. Its 5 still-valuable
+  skills were redistributed without behavior change to the 3 new insurance
+  specialists; `coverage_gap_audit` and `policy_comparison` were folded into
+  each specialist's role workflow (no separate tool needed).
+
 ## [0.4.0] — 2026-05-26
 
 Phase 3 of the deep-review expansion: 1 new cross-specialist orchestrator
@@ -152,7 +202,8 @@ Initial release.
 - 82 tests covering: tool manifest consistency, route regex coverage,
   installer smoke, `[UNSOURCED]` guardrail coverage, docs sync.
 
-[Unreleased]: https://github.com/dmauser/money-desk/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/dmauser/money-desk/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/dmauser/money-desk/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/dmauser/money-desk/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/dmauser/money-desk/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/dmauser/money-desk/compare/v0.1.0...v0.2.0

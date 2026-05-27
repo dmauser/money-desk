@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js >= 18](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
 
-**Your personal-finance AI team for GitHub Copilot CLI.** 13 specialist agents with 90 tools covering budgeting, taxes, investing, retirement, debt, credit, insurance, estate hygiene, major purchase decisions, education / 529 planning, net worth & goals tracking, self-employed / 1099 planning, and cross-specialist life-event playbooks (annual review, new baby, job change, home purchase, inheritance, layoff) — routed automatically. Zero runtime dependencies.
+**Your personal-finance AI team for GitHub Copilot CLI.** 18 specialist agents with 116 tools covering budgeting, taxes, investing, retirement, debt, credit, health & Medicare, property & casualty insurance, life & disability insurance, estate hygiene, major purchase decisions, education / 529 planning, net worth & goals tracking, self-employed / 1099 planning, cross-specialist life-event playbooks (annual review, new baby, job change, home purchase, inheritance, layoff), real-estate investing, behavioral coaching, and international / expat planning — routed automatically. Zero runtime dependencies.
 
 ---
 
@@ -13,7 +13,7 @@
 |---|---------|-------------|
 | 🚀 | [Quick Start](#quick-start) | One-command install |
 | 💡 | [What is Money Desk?](#what-is-money-desk) | Overview and key concepts |
-| 👥 | [The Team](#the-team) | All 13 specialists at a glance |
+| 👥 | [The Team](#the-team) | All 18 specialists at a glance |
 | 📦 | [Installation](#installation) | 5 ways to install |
 | 🖥️ | [CLI Reference](#cli-reference) | `init`, `status`, `uninstall`, `--version` |
 | ⚙️ | [How It Works](#how-it-works) | Architecture, routing, discoverability |
@@ -56,19 +56,24 @@ Each specialist runs with its own domain expertise, guardrails, and step-by-step
 | **Retirement Planner** | `md_rp` | Retirement projections, contribution optimization, withdrawal sequencing, Social Security |
 | **Debt Strategist** | `md_ds` | Payoff plans (avalanche/snowball), refinance analysis, credit-card strategy, student loans |
 | **Credit & Identity** | `md_ci` | Credit-report reviews, score-improvement plans, dispute letters, ID-theft response |
-| **Insurance Reviewer** | `md_ir` | Coverage-gap audits, policy comparisons, life-insurance needs, deductible optimization |
+| **Insurance — Health & Medicare** | `md_ih` | Health-plan selection (HDHP+HSA vs PPO), Medicare IRMAA, LTC planning |
+| **Insurance — Property & Casualty** | `md_pc` | Auto / home / renters declarations-page audit, deductible optimizer, umbrella sizing |
+| **Insurance — Life & Disability** | `md_lp` | Life-insurance needs (DIME/HLV), individual disability review, beneficiary audit |
 | **Estate & Legacy** | `md_el` | Document inventories, beneficiary audits, basics checklist, digital-estate review |
 | **Purchase Advisor** | `md_pa` | Buy-vs-lease, rent-vs-buy, big-purchase reviews, total cost of ownership |
 | **Education Planner** | `md_ed` | 529 reviews, college-cost projections, FAFSA / financial-aid positioning, account-type selection |
 | **Net Worth & Goals** | `md_nw` | Net-worth snapshots, emergency-fund sizing, goal-based savings plans, sinking funds |
 | **Self-Employed Planner** | `md_se` | Solo 401k / SEP / SIMPLE selector, quarterly estimated taxes, S-corp election, Schedule C / QBI review |
 | **Life Events** | `md_le` | Cross-specialist orchestrator — annual review, new baby, job change, home purchase, inheritance, layoff playbooks |
+| **Real Estate Investor** | `md_re` | Rental-property underwriting (cap rate, cash-on-cash, DSCR), mortgage/refi strategy, house-hacking, real-estate tax strategy (depreciation, 1031, cost segregation), sell-vs-hold |
+| **Behavioral Coach** | `md_bh` | Panic / FOMO circuit-breaker, money-script diagnostic, decision journal, couples money alignment, lifestyle-inflation audit |
+| **International / Expat** | `md_in` | US-expat tax overview (FBAR, FATCA, FEIE vs FTC), cross-border investing (PFIC traps), currency/FX exposure, moving-country checklist |
 
 Each specialist exposes:
 
 - `<prefix>_role` — the specialist's persona and workflow.
 - `<prefix>_orchestrate` — step-by-step orchestration prompt.
-- `<prefix>_skill_<id>` — one per skill (4 per specialist, except Insurance Reviewer 7, Investing Advisor 6, Retirement Planner 5, Tax Planner 5, Estate & Legacy 5).
+- `<prefix>_skill_<id>` — one per skill (typically 3–5 per specialist).
 
 Plus two top-level discovery tools:
 
@@ -99,7 +104,7 @@ copilot --experimental
 
 This will:
 1. Create `~/.copilot/extensions/money-desk/` if it doesn't exist.
-2. Copy the extension router and all 13 specialists.
+2. Copy the extension router and all 18 specialists.
 3. Display a summary of what was installed.
 
 ### Option B — Project-level install (no experimental mode needed)
@@ -121,7 +126,7 @@ copilot
 
 This will:
 1. Create `.github/extensions/money-desk/` in the current repo.
-2. Copy the extension router and all 13 specialists.
+2. Copy the extension router and all 18 specialists.
 3. Add the extension directory to `.gitignore` (each developer runs init themselves — keep secrets out of source).
 
 ### Option C — Global install via npm
@@ -215,7 +220,7 @@ copilot
 > show me the money-desk capabilities
 ```
 
-You should see all 13 specialists listed with their tools.
+You should see all 18 specialists listed with their tools.
 
 ### Updating
 
@@ -305,7 +310,7 @@ You don't need to call these manually — just describe what you need and the ro
 
 ### Registry as the source of truth
 
-All 90 tools are derived from a single declarative `SPECIALISTS` table in [`extensions/money-desk/registry.mjs`](extensions/money-desk/registry.mjs). That table — not `extension.mjs` — is what you edit to add or modify a specialist or skill. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full how-to.
+All 116 tools are derived from a single declarative `SPECIALISTS` table in [`extensions/money-desk/registry.mjs`](extensions/money-desk/registry.mjs). That table — not `extension.mjs` — is what you edit to add or modify a specialist or skill. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full how-to.
 
 ### Privacy
 
@@ -405,19 +410,40 @@ Draft an FCRA dispute letter for the medical collection that shouldn't be there.
 I think my SSN was leaked in a data breach — walk me through identity-theft response.
 ```
 
-### ☂️ Insurance Reviewer
+### 🏥 Insurance — Health & Medicare
 
 ```
-Audit all my insurance — auto, home, umbrella, life, disability — for gaps and overlaps.
+Open enrollment is next week — compare the HDHP+HSA vs PPO for my family of four.
 ```
 ```
-Compare these two auto quotes apples-to-apples — limits, exclusions, carrier strength.
+I'm turning 63 — what's my Medicare IRMAA going to look like at age 65 given my Roth conversion plan?
 ```
+```
+Should I buy a long-term-care policy now or self-insure? I'm 55 with $1.2M invested.
+```
+
+### ☂️ Insurance — Property & Casualty
+
+```
+Review my auto and home declarations pages — am I underinsured for liability given my net worth?
+```
+```
+Should I raise my home insurance deductible to $5k and save on premium?
+```
+```
+Do I need an umbrella policy? I have $850k in assets and a teenage driver.
+```
+
+### 🛡️ Insurance — Life & Disability
+
 ```
 How much term life insurance do I need? I'm 38, two kids under 10, $185k income, $320k mortgage.
 ```
 ```
-Should I raise my home insurance deductible to $5k and save on premium?
+Review my employer's group disability — is it enough or do I need an individual policy?
+```
+```
+Audit my beneficiaries across 401(k), IRA, life insurance, and bank PODs.
 ```
 
 ### 📜 Estate & Legacy
@@ -448,6 +474,42 @@ I want to spend $4,500 on a new mountain bike. Sanity-check this purchase for me
 ```
 ```
 Compare TCO of a Toyota RAV4 hybrid vs Tesla Model Y over 8 years and 100k miles.
+```
+
+### 🏘️ Real Estate Investor
+
+```
+Underwrite this rental: $385k SFR, $2,650 rent, 20% down at 7.25%. Run cap rate, cash-on-cash, and DSCR.
+```
+```
+Should I refi my 6.875% mortgage now or wait? Break-even and PMI removal analysis.
+```
+```
+Sell-vs-hold my old rental — $620k value, $1,800 cashflow, 6 years left of accelerated depreciation.
+```
+
+### 🧠 Behavioral Coach
+
+```
+The market just dropped 7% and I want to sell everything — talk me down with a circuit-breaker.
+```
+```
+Diagnose my money script — I grew up poor and now I can't stop hoarding cash even though I'm 45 with no debt.
+```
+```
+My partner is a spender and I'm a saver — help us align on a monthly money date format.
+```
+
+### 🌍 International / Expat
+
+```
+I'm a US citizen moving to Portugal next year — FBAR, FATCA, FEIE vs FTC, and what to do with my Vanguard accounts.
+```
+```
+My German wife has €180k in a UCITS ETF — explain the PFIC trap and our options.
+```
+```
+Build me a moving-country checklist: tax residency, banking, brokerage, healthcare, currency hedging.
 ```
 
 ### 🔀 Multi-Domain (cross-specialist workflows)

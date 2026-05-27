@@ -13,13 +13,18 @@ const CANONICAL_PHRASES = {
     md_rp: "Project my retirement and optimize 401k/Roth IRA contributions.",
     md_ds: "Draft a debt payoff plan with avalanche vs snowball comparison.",
     md_ci: "Review my credit report and write a dispute letter for a collection.",
-    md_ir: "Audit my auto and umbrella insurance coverage for gaps.",
+    md_ih: "Compare HDHP+HSA vs PPO for open enrollment and check Medicare IRMAA for next year.",
+    md_pc: "Review my auto and home declarations page and size an umbrella policy.",
+    md_lp: "How much term life insurance do I need? Run a DIME computation and audit my beneficiaries.",
     md_el: "Inventory my estate documents and audit beneficiaries.",
     md_pa: "Should I buy or lease a new car? Run a total cost of ownership comparison.",
     md_ed: "Review my 529 plan and project college costs for my kid; how does FAFSA work?",
     md_nw: "What's my net worth and how much emergency fund do I need for sinking funds?",
     md_se: "I just went 1099 — should I set up a Solo 401k or SEP IRA, and what about quarterly estimated taxes?",
     md_le: "We just had a baby — walk me through the new baby playbook with the 30-day insurance window.",
+    md_re: "Underwrite this rental property — run cap rate, cash-on-cash, and a sell-vs-hold analysis.",
+    md_bh: "The market just dropped 5% and I want to sell everything — should I?",
+    md_in: "I'm a US citizen moving to Portugal next year — what about FBAR, PFICs, and FEIE vs FTC?",
 };
 
 test("every prefix has a canonical phrase fixture", () => {

@@ -3,7 +3,7 @@
 
 # Money Desk Capabilities
 
-Money Desk ships **13 specialists** with **62 skills** plus 2 discovery tools (`md_capabilities`, `md_route`) — a total of **90 tools** registered with Copilot CLI.
+Money Desk ships **18 specialists** with **78 skills** plus 2 discovery tools (`md_capabilities`, `md_route`) — a total of **116 tools** registered with Copilot CLI.
 
 ## Specialists
 
@@ -15,13 +15,18 @@ Money Desk ships **13 specialists** with **62 skills** plus 2 discovery tools (`
 | 4 | 🏖️ Retirement Planner | `md_rp` | `md_rp_role` | `md_rp_orchestrate` | `retir`, `ement`, `contribution`, `conversion` |
 | 5 | 💳 Debt Strategist | `md_ds` | `md_ds_role` | `md_ds_orchestrate` | `debt`, `payoff`, `plan`, `strategy` |
 | 6 | 🪪 Credit & Identity | `md_ci` | `md_ci_role` | `md_ci_orchestrate` | `credit`, `report`, `score`, `bureau` |
-| 7 | 🛡️ Insurance Reviewer | `md_ir` | `md_ir_role` | `md_ir_orchestrate` | `insurance`, `policy`, `review`, `comparison` |
-| 8 | 📜 Estate & Legacy | `md_el` | `md_el_role` | `md_el_orchestrate` | `estate`, `plan`, `planning`, `hygiene` |
-| 9 | 🛒 Purchase Advisor | `md_pa` | `md_pa_role` | `md_pa_orchestrate` | `lease`, `lease`, `rent`, `rent` |
-| 10 | 🎓 Education Planner | `md_ed` | `md_ed_role` | `md_ed_orchestrate` | `college`, `savings`, `fund`, `cost` |
-| 11 | 📊 Net Worth & Goals | `md_nw` | `md_nw_role` | `md_nw_orchestrate` | `worth`, `emergency`, `fund`, `sinking` |
-| 12 | 💼 Self-Employed Planner | `md_se` | `md_se_role` | `md_se_orchestrate` | `self`, `employ`, `freelanc`, `income` |
-| 13 | 🌟 Life Events | `md_le` | `md_le_role` | `md_le_orchestrate` | `annual`, `financial`, `review`, `year` |
+| 7 | 🏥 Health & Medicare | `md_ih` | `md_ih_role` | `md_ih_orchestrate` | `health`, `insurance`, `plan`, `HDHP` |
+| 8 | 🚗 Property & Casualty | `md_pc` | `md_pc_role` | `md_pc_orchestrate` | `auto`, `insurance`, `homeowners`, `insurance` |
+| 9 | 🛡️ Life & Disability | `md_lp` | `md_lp_role` | `md_lp_orchestrate` | `life`, `insurance`, `term`, `life` |
+| 10 | 📜 Estate & Legacy | `md_el` | `md_el_role` | `md_el_orchestrate` | `estate`, `plan`, `planning`, `hygiene` |
+| 11 | 🛒 Purchase Advisor | `md_pa` | `md_pa_role` | `md_pa_orchestrate` | `lease`, `lease`, `rent`, `rent` |
+| 12 | 🎓 Education Planner | `md_ed` | `md_ed_role` | `md_ed_orchestrate` | `college`, `savings`, `fund`, `cost` |
+| 13 | 📊 Net Worth & Goals | `md_nw` | `md_nw_role` | `md_nw_orchestrate` | `worth`, `emergency`, `fund`, `sinking` |
+| 14 | 💼 Self-Employed Planner | `md_se` | `md_se_role` | `md_se_orchestrate` | `self`, `employ`, `freelanc`, `income` |
+| 15 | 🌟 Life Events | `md_le` | `md_le_role` | `md_le_orchestrate` | `annual`, `financial`, `review`, `year` |
+| 16 | 🏘️ Real Estate Investor | `md_re` | `md_re_role` | `md_re_orchestrate` | `rental`, `property`, `real`, `estate` |
+| 17 | 🧠 Behavioral Coach | `md_bh` | `md_bh_role` | `md_bh_orchestrate` | `panic`, `FOMO`, `loss`, `aversion` |
+| 18 | 🌍 International / Expat | `md_in` | `md_in_role` | `md_in_orchestrate` | `expat`, `expatriate`, `citizen`, `abroad` |
 
 ## Skills by specialist
 
@@ -83,17 +88,29 @@ Money Desk ships **13 specialists** with **62 skills** plus 2 discovery tools (`
 | **Dispute Letter Helper** | `md_ci_skill_dispute_letter_helper` | draft an FCRA dispute letter to a credit bureau or creditor for a specific tradeline error. Includes required elements (account ID, what's wrong, what's correct, supporting docs). User signs and sends. |
 | **Identity Theft Response** | `md_ci_skill_identity_theft_response` | step-by-step playbook after suspected identity theft: FTC IdentityTheft.gov report, fraud alerts vs credit freezes at all 3 bureaus, police report, contacting affected creditors, monitoring. Produces an action checklist. |
 
-### 🛡️ Insurance Reviewer (`md_ir`)
+### 🏥 Health & Medicare (`md_ih`)
 
 | Skill | Tool | What it does |
 |-------|------|--------------|
-| **Coverage Gap Audit** | `md_ir_skill_coverage_gap_audit` | across all policies (health, auto, home/renters, life, disability, umbrella): map current limits to typical household risks; flag gaps (e.g. missing umbrella, underinsured auto liability, no long-term disability). |
-| **Policy Comparison** | `md_ir_skill_policy_comparison` | side-by-side comparison of two or more quotes/policies on premium, deductible, limits, exclusions, network (health), and total expected cost given assumed utilization. Surfaces apples-to-apples differences. |
-| **Life Insurance Needs** | `md_ir_skill_life_insurance_needs` | compute term-life coverage need using DIME (Debt, Income replacement, Mortgage, Education) plus existing assets and expected Social Security survivor benefits. Recommends term length (e.g. 20y to youngest-child-age-22). |
-| **Deductible Optimizer** | `md_ir_skill_deductible_optimizer` | for auto / home / health: model premium savings at higher deductibles against the marginal out-of-pocket risk; identify the deductible where annual premium savings × expected years > deductible delta. |
-| **Disability Insurance Review** | `md_ir_skill_disability_insurance_review` | audit group LTD (definition of disability, benefit cap, taxability, mental/nervous limit, portability) and size the supplemental individual policy gap. Recommends true own-occupation + non-cancelable + future-purchase rider for high earners and specialty professions. |
-| **Medicare & IRMAA Review** | `md_ir_skill_medicare_irmaa_review` | plan Parts A/B/C/D enrollment timing (IEP/SEP, late penalties), Medigap vs Medicare Advantage tradeoffs, HSA shutdown timing, and the 2-year MAGI lookback that drives IRMAA surcharges. Flags SSA-44 appeal opportunities after life-changing events. |
-| **Long-Term Care Planning** | `md_ir_skill_ltc_planning` | size the LTC liability against state-specific cost data; choose between self-insure / traditional LTC insurance / hybrid life+LTC / annuity+LTC / Medicaid planning. Surfaces partnership-program state-asset protection and prioritizes wife-coverage in couples. |
+| **Health Plan Selector** | `md_ih_skill_health_plan_selector` | for an employer open-enrollment menu OR an ACA Marketplace shop: expected total cost = premium + expected OOP utilization + HSA tax benefit. Compares HDHP+HSA vs PPO vs HMO; computes Premium Tax Credit eligibility (with MAGI levers) and the Cobra-vs-Marketplace decision after job change. |
+| **Medicare & IRMAA Review** | `md_ih_skill_medicare_irmaa_review` | plan Parts A/B/C/D enrollment timing (IEP/SEP, late penalties), Medigap vs Medicare Advantage tradeoffs, HSA shutdown timing, and the 2-year MAGI lookback that drives IRMAA surcharges. Flags SSA-44 appeal opportunities after life-changing events. |
+| **Long-Term Care Planning** | `md_ih_skill_ltc_planning` | size the LTC liability against state-specific cost data; choose between self-insure / traditional LTC insurance / hybrid life+LTC / annuity+LTC / Medicaid planning. Surfaces partnership-program state-asset protection and prioritizes wife-coverage in couples. |
+
+### 🚗 Property & Casualty (`md_pc`)
+
+| Skill | Tool | What it does |
+|-------|------|--------------|
+| **Auto / Home / Renters Policy Review** | `md_pc_skill_auto_home_policy_review` | line-by-line declarations-page audit: liability limits (vs net-worth floor), UM/UIM, deductibles, replacement-cost vs ACV, contents, loss-of-use, water-backup, ordinance-and-law, mold, flood, earthquake, named-storm wind, STR exclusion, scheduled items. Flags gaps and unneeded add-ons. |
+| **Deductible Optimizer** | `md_pc_skill_deductible_optimizer` | for auto / home / health: model premium savings at higher deductibles against the marginal out-of-pocket risk; identify the deductible where annual premium savings × expected years > deductible delta. |
+| **Umbrella Sizing** | `md_pc_skill_umbrella_sizing` | recommend umbrella policy size from net worth + future earnings + liability-exposure scoring (teen driver, pool, dog, rental property, board service, public profile). Confirms underlying-liability minimums on auto + home are met for the umbrella to attach. |
+
+### 🛡️ Life & Disability (`md_lp`)
+
+| Skill | Tool | What it does |
+|-------|------|--------------|
+| **Life Insurance Needs** | `md_lp_skill_life_insurance_needs` | compute term-life coverage need using DIME (Debt, Income replacement, Mortgage, Education) plus existing assets and expected Social Security survivor benefits. Recommends term length (e.g. 20y to youngest-child-age-22) and explicit term-vs-permanent decision. |
+| **Disability Insurance Review** | `md_lp_skill_disability_insurance_review` | audit group LTD (definition of disability, benefit cap, taxability, mental/nervous limit, portability) and size the supplemental individual policy gap. Recommends true own-occupation + non-cancelable + future-purchase rider for high earners and specialty professions. |
+| **Beneficiary Audit** | `md_lp_skill_beneficiary_audit` | across 401(k) / IRA / Roth / HSA / life / annuity / TOD-brokerage / POD-bank / TOD-deed / 529-successor: list primary + contingent, flag stale designations (ex-spouse, deceased parent, plain 'estate'), check ERISA spousal-consent, confirm minors go through trust not directly, and verify see-through trust drafting for retirement accounts. |
 
 ### 📜 Estate & Legacy (`md_el`)
 
@@ -151,6 +168,35 @@ Money Desk ships **13 specialists** with **62 skills** plus 2 discovery tools (`
 | **Home Purchase Playbook** | `md_le_skill_home_purchase_playbook` | honest affordability sizing (PITI + HOA + PMI + maintenance, capped at 28% gross), down-payment + closing + reserves cash stack, buy-vs-rent crossover analysis, loan-offer comparison (APR + points + breakeven), and post-close insurance + beneficiary + sinking-fund setup. |
 | **Inheritance Playbook** | `md_le_skill_inheritance_playbook` | 0-to-9-month runbook starting with 'do nothing fast.' Sequences the 9-month disclaimer window, cost-basis step-up documentation, inherited-IRA 10-year-rule distribution schedule, state inheritance tax check, then re-projection + IPS + asset-location updates. |
 | **Layoff Playbook** | `md_le_skill_layoff_playbook` | severance review (OWBPA 21/45/7-day windows), unemployment filing, COBRA vs ACA-Marketplace-with-PTC vs spouse-plan decision math, survival-mode cashflow, old-401(k) hold-don't-cash, and the low-income-year tax opportunities (Roth conversion, 0% LTCG harvest). |
+
+### 🏘️ Real Estate Investor (`md_re`)
+
+| Skill | Tool | What it does |
+|-------|------|--------------|
+| **Rental Property Analyzer** | `md_re_skill_rental_property_analyzer` | full underwriting for a residential 1-4 unit: cap rate, cash-on-cash, IRR, DSCR, 1% / 50% rule sanity checks, sensitivity table on the assumptions the deal lives or dies on. Bakes in honest vacancy + capex + management even if self-managed. |
+| **Mortgage Strategy Review** | `md_re_skill_mortgage_strategy_review` | refi break-even, recast vs prepay vs invest, ARM-vs-fixed at current spread, HELOC vs cash-out refi for equity access. Includes total-interest-over-holding-period comparison and the specific conditions that flip each decision. |
+| **House Hacking Analysis** | `md_re_skill_house_hacking_analysis` | duplex / triplex / fourplex (or single-family with ADU / rented rooms) underwritten as both home and rental. Owner-occupied FHA 3.5%, conventional 5%, VA 0% financing comparison; effective rent owner pays after offsets; year-12 conversion-to-pure-rental + §121 exclusion plan. |
+| **Real Estate Tax Strategy** | `md_re_skill_real_estate_tax_strategy` | straight-line depreciation, cost segregation + bonus depreciation, §469 passive activity loss rules, REPS qualification, §1031 like-kind exchange timing (45/180-day rules), §121 primary-residence exclusion. Educational; actual filings go to a real-estate-experienced CPA. |
+| **Sell vs Hold Rental** | `md_re_skill_sell_vs_hold_rental` | after-tax sale proceeds (recapture + LTCG + NIIT + state + selling cost) vs continue-holding NPV vs §1031-into-alternative. Includes time-burden cost and portfolio-concentration adjustment; surfaces the user-preference factor (simplicity / time) explicitly. |
+
+### 🧠 Behavioral Coach (`md_bh`)
+
+| Skill | Tool | What it does |
+|-------|------|--------------|
+| **Panic Circuit Breaker** | `md_bh_skill_panic_circuit_breaker` | 5-7 line talk-down protocol for market drops / FOMO / loss-aversion spirals. Forces a 24-48h cooldown, anchors to the Investment Policy Statement, surfaces tax + transaction cost of the urgent action, surfaces the implicit prediction, then chooses one of {wait, small deliberate partial action, IPS-consistent proceed}. |
+| **Money Script Diagnostic** | `md_bh_skill_money_script_diagnostic` | short structured questionnaire mapping to Klontz's four money scripts (Avoidance / Worship / Status / Vigilance). Produces personalized blind-spots report, characteristic pitfalls per dominant script, and specific pre-commitment guardrails. Includes couples-comparison mode. |
+| **Decision Journal** | `md_bh_skill_decision_journal` | pre-commitment framework for any $10k+ / irrevocable decision. Captures the testable prediction, kill criteria, base rate, cost of being wrong, pre-mortem, and motivated-reasoning check BEFORE the decision so future-self can audit honestly (decision quality vs outcome quality). |
+| **Couples Money Alignment** | `md_bh_skill_couples_money_alignment` | structural framework: monthly money-date template (agenda + ground rules), three-bucket account architecture (yours / mine / ours, proportional contribution), and defusal scripts for the four recurring couple-money fights. Structural only — NOT therapy; refers out on financial abuse or coercive control. |
+| **Lifestyle Inflation Audit** | `md_bh_skill_lifestyle_inflation_audit` | 12-month income trend vs spending trend by category; flags creep > 15% YoY; computes savings-rate change; recommends automated savings-rate ratchet so the next raise lands in investments / joint goals before checking sees it. |
+
+### 🌍 International / Expat (`md_in`)
+
+| Skill | Tool | What it does |
+|-------|------|--------------|
+| **Expat Tax Overview** | `md_in_skill_expat_tax_overview` | FEIE (§911) vs FTC (§901) decision (high-tax country → FTC, low-tax → FEIE), FBAR (FinCEN 114) and FATCA / Form 8938 filing thresholds, PFIC reporting (Form 8621) trigger, self-employment tax + totalization agreements, state-tax disengagement from sticky states. Educational triage. |
+| **Cross-Border Investing** | `md_in_skill_cross_border_investing` | the PFIC trap on non-US mutual funds / ETFs (rule: US persons buy US-domiciled funds ONLY), US-broker residency restrictions (Schwab International / IBKR for expats), US tax treatment of foreign retirement accounts (UK ISA / SIPP, Canadian TFSA / RRSP, Australian super), and cross-border brokerage architecture. |
+| **Currency / FX Exposure** | `md_in_skill_currency_fx_exposure` | map income / liability / asset currency mismatch, recommend emergency-fund + short-term-goal currency placement, equity-vs-bond currency rules of thumb, the real cost of cross-border transfers (bank 2.5-4% vs Wise / IBKR 0.4-0.7%), and when (rarely) a forward-contract hedge is worth doing for a defined upcoming liability. |
+| **Moving Country Checklist** | `md_in_skill_moving_country_checklist` | T-12 / T-6 / T-1 / T+90 day runbook for an international move: tax-residency disengagement, brokerage migration (before move), insurance bridge, mail forwarding, first-year split-FEIE filing, beneficiary review with destination-country succession law, and the §877A exit-tax screen if renouncing US citizenship. |
 
 ## Discovery tools
 
