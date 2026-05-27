@@ -49,6 +49,8 @@ Each specialist runs with its own domain expertise, guardrails, and step-by-step
 
 > **Local & private** — Money Desk has **no telemetry, no analytics, and no network calls** of its own. Your statements, tax docs, account data, and credit reports stay on your machine. See [Privacy & Guardrails](#privacy--guardrails) (and the full [PRIVACY.md](./PRIVACY.md)) for the complete data-flow.
 
+> 🇺🇸 **Scope: United States.** Money Desk is built around US tax law, US account types (IRA / Roth / 401k / 529 / HSA), US insurance (ACA, Medicare, P&C), and US regulators (IRS, SSA, CMS, FAFSA). The **🌍 International / Expat** desk covers cross-border topics from a **US-person perspective** (FBAR, FATCA, FEIE vs FTC, PFIC) — it does **not** cover non-US home-country tax regimes. Country-agnostic desks (💰 Budget Coach, 🧠 Behavioral Coach, 📚 Financial Literacy, 📊 Net Worth & Goals) are usable anywhere.
+
 ## The Team
 
 Twenty specialists, one coordinator. Say what you need in plain English — the router picks the right desk.
