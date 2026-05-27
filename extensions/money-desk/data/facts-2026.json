@@ -5,7 +5,6 @@
     "scope": "US federal only — state-specific rules and US-resident filing assumed unless noted.",
     "disclaimer": "Curated reference data. Always re-verify against the cited primary source before citing in client output, and prefer the user's actual plan/account documents when available."
   },
-
   "irs_contribution_limits": {
     "_source": "IRS Notice 2025-67 (annual COLA adjustments); IRS Rev. Proc. 2025-32 (inflation adjustments).",
     "_url": "https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-contributions",
@@ -26,9 +25,9 @@
     "hsa_catchup_age_55_plus": 1000,
     "fsa_healthcare": 3400,
     "fsa_dependent_care_married_or_single": 5000,
-    "_notes": "Numbers above are illustrative projections for the 2026 plan year — confirm against the IRS notice for the year of use. Mark [UNSOURCED] if the official notice has not yet been released at the time of use."
+    "_notes": "Numbers above are illustrative projections for the 2026 plan year — confirm against the IRS notice for the year of use. Mark [UNSOURCED] if the official notice has not yet been released at the time of use.",
+    "_label": "IRS 2026 limits"
   },
-
   "income_tax_brackets_mfj_2026": {
     "_source": "IRS Rev. Proc. 2025-32 (projected); confirm via final IRS publication for tax year 2026.",
     "_url": "https://www.irs.gov/forms-pubs/about-publication-17",
@@ -38,25 +37,62 @@
     "additional_standard_deduction_age_65_or_blind_mfj_per_qualifier": 1650,
     "additional_standard_deduction_age_65_or_blind_unmarried": 2050,
     "brackets": [
-      { "rate": 0.10, "min": 0,       "max": 24300 },
-      { "rate": 0.12, "min": 24300,   "max": 98800 },
-      { "rate": 0.22, "min": 98800,   "max": 210700 },
-      { "rate": 0.24, "min": 210700,  "max": 402100 },
-      { "rate": 0.32, "min": 402100,  "max": 511000 },
-      { "rate": 0.35, "min": 511000,  "max": 766800 },
-      { "rate": 0.37, "min": 766800,  "max": null }
+      {
+        "rate": 0.1,
+        "min": 0,
+        "max": 24300
+      },
+      {
+        "rate": 0.12,
+        "min": 24300,
+        "max": 98800
+      },
+      {
+        "rate": 0.22,
+        "min": 98800,
+        "max": 210700
+      },
+      {
+        "rate": 0.24,
+        "min": 210700,
+        "max": 402100
+      },
+      {
+        "rate": 0.32,
+        "min": 402100,
+        "max": 511000
+      },
+      {
+        "rate": 0.35,
+        "min": 511000,
+        "max": 766800
+      },
+      {
+        "rate": 0.37,
+        "min": 766800,
+        "max": null
+      }
     ],
     "ltcg_qualified_dividend_brackets_mfj": [
-      { "rate": 0.00, "max": 99000 },
-      { "rate": 0.15, "max": 615000 },
-      { "rate": 0.20, "max": null }
+      {
+        "rate": 0,
+        "max": 99000
+      },
+      {
+        "rate": 0.15,
+        "max": 615000
+      },
+      {
+        "rate": 0.2,
+        "max": null
+      }
     ],
     "niit_threshold_mfj": 250000,
     "niit_threshold_single": 200000,
     "amt_exemption_mfj": 142200,
-    "amt_exemption_single": 90750
+    "amt_exemption_single": 90750,
+    "_label": "IRS 2026 brackets"
   },
-
   "social_security_2026": {
     "_source": "SSA fact sheet (annual COLA + wage-base release).",
     "_url": "https://www.ssa.gov/oact/cola/",
@@ -68,54 +104,90 @@
     "earnings_test_limit_under_fra": 23400,
     "earnings_test_limit_year_of_fra": 62160,
     "max_benefit_at_fra": 4250,
-    "cola_for_year": 0.025
+    "cola_for_year": 0.025,
+    "_label": "SSA 2026"
   },
-
   "medicare_2026": {
     "_source": "CMS Annual Premium and Deductible Notice; SSA IRMAA tables.",
     "_url": "https://www.cms.gov/medicare/medicare-costs",
-    "part_b_base_premium_monthly": 196.10,
+    "part_b_base_premium_monthly": 196.1,
     "part_b_deductible_annual": 264,
     "part_a_deductible_per_benefit_period": 1720,
-    "part_d_base_beneficiary_premium_monthly": 36.00,
+    "part_d_base_beneficiary_premium_monthly": 36,
     "irmaa_lookback_years": 2,
     "irmaa_brackets_mfj_part_b_total_monthly": [
-      { "magi_max": 212000, "part_b_total": 196.10 },
-      { "magi_max": 266000, "part_b_total": 274.50 },
-      { "magi_max": 334000, "part_b_total": 392.10 },
-      { "magi_max": 400000, "part_b_total": 509.70 },
-      { "magi_max": 750000, "part_b_total": 627.30 },
-      { "magi_max": null,   "part_b_total": 666.50 }
+      {
+        "magi_max": 212000,
+        "part_b_total": 196.1
+      },
+      {
+        "magi_max": 266000,
+        "part_b_total": 274.5
+      },
+      {
+        "magi_max": 334000,
+        "part_b_total": 392.1
+      },
+      {
+        "magi_max": 400000,
+        "part_b_total": 509.7
+      },
+      {
+        "magi_max": 750000,
+        "part_b_total": 627.3
+      },
+      {
+        "magi_max": null,
+        "part_b_total": 666.5
+      }
     ],
     "irmaa_brackets_single_part_b_total_monthly": [
-      { "magi_max": 106000, "part_b_total": 196.10 },
-      { "magi_max": 133000, "part_b_total": 274.50 },
-      { "magi_max": 167000, "part_b_total": 392.10 },
-      { "magi_max": 200000, "part_b_total": 509.70 },
-      { "magi_max": 500000, "part_b_total": 627.30 },
-      { "magi_max": null,   "part_b_total": 666.50 }
-    ]
+      {
+        "magi_max": 106000,
+        "part_b_total": 196.1
+      },
+      {
+        "magi_max": 133000,
+        "part_b_total": 274.5
+      },
+      {
+        "magi_max": 167000,
+        "part_b_total": 392.1
+      },
+      {
+        "magi_max": 200000,
+        "part_b_total": 509.7
+      },
+      {
+        "magi_max": 500000,
+        "part_b_total": 627.3
+      },
+      {
+        "magi_max": null,
+        "part_b_total": 666.5
+      }
+    ],
+    "_label": "CMS Medicare 2026"
   },
-
   "estate_and_gift_2026": {
     "_source": "IRS Rev. Proc. 2025-32; Public Law (TCJA sunset) — confirm post-sunset rules.",
     "_url": "https://www.irs.gov/businesses/small-businesses-self-employed/estate-tax",
     "annual_gift_exclusion_per_donee": 19000,
     "lifetime_exemption_per_individual": 14000000,
     "annual_exclusion_to_non_citizen_spouse": 195000,
-    "_notes": "The TCJA-doubled exemption is scheduled to sunset; verify whether legislation extended it before relying on the $14M figure."
+    "_notes": "The TCJA-doubled exemption is scheduled to sunset; verify whether legislation extended it before relying on the $14M figure.",
+    "_label": "IRS Estate 2026"
   },
-
   "qbi_section_199a_2026": {
     "_source": "IRS Rev. Proc. 2025-32 — projected QBI thresholds.",
     "_url": "https://www.irs.gov/newsroom/qualified-business-income-deduction",
-    "deduction_percent": 0.20,
+    "deduction_percent": 0.2,
     "phase_in_start_mfj": 410000,
     "phase_in_end_mfj": 510000,
     "phase_in_start_single": 205000,
-    "phase_in_end_single": 255000
+    "phase_in_end_single": 255000,
+    "_label": "IRS QBI 2026"
   },
-
   "fafsa_and_education_2026_27": {
     "_source": "Federal Student Aid; College Cost of Attendance reports.",
     "_url": "https://studentaid.gov/h/apply-for-aid/fafsa",
@@ -124,9 +196,9 @@
     "fafsa_open_date": "October 1, 2025",
     "529_state_deduction_varies": true,
     "529_to_roth_rollover_secure_2_0_lifetime_cap": 35000,
-    "529_to_roth_rollover_account_minimum_age_years": 15
+    "529_to_roth_rollover_account_minimum_age_years": 15,
+    "_label": "FSA / Ed Dept 2026-27"
   },
-
   "mortgage_and_real_estate_2026": {
     "_source": "FHFA conforming-loan limit notice; HUD FHA loan limit table; IRS publications for housing rules.",
     "_url_fhfa": "https://www.fhfa.gov/news/news-release/conforming-loan-limit-values",
@@ -140,12 +212,12 @@
     "salt_cap": 10000,
     "residential_rental_depreciation_life_years_27_5": 27.5,
     "commercial_depreciation_life_years_39": 39,
-    "bonus_depreciation_percent_2026": 0.40,
+    "bonus_depreciation_percent_2026": 0.4,
     "section_179_expensing_limit": 1240000,
     "section_179_phaseout_start": 3130000,
-    "1031_like_kind_real_property_only": true
+    "1031_like_kind_real_property_only": true,
+    "_label": "FHFA / IRS RE 2026"
   },
-
   "federal_poverty_level_2026_48_states": {
     "_source": "HHS Poverty Guidelines (annual).",
     "_url": "https://aspe.hhs.gov/topics/poverty-economic-mobility/poverty-guidelines",
@@ -160,10 +232,10 @@
       "8": 54550,
       "each_additional_person": 5550
     },
-    "aca_premium_tax_credit_eligibility_ceiling_through_2025": 4.00,
-    "aca_premium_tax_credit_eligibility_ceiling_post_2025_unless_extended": "back to 400% FPL cliff — verify legislation"
+    "aca_premium_tax_credit_eligibility_ceiling_through_2025": 4,
+    "aca_premium_tax_credit_eligibility_ceiling_post_2025_unless_extended": "back to 400% FPL cliff — verify legislation",
+    "_label": "HHS FPL 2026"
   },
-
   "behavioral_assumptions_safe_defaults": {
     "_source": "Model assumptions — these are explicit modeling defaults, NOT facts. Always mark [ASSUMPTION: ...] when using.",
     "long_term_equity_real_return_percent": 0.06,
@@ -174,11 +246,11 @@
     "mortgage_rate_assumption_check_freddie_pmms": "verify against Freddie Mac PMMS weekly survey",
     "real_estate_appreciation_long_term_real_percent": 0.01,
     "rental_vacancy_default_percent": 0.05,
-    "rental_capex_reserve_default_percent_of_rent": 0.10,
+    "rental_capex_reserve_default_percent_of_rent": 0.1,
     "rental_maintenance_default_percent_of_rent": 0.08,
-    "rental_property_management_default_percent_of_rent": 0.10
+    "rental_property_management_default_percent_of_rent": 0.1,
+    "_label": "Money Desk defaults"
   },
-
   "expat_quick_reference_2026": {
     "_source": "IRS FEIE (Form 2555), FBAR (FinCEN 114), FATCA (Form 8938) instructions.",
     "_url_fbar": "https://www.fincen.gov/report-foreign-bank-and-financial-accounts",
@@ -194,6 +266,7 @@
     "physical_presence_test_days_abroad_in_12_months": 330,
     "bona_fide_residence_test_full_tax_year_required": true,
     "pfic_default_taxation_form_8621_required": true,
-    "totalization_agreement_countries_count_approx": 30
+    "totalization_agreement_countries_count_approx": 30,
+    "_label": "IRS / FinCEN Expat 2026"
   }
 }
