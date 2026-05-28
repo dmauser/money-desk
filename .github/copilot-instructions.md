@@ -82,6 +82,14 @@ into `~/.copilot/extensions/money-desk/` (user) or
     changes, schema changes, new skills/specialists, policy updates —
     anything that ships to end users. CONTRIBUTING.md > "Release flow"
     has the full procedure.
+13. **CHANGELOG.md has a mirror inside the extension** at
+    `extensions/money-desk/data/CHANGELOG.md` (auto-synced by
+    `scripts/sync-changelog.mjs` via `npm pretest`/`prepublishOnly`).
+    That mirror is what the `md_changelog` discovery tool reads at
+    runtime so users can ask "what's new?" mid-session. NEVER edit the
+    mirror directly — edit the repo-root `CHANGELOG.md` and let the
+    sync script update the mirror; `tests/changelog-sync.test.mjs` will
+    fail if they drift apart.
 
 ## File layout
 

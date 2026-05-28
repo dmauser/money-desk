@@ -823,6 +823,7 @@ ${rows}
 3. Call individual \`*_skill_*\` tools as you work.
 
 Use \`md_route\` to find the right specialist for a free-text query.
+Use \`md_changelog\` only when the user asks about release notes / what's new / what version is installed.
 
 ## Guardrails (apply to every specialist)
 
@@ -897,7 +898,6 @@ export async function getPreferences() {
 }
 
 // ── Report quality policy (served by md_report_quality) ───────────────
-
 export async function getReportQuality() {
     const raw = await loadPreferences();
     // Extract the report_quality: block from the same YAML.
@@ -950,8 +950,7 @@ export async function getReportQuality() {
     ].join("\n");
 }
 
-export async function listFactsTopics() {
-    const facts = await loadFacts();
+export async function listFactsTopics() {    const facts = await loadFacts();
     return Object.keys(facts).filter((k) => !k.startsWith("_"));
 }
 
@@ -997,6 +996,74 @@ export async function getFactsTopic(topic) {
         "",
         `When citing figures from this block in your answer, use the friendly label \`[${label}]\` — never the raw \`md_facts\` or \`${topic}\` form. Re-verify against the primary source before any irreversible decision.`,
     ].join("\n");
+}
+
+// ── Changelog (served by md_changelog) ────────────────────────────────
+
+// Matches `## [1.2.3] — 2026-05-27` or `## [1.2.3] - 2026-05-27`.
+// Mirrors tests/version-sync.test.mjs so we use one source of truth for
+// the heading shape. `## [Unreleased]` is intentionally NOT matched.
+const _CHANGELOG_HEADING = /^##\s+\[(\d+\.\d+\.\d+)\]\s+[—-]\s+\d{4}-\d{2}-\d{2}/m;
+
+export function formatLatestChangelogN(text, n = 3) {
+    const lines = text.split(/\r?\n/);
+    // Capture file preamble up to (but not including) the first version
+    // heading. Skip the `## [Unreleased]` heading + body entirely — release
+    // notes describe SHIPPED versions.
+    const headerLines = [];
+    let i = 0;
+    let inUnreleased = false;
+    for (; i < lines.length; i++) {
+        if (_CHANGELOG_HEADING.test(lines[i])) break;
+        if (/^##\s+\[Unreleased\]/i.test(lines[i])) { inUnreleased = true; continue; }
+        if (inUnreleased) {
+            // Skip blank lines and content until we hit the first version heading.
+            // Any new `## ` heading would end the Unreleased block, but the loop
+            // already breaks on _CHANGELOG_HEADING so this is naturally bounded.
+            continue;
+        }
+        headerLines.push(lines[i]);
+    }
+    // Walk version sections, collecting up to n of them.
+    const sections = [];
+    let current = null;
+    for (; i < lines.length; i++) {
+        const l = lines[i];
+        if (_CHANGELOG_HEADING.test(l)) {
+            if (current) {
+                sections.push(current);
+                if (sections.length >= n) { current = null; break; }
+            }
+            current = [l];
+        } else if (current) {
+            current.push(l);
+        }
+    }
+    if (current && sections.length < n) sections.push(current);
+    if (sections.length === 0) {
+        return "No released versions found in CHANGELOG.md.";
+    }
+    const out = [
+        headerLines.join("\n").trimEnd(),
+        "",
+        `_Showing the latest ${sections.length} released version(s). Full history: see CHANGELOG.md at the repo root._`,
+        "",
+        sections.map((s) => s.join("\n").trimEnd()).join("\n\n"),
+    ];
+    return out.join("\n").trim() + "\n";
+}
+
+let _changelogCache = null;
+async function loadChangelog() {
+    if (_changelogCache) return _changelogCache;
+    const path = join(DATA_DIR, "CHANGELOG.md");
+    _changelogCache = await readFile(path, "utf8");
+    return _changelogCache;
+}
+
+export async function getChangelog() {
+    const raw = await loadChangelog();
+    return formatLatestChangelogN(raw, 3);
 }
 
 // ── Build the tools array from SPECIALISTS ─────────────────────────────
@@ -1056,6 +1123,13 @@ function buildTools() {
             parameters: { type: "object", properties: {} },
             skipPermission: true,
             handler: async () => CITATION_CONVENTIONS,
+        },
+        {
+            name: "md_changelog",
+            description: "Money Desk release notes — returns the **last 3 released versions** from CHANGELOG.md (file preamble + the three most-recent `## [X.Y.Z] — YYYY-MM-DD` sections). Use this ONLY when the user explicitly asks 'what's new in money-desk?', 'what changed?', 'what version am I on?', 'release notes', 'recent updates', 'what was added recently?', or similar. Do NOT call this proactively on every session — it's an on-demand reference, not part of the standard discovery flow. Source-of-truth lives at the repo root `CHANGELOG.md`; an automated `pretest` sync (scripts/sync-changelog.mjs) mirrors it into `extensions/money-desk/data/CHANGELOG.md` which is what this tool reads at runtime.",
+            parameters: { type: "object", properties: {} },
+            skipPermission: true,
+            handler: async () => getChangelog(),
         },
         {
             name: "md_intake",

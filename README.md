@@ -653,7 +653,7 @@ flowchart TD
     H -->|No match & not first| AGT
     PRES --> AGT
     INJ --> AGT[Copilot agent]
-    AGT -->|"Calls discovery tools"| MD["md_capabilities&nbsp;/ md_route"]
+    AGT -->|"Calls discovery tools"| MD["md_capabilities / md_route / md_intake /<br/>md_facts / md_preferences / md_report_quality /<br/>md_citation_conventions / md_changelog"]
     AGT -->|"1. Load role"| ROLE["&lt;prefix&gt;_role → agents/&lt;name&gt;.md"]
     AGT -->|"2. Orchestrate"| ORC["&lt;prefix&gt;_orchestrate → static prompt"]
     AGT -->|"3. Run a skill"| SK["&lt;prefix&gt;_skill_&lt;id&gt; → skills/&lt;id&gt;/SKILL.md"]

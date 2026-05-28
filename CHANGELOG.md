@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] — 2026-05-28
+
+### Added
+
+- **`md_changelog` discovery tool.** Returns the file preamble plus the
+  **last 3 released `## [X.Y.Z] — YYYY-MM-DD` sections** of CHANGELOG.md
+  on demand. Designed for "what's new in money-desk?" / "what version
+  am I on?" / "release notes" questions. NOT added to the per-session
+  broadcast — it's on-demand only, the tool description explicitly
+  gates invocation to user-initiated release-notes requests so the
+  agent doesn't over-call. Brings the discovery-tool count from 7 → 8
+  (`md_capabilities`, `md_route`, `md_intake`, `md_facts`,
+  `md_preferences`, `md_report_quality`, `md_citation_conventions`,
+  `md_changelog`).
+- **`scripts/sync-changelog.mjs`** — mirrors repo-root `CHANGELOG.md`
+  → `extensions/money-desk/data/CHANGELOG.md` so the bundled tool can
+  read it at runtime. Wired into `npm pretest` and `prepublishOnly`.
+- **`tests/changelog-sync.test.mjs`** — byte-identical assertion
+  between the two CHANGELOG copies plus structural checks on the
+  `md_changelog` handler output (latest version header present,
+  `[Unreleased]` excluded, `n=` parameter caps section count).
+
+### Changed
+
+- `package.json` `scripts.test` now includes the new test;
+  `scripts.pretest` runs the sync script before tests so drift is
+  impossible.
+
+### Bumped (MINOR per CONTRIBUTING.md)
+
+- Adding a new public tool is a feature → `0.11.x → 0.12.0`.
+
 ## [0.11.9] — 2026-05-28
 
 ### Changed
