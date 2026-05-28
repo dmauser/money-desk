@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.5] — 2026-05-27
+
+### Fixed
+
+- **Installer now ships `.yaml` / `.yml` data files.** `bin/cli.mjs`'s
+  `ALLOWED_EXTENSIONS` allowlist was missing `.yaml`, so installs silently
+  dropped `extensions/money-desk/data/preferences.yaml`. The runtime tools
+  `md_preferences` and `md_report_quality` then failed with `ENOENT` in the
+  installed copy (worked fine from the repo). Added `.yaml` and `.yml` to
+  the allowlist. Existing installs can be repaired by re-running the
+  installer or copying `data/preferences.yaml` into the installed extension
+  folder.
+
+## [0.11.4] — 2026-05-27
+
+### Added
+
+- **Report Quality Rules** — unified deliverable standards across all 20
+  specialists. New discovery tool `md_report_quality` returns the full
+  policy (output formats, brand styling, 9-section content structure, table
+  hygiene, citation tagging, file naming, self-verification). Defaults:
+  markdown rendered inline in chat; PDF / DOCX / XLSX / HTML *offered* at
+  the end of every deliverable (never auto-written without user opt-in).
+- **Renderer scripts** shipped in `extensions/money-desk/renderers/`:
+  `make_pdf.py` (Playwright + Chromium), `make_html.py` (standalone, inline
+  CSS), `make_xlsx.py` (openpyxl with real formulas), `make_docx.py`
+  (python-docx with real Word styles + TOC field). Brand palette
+  (`#1a4d8f` / `#2e7d32` / `#d4a017` / `#c0392b`), Segoe UI / Helvetica,
+  Letter @ 0.55in margins, Money Desk footer.
+- **`report_quality:` block** in `data/preferences.yaml` — single source of
+  truth, parsed by `getReportQuality()` and surfaced via the new tool.
+- **Broadcast** of the Report Quality reference into all 20 orchestrators,
+  20 role markdown files, and 95 SKILL.md files so every specialist call
+  picks up the policy without an extra tool invocation.
+- **README "Report Quality & Formats"** section documenting the policy.
+- **7 new tests** in `tests/report-quality.test.mjs` covering tool
+  registration, YAML block presence, broadcast coverage, and renderer
+  files on disk. Total test count: 200, all passing.
+
 ## [0.11.3] — 2026-05-27
 
 ### Changed
