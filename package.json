@@ -1,6 +1,6 @@
 {
   "name": "money-desk",
-  "version": "0.11.5",
+  "version": "0.11.6",
   "description": "Your personal-finance AI team for GitHub Copilot CLI — 20 specialist agents (budget, tax, investing, retirement, debt, credit, health & Medicare, property & casualty, life & disability, estate, purchase decisions, education / 529, net worth & goals, self-employed / 1099, life events, real-estate investing, behavioral coaching, international / expat, financial literacy, FIRE), one install.",
   "type": "module",
   "bin": {
@@ -33,8 +33,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "node --test tests/installer.test.mjs tests/manifest-consistency.test.mjs tests/routes.test.mjs tests/guardrails.test.mjs tests/docs-sync.test.mjs tests/report-quality.test.mjs",
-    "test:watch": "node --test --watch tests/installer.test.mjs tests/manifest-consistency.test.mjs tests/routes.test.mjs tests/guardrails.test.mjs tests/docs-sync.test.mjs",
+    "test": "node --test tests/installer.test.mjs tests/manifest-consistency.test.mjs tests/routes.test.mjs tests/guardrails.test.mjs tests/docs-sync.test.mjs tests/report-quality.test.mjs tests/version-sync.test.mjs",
+    "test:watch": "node --test --watch tests/installer.test.mjs tests/manifest-consistency.test.mjs tests/routes.test.mjs tests/guardrails.test.mjs tests/docs-sync.test.mjs tests/version-sync.test.mjs",
     "start": "node bin/cli.mjs help",
     "init": "node bin/cli.mjs init",
     "init:project": "node bin/cli.mjs init --project",

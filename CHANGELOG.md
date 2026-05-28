@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.6] — 2026-05-27
+
+### Added
+
+- **`tests/version-sync.test.mjs`** — fails `npm test` (and CI, and
+  `prepublishOnly`) whenever `package.json` `version` doesn't equal the
+  most recent `## [X.Y.Z] — YYYY-MM-DD` heading in `CHANGELOG.md`. Catches
+  the 0.11.3 → 0.11.5 drift where CHANGELOG entries shipped but the
+  package version was never bumped (so `npx money-desk --version` lied).
+- **CONTRIBUTING.md → Release flow** — documents the
+  CHANGELOG + `package.json` bump requirement for every user-visible
+  change.
+
 ## [0.11.5] — 2026-05-27
 
 ### Fixed

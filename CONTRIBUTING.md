@@ -62,6 +62,27 @@ Follow SemVer. Specialist additions and skill additions are MINOR. Tool
 renames or schema changes that break consumers are MAJOR. Bug fixes are
 PATCH.
 
+### Release flow (keep CHANGELOG and package.json in sync)
+
+**Every user-visible change must update both `CHANGELOG.md` and
+`package.json` in the same PR.** `tests/version-sync.test.mjs` enforces
+this — `npm test` (and CI, and `prepublishOnly`) will fail if the latest
+`## [X.Y.Z] — YYYY-MM-DD` heading in `CHANGELOG.md` doesn't equal the
+`version` field in `package.json`.
+
+For any improvement or fix:
+
+1. Add an entry under a new `## [X.Y.Z] — YYYY-MM-DD` heading at the top
+   of `CHANGELOG.md` (above the previous release; below `## [Unreleased]`
+   if present). Use `### Added` / `### Changed` / `### Fixed` /
+   `### Removed` subsections per Keep a Changelog.
+2. Bump `version` in `package.json` to the same `X.Y.Z`.
+3. `npm test` — the `version-sync` test confirms they match.
+4. Commit both files together (e.g. `chore(release): 0.11.6 — <summary>`).
+
+If you forget the bump, the failing test message tells you exactly which
+of the two to update.
+
 ## License
 
 By contributing you agree your contributions are licensed under MIT.
