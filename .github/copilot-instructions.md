@@ -67,6 +67,21 @@ into `~/.copilot/extensions/money-desk/` (user) or
     orchestrator + the global capabilities summary explicitly enforce this,
     and `tests/guardrails.test.mjs` will fail if any orchestrator stops
     saying so.
+12. **Always bump `package.json` `version` together with `CHANGELOG.md`** for
+    every user-visible change, in the *same commit*. The latest
+    `## [X.Y.Z] — YYYY-MM-DD` heading in `CHANGELOG.md` MUST equal the
+    `version` field in `package.json`; `tests/version-sync.test.mjs`
+    enforces this in `npm test`, CI, and `prepublishOnly`. Workflow:
+    (a) add a new `## [X.Y.Z] — YYYY-MM-DD` heading at the top of
+    `CHANGELOG.md` (just below `## [Unreleased]`) using `### Added` /
+    `### Changed` / `### Fixed` / `### Removed`; (b) set
+    `package.json` `version` to the same `X.Y.Z`; (c) commit both files
+    together, typically as `chore(release): X.Y.Z — <summary>` or as
+    part of the feature commit itself; (d) run `npm test` to confirm
+    version-sync passes. This applies to installer changes, renderer
+    changes, schema changes, new skills/specialists, policy updates —
+    anything that ships to end users. CONTRIBUTING.md > "Release flow"
+    has the full procedure.
 
 ## File layout
 

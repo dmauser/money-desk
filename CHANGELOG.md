@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.9] — 2026-05-28
+
+### Changed
+
+- **`copilot-instructions.md`** now encodes the
+  "always sync `package.json` + `CHANGELOG.md` in the same commit"
+  directive as rule 12, alongside the existing 11 conventions. The
+  rule was already documented in `CONTRIBUTING.md` > "Release flow"
+  and enforced by `tests/version-sync.test.mjs`, but the agent-facing
+  instructions did not mirror it — so the installer change in
+  `9770bef` shipped without a version bump and required a follow-up
+  release commit. Encoding it in the AI-agent instruction file closes
+  that gap.
+
 ## [0.11.8] — 2026-05-28
 
 ### Changed
