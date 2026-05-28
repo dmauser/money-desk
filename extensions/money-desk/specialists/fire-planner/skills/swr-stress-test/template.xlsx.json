@@ -1,0 +1,228 @@
+{
+  "title": "SWR Stress Test",
+  "specialist": "FIRE Planner",
+  "named_ranges": [
+    {
+      "name": "portfolio_start",
+      "ref": "Inputs!$B$2"
+    },
+    {
+      "name": "withdrawal_rate",
+      "ref": "Inputs!$B$3"
+    },
+    {
+      "name": "horizon_yrs",
+      "ref": "Inputs!$B$4"
+    },
+    {
+      "name": "expected_real_return",
+      "ref": "Inputs!$B$5"
+    },
+    {
+      "name": "stress_real_return",
+      "ref": "Inputs!$B$6"
+    },
+    {
+      "name": "bad_first_decade_return",
+      "ref": "Inputs!$B$7"
+    },
+    {
+      "name": "initial_withdrawal",
+      "ref": "Inputs!$B$9"
+    },
+    {
+      "name": "fire_number_25x",
+      "ref": "Inputs!$B$10"
+    },
+    {
+      "name": "fire_number_30x",
+      "ref": "Inputs!$B$11"
+    }
+  ],
+  "sheets": [
+    {
+      "name": "Inputs",
+      "cells": [
+        {
+          "ref": "A1",
+          "value": "SWR Stress Test - Inputs",
+          "style": "h1"
+        },
+        {
+          "ref": "A2",
+          "value": "Portfolio balance"
+        },
+        {
+          "ref": "B2",
+          "value": 1500000,
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A3",
+          "value": "Initial withdrawal rate"
+        },
+        {
+          "ref": "B3",
+          "value": 0.04,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A4",
+          "value": "Horizon (years)"
+        },
+        {
+          "ref": "B4",
+          "value": 35,
+          "number_format": "0"
+        },
+        {
+          "ref": "A5",
+          "value": "Expected real return (base)"
+        },
+        {
+          "ref": "B5",
+          "value": 0.045,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A6",
+          "value": "Stressed real return (downside)"
+        },
+        {
+          "ref": "B6",
+          "value": 0.02,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A7",
+          "value": "First-decade return (sequence risk)"
+        },
+        {
+          "ref": "B7",
+          "value": -0.01,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A8",
+          "value": "-- derived (do not edit) --"
+        },
+        {
+          "ref": "A9",
+          "value": "Year-1 withdrawal (real)"
+        },
+        {
+          "ref": "B9",
+          "formula": "=portfolio_start*withdrawal_rate",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A10",
+          "value": "FIRE number (25x spending)"
+        },
+        {
+          "ref": "B10",
+          "formula": "=initial_withdrawal*25",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A11",
+          "value": "FIRE number (30x spending)"
+        },
+        {
+          "ref": "B11",
+          "formula": "=initial_withdrawal*30",
+          "number_format": "$#,##0"
+        }
+      ]
+    },
+    {
+      "name": "Summary",
+      "cells": [
+        {
+          "ref": "A1",
+          "value": "SWR Stress Test - Summary",
+          "style": "h1"
+        },
+        {
+          "ref": "A3",
+          "value": "Year-1 withdrawal (real)"
+        },
+        {
+          "ref": "B3",
+          "formula": "=initial_withdrawal",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A4",
+          "value": "Coverage years @ base return (PV check)"
+        },
+        {
+          "ref": "B4",
+          "formula": "=NPER(expected_real_return, -initial_withdrawal, portfolio_start)",
+          "number_format": "0.0"
+        },
+        {
+          "ref": "A5",
+          "value": "Coverage years @ stressed return"
+        },
+        {
+          "ref": "B5",
+          "formula": "=NPER(stress_real_return, -initial_withdrawal, portfolio_start)",
+          "number_format": "0.0"
+        },
+        {
+          "ref": "A6",
+          "value": "Survives horizon @ base?"
+        },
+        {
+          "ref": "B6",
+          "formula": "=IF(B4>=horizon_yrs, \"Yes\", \"No - shortfall\")"
+        },
+        {
+          "ref": "A7",
+          "value": "Survives horizon @ stress?"
+        },
+        {
+          "ref": "B7",
+          "formula": "=IF(B5>=horizon_yrs, \"Yes\", \"No - shortfall\")"
+        },
+        {
+          "ref": "A9",
+          "value": "Portfolio after bad first decade"
+        },
+        {
+          "ref": "B9",
+          "formula": "=portfolio_start*(1+bad_first_decade_return)^10 - initial_withdrawal*((1+bad_first_decade_return)^10-1)/bad_first_decade_return",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A10",
+          "value": "Implied SWR after bad decade"
+        },
+        {
+          "ref": "B10",
+          "formula": "=IF(B9>0, initial_withdrawal/B9, \"depleted\")",
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A12",
+          "value": "FIRE shortfall vs 25x"
+        },
+        {
+          "ref": "B12",
+          "formula": "=fire_number_25x-portfolio_start",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A13",
+          "value": "FIRE shortfall vs 30x"
+        },
+        {
+          "ref": "B13",
+          "formula": "=fire_number_30x-portfolio_start",
+          "number_format": "$#,##0"
+        }
+      ]
+    }
+  ]
+}

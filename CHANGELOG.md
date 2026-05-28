@@ -7,6 +7,75 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.7] — 2026-05-28
+
+### Added
+
+- **Named ranges in XLSX JSON specs.** `make_xlsx.py` now accepts a
+  top-level `named_ranges: [{name, ref}, …]` array and emits each as an
+  openpyxl `DefinedName`. Validator rejects malformed refs, names that
+  point at non-existent sheets, duplicate names, and reserved Excel
+  names. Formulas across all sheets can now address inputs by stable
+  identifier (e.g. `=PMT(mortgage_rate/12, mortgage_term_years*12,
+  -loan_amount)`) instead of brittle `Inputs!B5`-style coordinates.
+- **Six canonical XLSX templates** co-located with each skill:
+  `purchase-advisor/rent-vs-buy`, `real-estate-investor/{rental-property-analyzer,
+  mortgage-strategy-review}`, `retirement-planner/withdrawal-strategy`,
+  `education-planner/college-cost-projection`,
+  `fire-planner/swr-stress-test`. Templates pre-declare the Inputs
+  schema, named ranges, and Summary formulas; the agent only fills
+  values and narrative cells — never `A1` coordinates.
+- **Python regression test suite** at `extensions/money-desk/tests/`
+  (pytest + openpyxl + `formulas`). Covers schema roundtrip, validator
+  rejection cases, the canonical Dallas Rent vs Buy scenario
+  (Monthly P&I within $5 of $3,726; BUY NW within $1,000 of $394,340;
+  RENT NW within $5,000 of $565,700; diff > $150,000), and structural
+  guards for every shipped template (named ranges declared; no raw
+  cross-sheet coordinates in Summary formulas).
+- **`python-tests` CI job** runs the new pytest suite on
+  `ubuntu-latest` with Python 3.12 on every push/PR.
+- **`renderers/README.md` template-pattern documentation** explains how
+  to author a new template and the named-range contract.
+
+### Changed
+
+- **`report_quality.self_verification`** in `data/preferences.yaml` has
+  been tightened. Replaced the weak "at least one formula evaluates"
+  bullet with four stronger rules: (1) independently recompute every
+  headline-figure cell in Python and assert agreement within 1%;
+  (2) recalculate the workbook via LibreOffice headless / Excel COM /
+  `formulas` before reading values (openpyxl alone does not evaluate
+  formulas); (3) cross-format diff every headline figure across
+  markdown vs XLSX/DOCX, abort and re-render if any differs by >1%;
+  (4) flag any two differently-labeled cells that evaluate to identical
+  values as a likely reference-pointing bug.
+- Every SKILL.md for the six XLSX-producing skills now carries an
+  explicit "template + named-ranges contract" section requiring use of
+  the shipped template, named-only references, Python recompute, and
+  cross-format diff before declaring done.
+
+### Fixed
+
+- **PDF report generator: HTML entities + table-cell overflow**
+  (also released as `1c693cf`). `make_pdf.py` / `make_html.py` /
+  `make_docx.py` now pre-decode `&mdash;`, `&times;`, `&ndash;`, etc.,
+  before markdown rendering; PDF + HTML CSS gain `overflow-wrap` /
+  `word-break` so long narrative cells no longer overrun adjacent
+  columns in Chromium-rendered PDFs.
+
+### Bug class prevented
+
+Silent XLSX cell-reference errors. A shipped Rent vs Buy workbook
+previously had `Summary!B12` (Monthly P&I) pointing at `Inputs!B6`
+(holding horizon = 10) instead of `Inputs!B4` (mortgage term = 30) —
+displaying $6,502 instead of the correct $3,726 — and `Summary!B6`
+(BUY net worth) pointing at the RENT total instead of BUY equity, so
+RENT and BUY both displayed $1,327,980 and the headline "Difference =
+$0" was wrong by design. Hand-authoring `A1` coordinates makes these
+off-by-one errors invisible (labels and values live in different
+cells). Named ranges + canonical templates + Python recompute +
+cross-format diff is the defense-in-depth fix.
+
 ## [0.11.6] — 2026-05-27
 
 ### Added

@@ -1,0 +1,348 @@
+{
+  "title": "Rental Property Analyzer",
+  "specialist": "Real Estate Investor",
+  "named_ranges": [
+    {
+      "name": "purchase_price",
+      "ref": "Inputs!$B$2"
+    },
+    {
+      "name": "down_payment_pct",
+      "ref": "Inputs!$B$3"
+    },
+    {
+      "name": "mortgage_rate",
+      "ref": "Inputs!$B$4"
+    },
+    {
+      "name": "mortgage_term_yrs",
+      "ref": "Inputs!$B$5"
+    },
+    {
+      "name": "monthly_rent",
+      "ref": "Inputs!$B$6"
+    },
+    {
+      "name": "vacancy_pct",
+      "ref": "Inputs!$B$7"
+    },
+    {
+      "name": "property_tax_ann",
+      "ref": "Inputs!$B$8"
+    },
+    {
+      "name": "insurance_ann",
+      "ref": "Inputs!$B$9"
+    },
+    {
+      "name": "hoa_monthly",
+      "ref": "Inputs!$B$10"
+    },
+    {
+      "name": "mgmt_pct_of_rent",
+      "ref": "Inputs!$B$11"
+    },
+    {
+      "name": "maintenance_pct",
+      "ref": "Inputs!$B$12"
+    },
+    {
+      "name": "capex_reserve_pct",
+      "ref": "Inputs!$B$13"
+    },
+    {
+      "name": "closing_costs",
+      "ref": "Inputs!$B$14"
+    },
+    {
+      "name": "loan_amount",
+      "ref": "Inputs!$B$16"
+    },
+    {
+      "name": "monthly_pi",
+      "ref": "Inputs!$B$17"
+    },
+    {
+      "name": "cash_invested",
+      "ref": "Inputs!$B$18"
+    }
+  ],
+  "sheets": [
+    {
+      "name": "Inputs",
+      "cells": [
+        {
+          "ref": "A1",
+          "value": "Rental Property Analyzer - Inputs",
+          "style": "h1"
+        },
+        {
+          "ref": "A2",
+          "value": "Purchase price"
+        },
+        {
+          "ref": "B2",
+          "value": 350000,
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A3",
+          "value": "Down payment %"
+        },
+        {
+          "ref": "B3",
+          "value": 0.25,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A4",
+          "value": "Mortgage rate (annual)"
+        },
+        {
+          "ref": "B4",
+          "value": 0.075,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A5",
+          "value": "Mortgage term (years)"
+        },
+        {
+          "ref": "B5",
+          "value": 30,
+          "number_format": "0"
+        },
+        {
+          "ref": "A6",
+          "value": "Market rent (monthly)"
+        },
+        {
+          "ref": "B6",
+          "value": 2400,
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A7",
+          "value": "Vacancy %"
+        },
+        {
+          "ref": "B7",
+          "value": 0.06,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A8",
+          "value": "Property tax (annual)"
+        },
+        {
+          "ref": "B8",
+          "value": 4500,
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A9",
+          "value": "Insurance (annual)"
+        },
+        {
+          "ref": "B9",
+          "value": 1400,
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A10",
+          "value": "HOA (monthly)"
+        },
+        {
+          "ref": "B10",
+          "value": 0,
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A11",
+          "value": "Property mgmt (% of rent)"
+        },
+        {
+          "ref": "B11",
+          "value": 0.08,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A12",
+          "value": "Maintenance (% of price/yr)"
+        },
+        {
+          "ref": "B12",
+          "value": 0.01,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A13",
+          "value": "CapEx reserve (% of price/yr)"
+        },
+        {
+          "ref": "B13",
+          "value": 0.01,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A14",
+          "value": "Closing costs"
+        },
+        {
+          "ref": "B14",
+          "value": 8000,
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A15",
+          "value": "-- derived (do not edit) --"
+        },
+        {
+          "ref": "A16",
+          "value": "Loan amount"
+        },
+        {
+          "ref": "B16",
+          "formula": "=purchase_price*(1-down_payment_pct)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A17",
+          "value": "Monthly P&I"
+        },
+        {
+          "ref": "B17",
+          "formula": "=PMT(mortgage_rate/12, mortgage_term_yrs*12, -loan_amount)",
+          "number_format": "$#,##0.00"
+        },
+        {
+          "ref": "A18",
+          "value": "Cash invested"
+        },
+        {
+          "ref": "B18",
+          "formula": "=purchase_price*down_payment_pct+closing_costs",
+          "number_format": "$#,##0"
+        }
+      ]
+    },
+    {
+      "name": "Summary",
+      "cells": [
+        {
+          "ref": "A1",
+          "value": "Rental Property - Summary",
+          "style": "h1"
+        },
+        {
+          "ref": "A3",
+          "value": "Gross scheduled rent (annual)"
+        },
+        {
+          "ref": "B3",
+          "formula": "=monthly_rent*12",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A4",
+          "value": "Vacancy loss"
+        },
+        {
+          "ref": "B4",
+          "formula": "=-monthly_rent*12*vacancy_pct",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A5",
+          "value": "Effective gross income (EGI)"
+        },
+        {
+          "ref": "B5",
+          "formula": "=B3+B4",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A6",
+          "value": "Operating expenses"
+        },
+        {
+          "ref": "B6",
+          "formula": "=-(property_tax_ann+insurance_ann+hoa_monthly*12+mgmt_pct_of_rent*B3+maintenance_pct*purchase_price+capex_reserve_pct*purchase_price)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A7",
+          "value": "NOI"
+        },
+        {
+          "ref": "B7",
+          "formula": "=B5+B6",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A8",
+          "value": "Annual debt service"
+        },
+        {
+          "ref": "B8",
+          "formula": "=-monthly_pi*12",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A9",
+          "value": "Cash flow before tax"
+        },
+        {
+          "ref": "B9",
+          "formula": "=B7+B8",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A11",
+          "value": "Cap rate (on price)"
+        },
+        {
+          "ref": "B11",
+          "formula": "=B7/purchase_price",
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A12",
+          "value": "Cash-on-cash return"
+        },
+        {
+          "ref": "B12",
+          "formula": "=B9/cash_invested",
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A13",
+          "value": "DSCR"
+        },
+        {
+          "ref": "B13",
+          "formula": "=B7/(monthly_pi*12)",
+          "number_format": "0.00"
+        },
+        {
+          "ref": "A14",
+          "value": "GRM (price / annual rent)"
+        },
+        {
+          "ref": "B14",
+          "formula": "=purchase_price/B3",
+          "number_format": "0.00"
+        },
+        {
+          "ref": "A15",
+          "value": "1% rule (monthly rent / price)"
+        },
+        {
+          "ref": "B15",
+          "formula": "=monthly_rent/purchase_price",
+          "number_format": "0.00%"
+        }
+      ]
+    }
+  ]
+}

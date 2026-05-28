@@ -42,3 +42,16 @@ jobs:
           node-version: '20'
       - name: npm pack --dry-run
         run: npm pack --dry-run
+
+  python-tests:
+    name: python tests (xlsx regression suite)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Python deps
+        run: pip install -r extensions/money-desk/tests/requirements.txt
+      - name: Run pytest
+        run: pytest extensions/money-desk/tests -v

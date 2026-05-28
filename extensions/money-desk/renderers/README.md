@@ -77,3 +77,73 @@ The XLSX renderer takes a small JSON spec (Inputs sheet values + cell
 formulas) rather than markdown, so the user can edit one input cell and see
 all scenarios update — that's the whole point of producing a real model
 rather than a static snapshot.
+
+## XLSX templates (named ranges over coordinates)
+
+`make_xlsx.py` accepts JSON specs with a top-level `named_ranges` array:
+
+```jsonc
+{
+  "title": "Rent vs Buy — Dallas",
+  "specialist": "Purchase Advisor",
+  "named_ranges": [
+    { "name": "mortgage_term_years", "ref": "Inputs!$B$4" },
+    { "name": "mortgage_rate",       "ref": "Inputs!$B$5" },
+    { "name": "loan_amount",         "ref": "Inputs!$B$11" }
+  ],
+  "sheets": [ /* ... */ ]
+}
+```
+
+Formulas across all sheets address inputs by **name**, never by `A1`:
+
+```jsonc
+{ "ref": "B12", "formula": "=PMT(mortgage_rate/12, mortgage_term_years*12, -loan_amount)" }
+```
+
+This prevents the silent reference-pointing bug class (a Rent vs Buy
+report once shipped with `=PMT(...holding_horizon...)` instead of
+`...mortgage_term...`, off by 75%). The validator (`validate_named_ranges`)
+rejects malformed refs, missing sheets, duplicate names, and reserved
+Excel names.
+
+### Canonical templates
+
+Six high-frequency quantitative skills ship a `template.xlsx.json` next
+to their `SKILL.md`:
+
+| Specialist | Skill | Template |
+|---|---|---|
+| purchase-advisor | rent-vs-buy | `specialists/purchase-advisor/skills/rent-vs-buy/template.xlsx.json` |
+| real-estate-investor | rental-property-analyzer | `.../rental-property-analyzer/template.xlsx.json` |
+| real-estate-investor | mortgage-strategy-review | `.../mortgage-strategy-review/template.xlsx.json` |
+| retirement-planner | withdrawal-strategy | `.../withdrawal-strategy/template.xlsx.json` |
+| education-planner | college-cost-projection | `.../college-cost-projection/template.xlsx.json` |
+| fire-planner | swr-stress-test | `.../swr-stress-test/template.xlsx.json` |
+
+Each template pre-defines the Inputs schema, named ranges, and Summary
+formulas. **Agents fill values only — never `A1` coordinates.** Adding a
+new template requires only writing the JSON spec; the structural test
+(`tests/test_all_templates.py`) auto-discovers it and asserts:
+
+1. Schema validates.
+2. At least one named range is declared.
+3. No `Summary` formula references a raw cross-sheet coordinate.
+4. Every named range roundtrips through `openpyxl.load_workbook`.
+
+### Self-verification policy
+
+`report_quality.self_verification` in `data/preferences.yaml` requires:
+
+- Independently recomputing every headline figure in Python and asserting
+  agreement within 1%.
+- Recalculating the workbook (LibreOffice headless / Excel COM /
+  `formulas`) before reading values — openpyxl alone does **not**
+  evaluate formulas.
+- Diffing every headline figure across markdown vs XLSX/DOCX.
+- Flagging two differently-labeled cells with identical evaluated values
+  as a likely reference-pointing bug.
+
+The Python test suite under `extensions/money-desk/tests/` exercises the
+schema, the validator, and the canonical Dallas Rent vs Buy regression
+to lock in the fix.

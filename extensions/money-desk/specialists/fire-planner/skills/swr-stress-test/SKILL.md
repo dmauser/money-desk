@@ -122,3 +122,31 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
 - File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
 - Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+
+
+### XLSX deliverables — template + named-ranges contract
+
+When this skill produces an XLSX, it **MUST**:
+
+1. **Start from the shipped template** at `template.xlsx.json` in this skill's
+   folder. The template pre-declares the Inputs schema, named ranges, and
+   Summary/Analysis formulas. Fill only **values** (and narrative cells) —
+   never hand-author raw `A1` coordinates in formulas.
+2. **Reference cells by name**, never coordinate. Use
+   `=PMT(mortgage_rate/12, mortgage_term_years*12, -loan_amount)` rather
+   than `=PMT(Inputs!B5/12, Inputs!B4*12, -B11)`. This is the bug class the
+   template system exists to prevent: a Rent vs Buy report once shipped with
+   Monthly P&I pointing at Inputs!B6 (holding horizon) instead of Inputs!B4
+   (mortgage term) — off by 75% — and the BUY/RENT cells pointing at the
+   same source.
+3. **Recompute every headline figure** independently in Python and assert
+   agreement within 1% before declaring done (see
+   `report_quality.self_verification` in `data/preferences.yaml`).
+4. **Recalculate the workbook** after rendering (LibreOffice headless on
+   Linux/Mac, Excel COM on Windows, or the `formulas` package) and reload
+   with `data_only=True`; openpyxl alone does not evaluate formulas.
+5. **Cross-format diff**: if markdown + XLSX (or DOCX) are both produced,
+   diff every headline figure across formats; abort and re-render if any
+   pair differs by more than 1%.
+6. **Flag duplicate-value-with-different-label** in the same table — that
+   pattern is almost always a reference-pointing bug, not a coincidence.

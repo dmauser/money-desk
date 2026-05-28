@@ -234,7 +234,11 @@ report_quality:
   self_verification:
     - "Report full file path + size for each format produced."
     - "For PDF/HTML: confirm no table cell wraps to < 3 chars/line; if it does, re-flow and re-render BEFORE telling the user."
-    - "For XLSX: open the workbook and confirm at least one formula evaluates correctly."
+    - "For XLSX: for every cell listed in the deliverable's headline_findings, independently recompute the value in Python and assert agreement within 1%. Bug class prevented: a shipped Rent vs Buy workbook had Monthly P&I pointing at the wrong Inputs cell (B6 holding-horizon instead of B4 mortgage-term) — off by 75% — and BUY/RENT cells pointing at the same source. 'At least one formula evaluates' did not catch either."
+    - "For XLSX: after rendering, recalculate the workbook (LibreOffice headless on Linux/Mac, Excel COM on Windows, or the Python `formulas` package) and reload with data_only=True to read materialized values for the assertion — openpyxl alone does NOT evaluate formulas, it only stores them as text."
+    - "When both markdown and XLSX/DOCX are produced, diff every headline figure across formats; abort and re-render if any pair differs by more than 1%."
+    - "Flag any case where two differently-labeled cells in the same table evaluate to identical values — this is almost always a reference-pointing bug (as in the Rent vs Buy Summary B5/B6 case where BUY and RENT net worth both displayed $1,327,980)."
+    - "Prefer the canonical XLSX templates shipped under specialists/<name>/skills/<skill>/template.xlsx.json. Templates declare named ranges and pre-wire formulas; the agent should only fill values and narrative cells, never raw A1 coordinates."
     - "For DOCX: confirm the TOC (if used) was generated and styles are applied."
     - "If any verification fails, fix silently and re-render before responding."
 
