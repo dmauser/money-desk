@@ -8,7 +8,25 @@ Produces a single .html file that is BOTH viewable in a browser and printable
 with the same brand styling as the PDF renderer.
 """
 from __future__ import annotations
-import argparse, datetime, pathlib, sys
+import argparse, datetime, html, pathlib, re, sys
+
+_ENTITY_RE = re.compile(r"\\?&(#\d+|#x[0-9a-fA-F]+|[a-zA-Z][a-zA-Z0-9]{1,31});")
+
+
+def decode_entities(text: str) -> str:
+    """Normalize HTML entity references in markdown source to their Unicode chars.
+
+    See make_pdf.py for full rationale. Keeps PDF/HTML/DOCX renderers in parity:
+    `&mdash;` / `\\&mdash;` / `&amp;mdash;` all become a real em-dash before
+    markdown2 sees them, so they never surface literally in the output.
+    """
+    cur = text
+    for _ in range(3):
+        new = _ENTITY_RE.sub(lambda m: html.unescape("&" + m.group(1) + ";"), cur)
+        if new == cur:
+            break
+        cur = new
+    return cur
 
 BRAND_CSS = """
 :root {
@@ -26,8 +44,8 @@ h1 { color: var(--primary); font-size: 22pt; margin: 0 0 6pt; border-bottom: 2pt
 h2 { color: var(--primary); font-size: 14pt; margin: 18pt 0 6pt; }
 h3 { color: #2c3e50; font-size: 11.5pt; margin: 12pt 0 4pt; }
 table { width: 100%; border-collapse: collapse; margin: 8pt 0; font-size: 9.5pt; }
-thead th { background: var(--primary); color: white; text-align: left; padding: 6pt 8pt; }
-tbody td { padding: 5pt 8pt; border-bottom: 0.5pt solid #ddd; vertical-align: top; }
+thead th { background: var(--primary); color: white; text-align: left; padding: 6pt 8pt; overflow-wrap: anywhere; word-break: break-word; }
+tbody td { padding: 5pt 8pt; border-bottom: 0.5pt solid #ddd; vertical-align: top; overflow-wrap: anywhere; word-break: break-word; }
 tbody tr:nth-child(even) { background: var(--stripe); }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 blockquote { border-left: 3pt solid var(--warn); background: #fff8e1; padding: 6pt 10pt; margin: 8pt 0; }
@@ -55,7 +73,7 @@ __BODY__
 
 def render(md_text: str, specialist: str, today: str) -> str:
     import markdown2
-    body = markdown2.markdown(md_text, extras=[
+    body = markdown2.markdown(decode_entities(md_text), extras=[
         "fenced-code-blocks", "tables", "strike", "task_list", "cuddled-lists",
         "header-ids", "footnotes", "code-friendly",
     ])

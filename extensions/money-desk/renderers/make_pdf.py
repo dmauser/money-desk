@@ -9,7 +9,32 @@ Do NOT switch to xhtml2pdf / reportlab / pdfkit / weasyprint - the policy
 mandates Chromium for faithful CSS, tables, and emoji rendering.
 """
 from __future__ import annotations
-import argparse, asyncio, datetime, pathlib, sys
+import argparse, asyncio, datetime, html, pathlib, re, sys
+
+# Matches optionally backslash-escaped HTML entity references:
+#   &mdash;        -> em-dash
+#   \&mdash;       -> em-dash (LLM-escaped form)
+#   &amp;mdash;    -> em-dash (double-encoded; handled by stable-loop below)
+_ENTITY_RE = re.compile(r"\\?&(#\d+|#x[0-9a-fA-F]+|[a-zA-Z][a-zA-Z0-9]{1,31});")
+
+
+def decode_entities(text: str) -> str:
+    """Normalize HTML entity references in markdown source to their Unicode chars.
+
+    Why: markdown2 / markdown-it-py treat table-cell content as plain text and do
+    not decode named entity references. If the LLM emits `&mdash;`, `\\&mdash;`,
+    or `&amp;mdash;`, the entity name surfaces literally in the rendered PDF.
+    Normalizing at the source produces real `-` / `x` / etc. in every output
+    format (PDF, HTML, DOCX) without changing the renderer policy.
+    """
+    cur = text
+    # Loop because `&amp;mdash;` -> `&mdash;` -> `-` needs two passes.
+    for _ in range(3):
+        new = _ENTITY_RE.sub(lambda m: html.unescape("&" + m.group(1) + ";"), cur)
+        if new == cur:
+            break
+        cur = new
+    return cur
 
 BRAND_CSS = """
 :root {
@@ -29,8 +54,8 @@ h1 { color: var(--primary); font-size: 22pt; margin: 0 0 6pt; border-bottom: 2pt
 h2 { color: var(--primary); font-size: 14pt; margin: 18pt 0 6pt; }
 h3 { color: #2c3e50; font-size: 11.5pt; margin: 12pt 0 4pt; }
 table { width: 100%; border-collapse: collapse; margin: 8pt 0; font-size: 9.5pt; }
-thead th { background: var(--primary); color: white; text-align: left; padding: 5pt 7pt; }
-tbody td { padding: 4pt 7pt; border-bottom: 0.5pt solid #ddd; vertical-align: top; }
+tbody td { padding: 4pt 7pt; border-bottom: 0.5pt solid #ddd; vertical-align: top; overflow-wrap: anywhere; word-break: break-word; }
+thead th { background: var(--primary); color: white; text-align: left; padding: 5pt 7pt; overflow-wrap: anywhere; word-break: break-word; }
 tbody tr:nth-child(even) { background: var(--stripe); }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 blockquote { border-left: 3pt solid var(--warn); background: #fff8e1; padding: 6pt 10pt; margin: 8pt 0; }
@@ -49,7 +74,7 @@ HTML_SHELL = """<!doctype html>
 
 def render_html(md_text: str, specialist: str, today: str) -> str:
     import markdown2
-    body = markdown2.markdown(md_text, extras=[
+    body = markdown2.markdown(decode_entities(md_text), extras=[
         "fenced-code-blocks", "tables", "strike", "task_list", "cuddled-lists",
         "header-ids", "footnotes", "code-friendly",
     ])

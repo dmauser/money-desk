@@ -9,10 +9,29 @@ never hand-roll bold runs to fake structure. A TOC field is inserted at the
 top so Word can populate the table of contents when opened.
 """
 from __future__ import annotations
-import argparse, datetime, pathlib, sys
+import argparse, datetime, html, pathlib, re, sys
 
 
 PRIMARY_RGB = (0x1A, 0x4D, 0x8F)
+
+_ENTITY_RE = re.compile(r"\\?&(#\d+|#x[0-9a-fA-F]+|[a-zA-Z][a-zA-Z0-9]{1,31});")
+
+
+def decode_entities(text: str) -> str:
+    """Normalize HTML entity references in markdown source to Unicode chars.
+
+    Keeps DOCX in parity with PDF/HTML. markdown-it-py's `inline.content` field
+    preserves raw entity text (`&mdash;`), which this renderer writes straight
+    into the .text property of table cells - so without this pre-pass the entity
+    name shows literally in Word.
+    """
+    cur = text
+    for _ in range(3):
+        new = _ENTITY_RE.sub(lambda m: html.unescape("&" + m.group(1) + ";"), cur)
+        if new == cur:
+            break
+        cur = new
+    return cur
 
 
 def add_toc_field(doc):
@@ -154,6 +173,7 @@ def main() -> int:
     from docx import Document
 
     md_text = args.input.read_text(encoding="utf-8")
+    md_text = decode_entities(md_text)
     doc = Document()
     style_headings(doc)
 

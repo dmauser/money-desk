@@ -33,8 +33,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "node --test tests/installer.test.mjs tests/manifest-consistency.test.mjs tests/routes.test.mjs tests/guardrails.test.mjs tests/docs-sync.test.mjs tests/report-quality.test.mjs tests/version-sync.test.mjs",
-    "test:watch": "node --test --watch tests/installer.test.mjs tests/manifest-consistency.test.mjs tests/routes.test.mjs tests/guardrails.test.mjs tests/docs-sync.test.mjs tests/version-sync.test.mjs",
+    "test": "node --test tests/installer.test.mjs tests/manifest-consistency.test.mjs tests/routes.test.mjs tests/guardrails.test.mjs tests/docs-sync.test.mjs tests/report-quality.test.mjs tests/renderer-regression.test.mjs tests/version-sync.test.mjs",
+    "test:watch": "node --test --watch tests/installer.test.mjs tests/manifest-consistency.test.mjs tests/routes.test.mjs tests/guardrails.test.mjs tests/docs-sync.test.mjs tests/renderer-regression.test.mjs tests/version-sync.test.mjs",
     "start": "node bin/cli.mjs help",
     "init": "node bin/cli.mjs init",
     "init:project": "node bin/cli.mjs init --project",
