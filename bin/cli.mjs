@@ -16,7 +16,7 @@ const EXT_DEST = join(COPILOT_DIR, "extensions", "money-desk");
 
 const GITIGNORE_ENTRY = ".github/extensions/money-desk/";
 
-const ALLOWED_EXTENSIONS = new Set([".md", ".mjs", ".py", ".txt", ".json"]);
+const ALLOWED_EXTENSIONS = new Set([".md", ".mjs", ".py", ".txt", ".json", ".yaml", ".yml"]);
 
 async function getSpecialistNames() {
     try {
