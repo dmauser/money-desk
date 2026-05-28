@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.8] — 2026-05-28
+
+### Changed
+
+- **Installer** (`bin/cli.mjs`) now skips `tests/`, `__pycache__/`, and
+  `.pytest_cache/` path segments when copying the extension to
+  `~/.copilot/extensions/money-desk/` or `.github/extensions/money-desk/`.
+  The new pytest suite at `extensions/money-desk/tests/` is a
+  developer/CI artifact and doesn't belong in end-user installs. Trims
+  ~10 KB and a handful of files from every install. No behavior change
+  for any `md_*` tool.
+
 ## [0.11.7] — 2026-05-28
 
 ### Added
