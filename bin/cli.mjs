@@ -17,6 +17,12 @@ const EXT_DEST = join(COPILOT_DIR, "extensions", "money-desk");
 const GITIGNORE_ENTRY = ".github/extensions/money-desk/";
 
 const ALLOWED_EXTENSIONS = new Set([".md", ".mjs", ".py", ".txt", ".json", ".yaml", ".yml"]);
+// Path segments to skip entirely (developer/CI artifacts that don't belong in user installs).
+const EXCLUDED_SEGMENTS = new Set(["tests", "__pycache__", ".pytest_cache"]);
+
+function _isExcluded(path) {
+    return path.split(/[\\/]/).some((seg) => EXCLUDED_SEGMENTS.has(seg));
+}
 
 async function getSpecialistNames() {
     try {
@@ -106,6 +112,7 @@ async function walk(root, visit) {
         for (const e of entries) {
             const p = join(cur, e.name);
             if (e.isDirectory()) {
+                if (EXCLUDED_SEGMENTS.has(e.name)) continue;
                 stack.push(p);
             } else if (e.isFile()) {
                 files.push(p);
@@ -130,6 +137,7 @@ async function _cp(src, dest) {
         recursive: true,
         filter: (s) => {
             try {
+                if (_isExcluded(s)) return false;
                 if (!extname(s)) return true;
                 return ALLOWED_EXTENSIONS.has(extname(s));
             } catch {
