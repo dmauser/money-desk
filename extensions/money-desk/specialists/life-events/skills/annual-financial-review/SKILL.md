@@ -55,3 +55,13 @@ Run these IN ORDER. After each, summarize one line and continue.
 - Don't try to fix everything. Pick the top 3 actions and ship them.
 - Re-use last year's report as the baseline; show deltas, not absolutes.
 - "Analysis only. Not professional financial advice."
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

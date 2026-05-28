@@ -52,3 +52,13 @@ description: Compare current asset allocation to a target appropriate for the us
 - Don't anchor target precision to the percentage point. A 70/30 vs 72/28 is noise.
 - "Bond tent" or "glide into retirement" — for users within 5–10 years of withdrawal, getting more conservative is reasonable; getting MUCH more conservative (50/50 or 40/60) trades short-term comfort for long-term shortfall risk. Show the trade-off.
 - "Analysis only. Not investment advice."
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

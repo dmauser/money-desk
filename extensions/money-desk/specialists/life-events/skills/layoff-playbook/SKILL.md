@@ -100,3 +100,13 @@ description: Day-0 through 90-day runbook for an involuntary job loss. Triages t
 - The low-income year is a tax-planning OPPORTUNITY hidden inside a stressful event.
 - Emotional decisions in week 1 cause damage — slow down the financial decisions, not the job search.
 - "Analysis only. Recommend a CPA for the severance/conversion tax planning and an employment lawyer for severance > 6 months or any non-trivial release language."
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

@@ -51,3 +51,13 @@ description: Project full-year federal tax liability vs YTD withholding from pay
 - State withholding works similarly but with state-specific rules; flag state assumptions.
 - Pre-tax 401(k) contributions reduce federal taxable income but not SS/Medicare wages — don't double-count.
 - The safe-harbor test uses **withholding + estimates**, not just withholding.
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

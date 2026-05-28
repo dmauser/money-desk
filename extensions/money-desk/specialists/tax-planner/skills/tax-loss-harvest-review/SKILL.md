@@ -51,3 +51,13 @@ description: Scan taxable brokerage lots for unrealized losses suitable for tax-
 - Avoid frequent harvesting that creates a low cost basis you'll later realize as a big LT gain at a high bracket. Run a multi-year view if possible.
 - Crypto wash-sale rules differ from securities — current law (2026) does NOT apply §1091 wash-sale to crypto in the same way, but proposals exist. Flag conservatism for the user.
 - Mutual funds inside 401(k)s/IRAs don't generate harvestable losses (tax-deferred). Only taxable accounts.
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

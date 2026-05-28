@@ -90,3 +90,13 @@ The single most important rule. Park cash in a HYSA / money market / treasury MM
 - Co-mingle nothing in 0–30: keep inherited money in a separate account until you know what you want to do.
 - Beware of unsolicited "advisors" who appear after inheritances — fee-only fiduciary only.
 - "Analysis only. Inheritance is one of the most legal- and tax-complex events in personal finance. CPA + estate attorney + fee-only CFP, in that order."
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

@@ -66,3 +66,13 @@ description: Compare buying vs leasing a vehicle on total lifetime cost, monthly
 - Lease residual is set by the captive finance company — sometimes the lease-end buyout is below market and worth taking; sometimes it's above market and you walk away.
 - Negotiation: cap cost ≈ purchase price; money factor ≈ (APR/2400). Treat lease negotiation like buying first, then converting to lease.
 - "Analysis only. Not professional financial advice."
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

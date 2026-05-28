@@ -53,3 +53,13 @@ Markdown report `./reports/<CHILD>/aid-positioning-<YYYYMMDD>.md`:
 - Small-business and family-farm assets are now counted on FAFSA (used to be excluded). Cite this if relevant.
 - This skill does **not** estimate merit aid (non-need-based). Use each target school's Net Price Calculator for that.
 - 529 ownership: parent-owned counts as parent asset (5.64%); student-owned counts as student asset (20%) on FAFSA — but on the new FAFSA, the 529 *belongs* to the account owner regardless of beneficiary. Confirm with the plan.
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

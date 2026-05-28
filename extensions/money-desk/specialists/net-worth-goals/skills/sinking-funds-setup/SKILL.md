@@ -55,3 +55,13 @@ Markdown report `./reports/net-worth-goals/sinking-funds-<YYYYMMDD>.md`:
 - For users who escrow property tax and homeowners insurance, those are already smoothed in the mortgage payment — don't double-up.
 - Home maintenance is the silent killer for new homeowners. The 1%-of-value rule is just an average; older homes / harsh climates / luxury finishes can run 2–3%.
 - An "Annual Subscriptions" bucket pairs naturally with Subscription Audit (`md_bc_skill_subscription_audit`) — run that first to right-size what you're actually funding.
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

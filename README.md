@@ -598,6 +598,41 @@ Reports produced by Money Desk are written to `./reports/<specialist>/` or `./re
 
 For the full, explicit data-flow and verification commands, see **[PRIVACY.md](./PRIVACY.md)**.
 
+## Report Quality & Formats
+
+Every Money Desk deliverable — rebalance plan, portfolio review, tax analysis, retirement readiness, budget, debt plan, insurance review, estate summary, real-estate underwrite, etc. — follows a single shared standard surfaced by the `md_report_quality` tool. Source-of-truth: `extensions/money-desk/data/preferences.yaml` (the `report_quality:` block).
+
+**Defaults:**
+
+- **Output = markdown rendered inline in chat.** No files are written automatically.
+- **At the end of every deliverable, the agent OFFERS** PDF / DOCX / XLSX / HTML. It only produces files if you accept (or asked for a format up front).
+- **File naming when files are produced:** `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`. What-if scenarios get a `_scenario_<label>` suffix — prior runs are never overwritten.
+
+**Renderer toolchain** (ships in `extensions/money-desk/renderers/`, copied to `./reports/_renderers/` on first use in a project):
+
+| Format | Stack | Install |
+|--------|-------|---------|
+| PDF  | Playwright + Chromium     | `pip install playwright markdown2 && python -m playwright install chromium` |
+| HTML | markdown2 + inline CSS    | `pip install markdown2` |
+| XLSX | openpyxl, real formulas   | `pip install openpyxl` |
+| DOCX | python-docx, real styles  | `pip install python-docx markdown-it-py` |
+
+XLSX workbooks use **real `=SUM` / `=IF` / `=NPV` / `=FV` / `=PMT` formulas** with shared Inputs / Scenarios sheets — edit one cell and every scenario updates. DOCX uses **real Word styles** (Heading 1/2/3, Title, Quote, List Bullet) and inserts a TOC field. PDF and HTML share the same Chromium pipeline and brand palette.
+
+**Brand:** primary `#1a4d8f`, accent `#2e7d32`, warn `#d4a017`, risk `#c0392b`, row stripe `#f5f7fb`; Segoe UI / Helvetica body, Letter paper, 0.55in margins; footer `Money Desk — <Specialist> · Page X of Y · <YYYY-MM-DD>`.
+
+**Standard sections in every report:** title + scope → intake echo → headline findings (severity-ranked) → detailed analysis → before/after → prioritized recommendations (🔴/🟠/🟡) → action checklist (`[ ]`) → open items & assumptions → disclaimer footer.
+
+**Override examples** you can type at any time:
+
+- *"Just markdown is fine, skip the PDF."*
+- *"Also produce a spreadsheet I can edit."*
+- *"Draft me a Word doc for my CPA."*
+- *"Send me a dashboard link."* (HTML)
+- *"All four formats."*
+
+Self-verification (file sizes, formula sanity, no broken table wraps, TOC + styles) runs before the agent declares the deliverable done.
+
 ## How It Works
 
 ### Discoverability

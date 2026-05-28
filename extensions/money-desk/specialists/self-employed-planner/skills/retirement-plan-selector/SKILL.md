@@ -69,3 +69,13 @@ Markdown report `./reports/self-employed-planner/retirement-plan-<YYYYMMDD>.md`:
 - Solo 401(k) Roth contributions don't have the income phase-outs that Roth IRAs do — major win for high-earning consultants.
 - SEP IRA contributions count as "employer" only, no employee deferral — so a $100k consultant maxes SEP at $25k vs Solo 401(k) potentially $48k+. The Solo 401(k) usually wins below the 25%-of-comp cap.
 - If converting a SEP to a Solo 401(k) mid-year, plan timing carefully — same-year SEP contributions count against the $70k aggregate.
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

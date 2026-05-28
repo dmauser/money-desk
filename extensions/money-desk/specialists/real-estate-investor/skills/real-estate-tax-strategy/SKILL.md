@@ -70,3 +70,13 @@ description: Walk through the tax mechanics specific to residential real-estate 
 ## Disclaimer
 
 Educational. Cost-seg, §1031, and REPS all create audit risk if mis-claimed. Strongly recommend a CPA experienced with real estate (NOT a generalist) for any filing. Bonus depreciation percentages change annually — confirm current year before relying on this.
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

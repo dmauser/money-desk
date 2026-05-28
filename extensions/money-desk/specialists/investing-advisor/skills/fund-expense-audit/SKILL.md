@@ -53,3 +53,13 @@ description: Audit every mutual fund / ETF in the portfolio for expense ratio, 1
 - Be careful with "similar exposure" — VOO and VOOG are NOT equivalent (S&P 500 vs S&P 500 Growth).
 - 401k menus are often expensive; if the user has access to a brokerage window or self-directed option inside the plan, flag it as an unlock.
 - "Not investment advice. Verify all ERs against current fund prospectuses before acting."
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

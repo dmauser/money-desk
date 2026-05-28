@@ -60,3 +60,13 @@ Markdown report `./reports/self-employed-planner/quarterly-tax-<YYYYMMDD>.md`:
 - W-2 withholding is treated as paid evenly across the year for underpayment-penalty purposes, even if all in Q4. This is why high-W-2-income spouses sometimes increase their W-4 withholding to cover the 1099 spouse's shortfall — clean and avoids estimated-tax mechanics.
 - The penalty for underpayment is computed per quarter (it's an interest-rate-driven penalty, not a flat fee). Currently ~8% APR; meaningful for large under-payments.
 - For S-corp owners: W-2 payroll handles the income-tax + FICA withholding; estimated taxes typically only needed if K-1 distributions or other income create a balance-due situation.
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

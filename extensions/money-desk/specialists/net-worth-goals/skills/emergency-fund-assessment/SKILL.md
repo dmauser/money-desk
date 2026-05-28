@@ -65,3 +65,13 @@ Markdown report `./reports/net-worth-goals/emergency-fund-<YYYYMMDD>.md`:
 - A HELOC is a *line of credit*, not an emergency fund. Don't count it as part of the EF, but DO note it exists as a tier-2 backstop.
 - Roth IRA contributions are withdrawable penalty-free — viable last-resort backstop for younger users but tapping it destroys retirement compounding; not the first line of defense.
 - If the user has high-interest consumer debt AND no EF, sequence: small starter EF ($1k–$2k) → aggressive debt payoff → full EF.
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

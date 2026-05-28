@@ -53,3 +53,13 @@ description: Plan Required Minimum Distributions from tax-deferred accounts at a
 - 401(k) "still-working" exception: if user is still working at the sponsoring employer and is NOT a >5% owner, they can defer RMDs on that 401(k) only.
 - Inherited IRA rules differ (10-year rule, EDBs) — outside this skill; flag for separate review.
 - "Analysis only. Not professional retirement or tax advice."
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

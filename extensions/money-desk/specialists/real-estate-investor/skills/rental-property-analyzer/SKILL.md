@@ -49,3 +49,13 @@ description: Underwrite a residential 1–4 unit rental property (existing or pr
 ## Disclaimer
 
 Analysis only. Not a recommendation to purchase. Recommend a local CPA + real-estate attorney for any actual purchase. State / county / city rules (rent control, transfer tax, registration requirements) vary widely — verify locally.
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

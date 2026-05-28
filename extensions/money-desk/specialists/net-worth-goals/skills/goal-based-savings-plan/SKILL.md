@@ -61,3 +61,13 @@ Markdown report `./reports/net-worth-goals/goal-plan-<YYYYMMDD>.md`:
 - For a wedding, the savings goal is often only the "couple's contribution" piece; parents/in-laws may cover portions — get clarity before sizing.
 - Don't over-engineer. 3–5 active goals is realistic. Park "someday" goals on a list without a plan until the user wants to activate one.
 - For 5+ year goals that overlap with retirement-allocation needs, hand off to Investing Advisor (`md_iv_role`) — they should not be funded in a separate, redundant allocation.
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

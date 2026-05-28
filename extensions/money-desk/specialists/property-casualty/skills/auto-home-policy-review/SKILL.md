@@ -100,3 +100,13 @@ description: Line-by-line declarations-page audit of personal auto, homeowners, 
 ## Disclaimer
 
 Analysis only. Doesn't bind, cancel, or modify policies. Coverage terminology and form numbers vary by carrier; always read the actual policy form before relying on a coverage. For complex situations (high net worth, multiple properties, public-facing professional), engage an independent broker with high-net-worth-carrier appointments (Chubb, PURE, AIG Private Client).
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

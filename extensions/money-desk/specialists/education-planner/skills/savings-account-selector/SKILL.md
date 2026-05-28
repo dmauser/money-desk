@@ -52,3 +52,13 @@ Markdown report `./reports/<CHILD>/account-selector-<YYYYMMDD>.md`:
 - The Roth-for-education argument is **only** strong if the parent already has retirement on track. Otherwise the opportunity cost (lost retirement compounding) crushes the case.
 - Some families like UTMA for the "first car / wedding / down-payment-help" use case — that's fine, just don't conflate it with college planning.
 - 529 superfunding (5-year averaging of gift-tax annual exclusion) is the highest-leverage way for grandparents or high-income parents to seed an account.
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

@@ -61,3 +61,13 @@ description: Review and size long-term disability (LTD) coverage — the most un
 - Disability insurance is medically underwritten — quote and lock in EARLY while healthy.
 - Two specialists, two coverages: doctors/dentists need TRUE own-occupation with specialty language.
 - "Analysis only. Not professional insurance advice. Recommend a fee-only independent broker who can quote 3–4 carriers."
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

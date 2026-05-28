@@ -50,3 +50,13 @@ description: Audit beneficiary designations on every retirement account, life po
 - Beneficiary designations OVERRIDE the will. A perfectly drafted will means nothing if the 401(k) still names an ex-spouse.
 - Don't change beneficiaries to "estate" by default — usually slower and worse than naming a person/trust.
 - "NOT legal advice. Trust language and complex family situations require an attorney."
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

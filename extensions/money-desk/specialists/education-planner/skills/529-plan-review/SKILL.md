@@ -45,3 +45,13 @@ Markdown report `./reports/<CHILD>/529-review-<YYYYMMDD>.md`:
 - 529-to-Roth rollover (SECURE 2.0): $35k lifetime cap, account must be 15+ years old, last 5 years of contributions can't be rolled, subject to annual Roth IRA contribution limits and earned-income requirement. Useful for "what if Kid doesn't go to college" — but not a primary planning tool.
 - Apprenticeships and student-loan payments (up to $10k lifetime) are now qualified 529 expenses.
 - For high earners, the state-tax deduction is often a smaller win than the lower expense ratios at the cheapest plans (UT, NY, IL Bright Start). Show the user the math.
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

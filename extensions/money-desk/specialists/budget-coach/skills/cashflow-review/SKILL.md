@@ -48,3 +48,13 @@ If the user only has 1–2 months, run it but flag that small-N conclusions are 
 - "Net savings" includes transfers to dedicated savings/brokerage accounts. Be careful not to double-count: transfers between checking and savings are NOT savings unless the savings account doesn't get swept back.
 - Annualize subscription/recurring charges in the summary — it's eye-opening.
 - If the user has joint accounts, ask whose income/spending it represents before reporting savings rate.
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

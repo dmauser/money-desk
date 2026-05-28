@@ -71,3 +71,13 @@ description: 30/60/90-day runbook for a new baby (biological or adopted). Sequen
 - Stay-at-home parents need life insurance too — daycare + housekeeping + childcare replacement cost is six figures.
 - 529 for a newborn = 18-year horizon = aggressive equity glidepath.
 - "Analysis only. Recommend an estate attorney for the will and an independent broker for term-life quotes."
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

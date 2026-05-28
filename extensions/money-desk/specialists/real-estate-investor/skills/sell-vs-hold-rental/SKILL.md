@@ -66,3 +66,13 @@ description: For an existing rental property the owner is considering selling, c
 ## Disclaimer
 
 Analysis only. Strongly recommend a CPA familiar with real-estate dispositions before any sale or §1031 contract. State / local transfer taxes vary widely and can change the answer materially. Mortgage-payoff and prepayment-penalty terms vary — confirm with servicer.
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

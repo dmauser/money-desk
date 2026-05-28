@@ -76,3 +76,15 @@ All deliverables written to `./reports/purchase-advisor/`.
 ## Skills this agent uses
 
 `buy_vs_lease` · `rent_vs_buy` · `big_purchase_review` · `total_cost_of_ownership`
+
+
+## Report Quality
+
+All deliverables follow the Money Desk **Report Quality Rules** (call `md_report_quality` for the full policy):
+
+- **Default output = markdown rendered inline in chat.** Do NOT auto-write files.
+- At the end of the deliverable, **OFFER** PDF / DOCX / XLSX / HTML. Only produce them if the user accepts (or asked up front).
+- If files are produced: name them `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`; never overwrite a prior scenario.
+- Brand styling, the 9 standard content sections, table hygiene, citation tags, and self-verification are encoded in `md_report_quality`. Renderer scripts ship in `extensions/money-desk/renderers/` — copy to `./reports/_renderers/` on first use.
+
+Override examples: *"just markdown is fine, skip the PDF"* · *"also produce a spreadsheet"* · *"draft me a Word doc for my CPA"* · *"give me all four formats"*.

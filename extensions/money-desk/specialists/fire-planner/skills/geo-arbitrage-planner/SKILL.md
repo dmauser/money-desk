@@ -111,3 +111,13 @@ International tax / immigration is the highest-stakes Money Desk domain. The FBA
 ## Next step
 
 **Next step → International / Expat:** "Run **Expat Tax Overview** for US person moving to {destination}, current US spend ${X}/yr, expected destination spend ${Y}/yr, asset structure {taxable $A / Trad $B / Roth $C}, source-of-income {portfolio / passive / consulting}."
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

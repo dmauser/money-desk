@@ -60,3 +60,13 @@ description: Determine optimal $ split across 401(k) (trad vs Roth), IRA (trad v
 - HSA is often underused. It's the single best tax-shelter for those who can afford to pay current medical expenses out of pocket and let HSA invest.
 - Roth IRA via the backdoor: must be aware of the pro-rata rule across all traditional IRAs.
 - "Not tax or investment advice — informational only."
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

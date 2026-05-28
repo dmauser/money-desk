@@ -51,3 +51,13 @@ Markdown report `./reports/<CHILD>/college-cost-projection-<YYYYMMDD>.md`:
 - The "save 1/3, current-pay 1/3, borrow 1/3" rule of thumb is one starting point but doesn't fit everyone.
 - Merit aid varies wildly by school; sticker is the conservative planning number. Use Net Price Calculator on each target school's website for a tighter estimate (and cite output).
 - This skill projects the cost; **Financial Aid Positioning** (`md_ed_skill_aid_positioning`) separately analyzes how much aid might offset it.
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

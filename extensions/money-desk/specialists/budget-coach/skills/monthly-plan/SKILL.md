@@ -50,3 +50,13 @@ description: Build a zero-based or envelope-style monthly spending plan from net
 - Pay yourself first: if savings is at the end of the priority list, it never happens.
 - Annual / irregular expenses (insurance, taxes, gifts, car maintenance) should hit monthly sinking funds, not the month they're due.
 - Re-run this skill quarterly or whenever a fixed obligation changes by >10%.
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

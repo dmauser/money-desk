@@ -84,3 +84,13 @@ description: Pre-approval through 90-days-post-close runbook for buying a home. 
 - The myth: "buying builds equity." Reality: first 5–7 years, amortization is mostly interest. Transaction costs (6% to sell) often exceed equity built unless you stay 5+ years.
 - Sub-3% rates locked in 2020–21 distort the lifetime math — don't blindly extrapolate.
 - "Analysis only. Recommend a fee-only mortgage broker (not lender-employed) for shopping quotes."
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

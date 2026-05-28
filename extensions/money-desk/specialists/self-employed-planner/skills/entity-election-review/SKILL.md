@@ -71,3 +71,13 @@ Markdown report `./reports/self-employed-planner/s-corp-election-<YYYYMMDD>.md`:
 - Some states don't recognize the S-election (e.g., NJ requires separate state election; CA taxes S-corps regardless). Always check.
 - For very-high-income (>$400k net) consultants, the conversation often shifts from "S-corp vs sole prop" to "S-corp + Defined Benefit plan" — recommend a CPA at that scale.
 - Solo entrepreneurs who hate paperwork and time-on-back-office may rationally pass even if math says elect. Operational fit matters.
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

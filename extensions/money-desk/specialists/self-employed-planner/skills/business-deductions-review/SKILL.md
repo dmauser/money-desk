@@ -78,3 +78,13 @@ Markdown report `./reports/self-employed-planner/deductions-<YYYYMMDD>.md`:
 - Receipts: under $75 not required for non-lodging; lodging always. Keep regardless for digital audit trail.
 - Home office and vehicle are the highest-leverage deductions but also the most-audited. Do them right (contemporaneous mileage log, dedicated home-office space) and they're bulletproof.
 - This skill audits and recommends; it does NOT prepare the return. For complex situations (multi-state, asset disposition, depreciation recapture), hand off to a CPA.
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

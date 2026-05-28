@@ -57,3 +57,13 @@ description: Project Social Security benefits at 62 / 67 (FRA) / 70 claim ages, 
 - "File and Suspend" and "Restricted Application" strategies were largely eliminated by the 2015 BBA. Only those born before 1/2/1954 may still use restricted application — rare today.
 - COLA is applied to the PIA from age 62 forward regardless of when you claim — delaying does not "miss" COLAs.
 - "Not professional advice. SSA.gov is the authoritative source."
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

@@ -66,3 +66,13 @@ description: Step-by-step incident-response runbook for confirmed or suspected i
 - Don't use SMS 2FA on financial accounts if avoidable — SIM-swap risk.
 - Freezing credit is free and reversible. There's no downside.
 - "Not legal advice. Consider consulting an attorney if losses are large or institutions are uncooperative."
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

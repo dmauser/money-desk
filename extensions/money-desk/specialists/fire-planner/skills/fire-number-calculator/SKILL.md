@@ -103,3 +103,13 @@ A target number is not a plan. The actual portfolio that supports the number dep
 ## Next step
 
 **Next step → FIRE Planner:** "Run Safe-Withdrawal Stress Test on $X spend, Y-year horizon, Z% real return." And track progress vs the number → **Net Worth Snapshot** in **Net Worth & Goals**.
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

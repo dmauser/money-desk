@@ -134,3 +134,13 @@ Markdown report `./reports/investing-advisor/cash-yield-check-<YYYYMMDD>.md`:
 - **Sweep accounts**: if the user already has cash at a major brokerage, the default sweep is often a low rate, but switching the sweep to a money-market mutual fund (e.g. Fidelity SPAXX, Schwab SWVXX, Vanguard VMFXX) can capture most of the yield without opening a new bank account.
 - **FDIC limit**: $250k per depositor per insured bank per ownership category — for emergency funds above that, either spread across institutions or use a network-sweep program (e.g. IntraFi / ICS / CDARS) — depositaccounts.com lists some of these.
 - Analysis only. Not professional financial advice. Verify all APYs, fees, and terms on the institution's site before opening any account.
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

@@ -67,3 +67,13 @@ description: Project savings trajectory to a target retirement age using user in
 - Linear projections are wrong. Sensitivity ranges are the honest output.
 - Monte Carlo would be ideal — note if user wants probabilistic and offer that as a follow-up (out of scope for this skill).
 - "Analysis only. Not investment or retirement advice."
+
+
+## Report Quality
+
+This skill's deliverable follows the Money Desk **Report Quality Rules** — call `md_report_quality` for the full policy.
+
+- **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
+- After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
+- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).

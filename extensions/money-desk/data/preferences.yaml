@@ -107,3 +107,144 @@ required_sections:
   - next_step                # friendly-named follow-up skill
 
 # Saved: 2026-05-27
+
+# ─────────────────────────────────────────────────────────────────────────
+# REPORT QUALITY RULES — served by the `md_report_quality` tool
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Every user-facing deliverable produced by any Money Desk specialist
+# (rebalance plan, portfolio review, tax analysis, retirement readiness,
+# budget, debt plan, insurance review, estate summary, real-estate
+# underwrite, etc.) MUST follow these defaults unless the user explicitly
+# overrides on the current turn.
+#
+# DEFAULT behavior: render the deliverable as Markdown **inline in chat**.
+# Do NOT write any file by default. At the END of the deliverable, OFFER
+# additional formats (PDF / DOCX / XLSX / HTML) and only produce them if
+# the user accepts. The 4 renderer scripts shipped with the extension
+# (extensions/money-desk/renderers/) are copied to ./reports/_renderers/
+# on first use in the CWD.
+report_quality:
+
+  # 1. Output formats — pick the right one for the deliverable
+  output_formats:
+    default: markdown_inline_only
+    auto_write_files: false
+    offer_at_end: [pdf, docx, xlsx, html]
+    triggers:
+      pdf:   ["save it as pdf", "pdf please", "polished pdf", "export pdf"]
+      xlsx:  ["spreadsheet", "excel", "model it", "what-if grid", "xlsx"]
+      docx:  ["word doc", "draft for my cpa", "share with spouse", "docx"]
+      html:  ["dashboard", "interactive", "publish", "send link", "html"]
+    multi_format: "If the user asks for several formats, produce all of them from the SAME source markdown."
+
+  # File naming (only used when a file IS being saved)
+  file_naming:
+    pattern: "./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>"
+    always_save_source_markdown: true
+    never_overwrite_scenarios: "Append _scenario_<label> rather than overwriting a prior file."
+
+  # 2. Rendering engines — use these exact stacks, no improvising
+  renderers:
+    install_location: "./reports/_renderers/"
+    install_note: "Copy the four scripts from extensions/money-desk/renderers/ into ./reports/_renderers/ on first use in this CWD; do not rewrite them per task."
+    pdf:
+      stack: "Playwright + Chromium (NEVER xhtml2pdf, reportlab, pdfkit, weasyprint)"
+      install: "pip install playwright markdown2 && python -m playwright install chromium"
+      script: "./reports/_renderers/make_pdf.py"
+    html:
+      stack: "Same Chromium pipeline; standalone self-contained .html (inline CSS, no external links); printable AND viewable"
+      install: "pip install markdown2"
+      script: "./reports/_renderers/make_html.py"
+    xlsx:
+      stack: "openpyxl"
+      install: "pip install openpyxl"
+      script: "./reports/_renderers/make_xlsx.py"
+      sheets: [Summary, Inputs, Analysis, Scenarios, Assumptions]
+      formula_rule: "Use real formulas (=SUM, =IF, =NPV, =FV, =PMT) — not pre-computed values — so the user can adjust inputs and see results update."
+    docx:
+      stack: "python-docx"
+      install: "pip install python-docx"
+      script: "./reports/_renderers/make_docx.py"
+      style_rule: "Use real Word styles (Heading 1/2/3, Title, Quote, List Bullet) — never hand-roll bold runs to fake structure. Include a TOC field for docs > 3 pages."
+
+  # 3. Visual styling — consistent brand across all formats
+  brand:
+    colors:
+      primary:        "#1a4d8f"  # H1/H2, table headers
+      accent_green:   "#2e7d32"  # gains, "on track"
+      warning_amber:  "#d4a017"  # caveats, open items
+      risk_red:       "#c0392b"  # concentration risk, urgent action
+      row_stripe:     "#f5f7fb"
+    fonts:
+      body:  "Segoe UI / Helvetica, 10.5pt (PDF/HTML), 11pt (DOCX)"
+      table: "9.5pt"
+    layout:
+      paper:   "Letter"
+      margins: "0.55in all sides"
+    footer: "Money Desk — <Specialist> · Page X of Y · <YYYY-MM-DD>"
+    callouts:
+      caveat:      "amber blockquote, ⚠️ icon"
+      opportunity: "green blockquote, 🟢 / 💡 icon"
+      risk:        "red blockquote, 🔴 icon"
+
+  # 4. Content structure — every report, every format, in this order
+  standard_sections:
+    - "1. Title + prepared date + specialist + total scope ($, accounts, period)"
+    - "2. Client profile / intake echo (so the user verifies inputs)"
+    - "3. Headline findings — top 3–5 in a severity-ranked table"
+    - "4. Detailed analysis (H2 per theme)"
+    - "5. Before / After comparison table"
+    - "6. Prioritized recommendations (🔴 / 🟠 / 🟡 severity)"
+    - "7. Action checklist with empty `[ ]` boxes the user can tick"
+    - "8. Open items / assumptions / what to verify"
+    - "9. Disclaimer footer (Money Desk standard wording)"
+
+  # 5. Table & data hygiene
+  table_rules:
+    first_column_header_required: "Every table's column-1 header MUST have a non-empty label. WRONG: `| | A | B |`. RIGHT: `| Dimension | A | B |`."
+    max_columns: 7
+    long_prose: "Cell content ≤ ~40 chars; put long prose in bullets BELOW the table."
+    numeric_alignment: "Right-align numeric columns (`|---:|`)."
+    currency: "$1,234,567 (no decimals for amounts > $1k unless precision matters)"
+    percentages: "one decimal (12.3%); use pp for changes (+5pp)"
+    xlsx_number_formats: "Apply real cell number formats ($#,##0 / 0.0%) — never strings."
+    docx_tables: "Real Word tables, not text grids."
+    html_tables: "Semantic <table><thead><tbody>; ARIA labels for accessibility."
+
+  # 6. Citations — every figure traceable
+  citation_tags:
+    user_provided:  "[USER-PROVIDED]"
+    fact:           "[<Friendly Source Label>]  (from md_facts; e.g. [IRS 2026 limits])"
+    assumption:     "[ASSUMPTION: <value>]"
+    unsourced:      "[UNSOURCED]  (only after calling md_facts first)"
+    pdf_docx: "Tags appear inline in the prose."
+    xlsx:     "Add a 'Source' column to every table."
+    html:     "Tags render as hover tooltips."
+
+  # 7. What-if scenarios
+  scenarios:
+    reuse_prior_intake: true
+    file_naming_suffix: "_scenario_<label>"
+    overwrite_prior_scenario: false
+    include_change_table: "Top-of-document 'Scenario Change' table comparing prior vs new inputs."
+    xlsx_layout: "Scenarios live on separate sheets, sharing the Inputs sheet via formulas, so editing one cell updates all scenarios."
+
+  # 8. Self-verification — before declaring done
+  self_verification:
+    - "Report full file path + size for each format produced."
+    - "For PDF/HTML: confirm no table cell wraps to < 3 chars/line; if it does, re-flow and re-render BEFORE telling the user."
+    - "For XLSX: open the workbook and confirm at least one formula evaluates correctly."
+    - "For DOCX: confirm the TOC (if used) was generated and styles are applied."
+    - "If any verification fails, fix silently and re-render before responding."
+
+  # 9. Analysis-only guardrail (unchanged)
+  guardrail: "Reports describe analysis and recommended actions only. They NEVER place trades, transfers, contributions, withdrawals; never file returns or submit forms; never sign or send documents. The user takes every final action. The disclaimer footer must appear on every deliverable in every format."
+
+  # How to override on a single turn (turn-scoped, not persisted)
+  override_examples:
+    - "save it as pdf and docx"
+    - "skip the offer, just give me markdown"
+    - "use Bankrate instead this time"  # source override (see preferred_sources)
+    - "model it in excel with real formulas"
+
