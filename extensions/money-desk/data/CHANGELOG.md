@@ -7,6 +7,140 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] — 2026-05-29
+
+### Added
+
+- **New `md_sources` discovery tool — sources-of-truth map for accuracy.**
+  Documents the authoritative public data sources every specialist should
+  consult before answering questions about current rates, brackets, prices,
+  or fund expense ratios — and the recommended Model Context Protocol (MCP)
+  servers that can supply those numbers if the user wires them into their
+  Copilot CLI `mcp` config. Tier-1 (default-recommended, public, free,
+  no-PII): FRED (rates / inflation / Treasury yields / mortgage),
+  SEC EDGAR (fund prospectuses / 10-K), TreasuryDirect (I-bond / T-bill),
+  BLS (CPI / college CPI), and a `.gov`-scoped `fetch` MCP for IRS / SSA /
+  CMS / FAFSA pages. Tier-2 (opt-in): market-data MCPs (Yahoo / Polygon /
+  Alpha Vantage / Tiingo / OpenBB), crypto, and citation-grade web search.
+  Tier-3 (opt-in with caveats): real-estate comps, scoped filesystem.
+  Each entry maps to specific specialist prefixes (e.g. FRED helps
+  `md_pa` / `md_re` / `md_fl` / `md_ds` / `md_ci` / `md_ed` / `md_iv`).
+- **`extensions/money-desk/data/sources.yaml`** — single source of truth
+  for the recommendations map, including a non-negotiable privacy
+  contract: Tier-1 queries are public-data-only, Tier-2 / Tier-3 are
+  opt-in per project, no PII ever leaves the agent in any MCP query, and
+  if a number has a Tier-1 source but the matching MCP is unreachable in
+  the session the specialist tags it `[UNSOURCED]` instead of inventing.
+- **Per-role `## Sources of truth` block** added to all 20 specialist
+  role files, pointing the agent at `md_sources` whenever it needs a
+  current public number that is not covered by `md_facts`.
+
+### Changed
+
+- **`md_citation_conventions` now references `md_sources`** alongside
+  `md_facts` / `md_preferences` / `md_report_quality` so the agent knows
+  where to go for live macro / market / fund / Treasury data, and the
+  `[UNSOURCED]` definition explicitly mentions both `md_facts` and
+  `md_sources` as verification paths.
+- **`PRIVACY.md` adds an "MCP server integrations" section** spelling
+  out the privacy posture for opt-in MCPs (public-data-only Tier-1,
+  user-opt-in Tier-2/3, no PII, cite-or-refuse, Money Desk's own runtime
+  still makes zero outbound calls).
+- **`README.md` Privacy & Guardrails** gains a one-line MCP bullet
+  pointing at `md_sources` and the unchanged no-network promise.
+
+### Tests
+
+- New `tests/sources.test.mjs` — verifies `md_sources` is registered,
+  returns YAML + privacy-contract content, every role markdown
+  references it, and `CITATION_CONVENTIONS` mentions it.
+
+## [0.14.0] — 2026-05-29
+
+### Added
+
+- **Professional "Summary Dashboard" layout for all 6 XLSX templates.**
+  Every shipped Summary sheet now opens with a full-width primary-blue
+  banner, italic gray subtitle, bordered Metric / Value / Threshold /
+  Status table with light-green-highlighted Value column, and a peach
+  callout box rendering the headline verdict as a live formula. Matches
+  the brand reference screenshot end-to-end and gives every specialist a
+  consistent dashboard look. Templates updated:
+  - `fire-planner/swr-stress-test`
+  - `purchase-advisor/rent-vs-buy` (regression coords B3/B7/B8/B9 preserved)
+  - `education-planner/college-cost-projection`
+  - `real-estate-investor/mortgage-strategy-review`
+  - `real-estate-investor/rental-property-analyzer`
+  - `retirement-planner/withdrawal-strategy`
+- **New cell styles in `make_xlsx.py`:** `banner`, `section_banner`,
+  `subtitle`, `metric`, `value_highlight`, `threshold`, `status`,
+  `callout` (in addition to the existing `h1` / `header` / `body`).
+  Style dispatch is centralized in `_STYLE_DISPATCH` so adding more
+  styles is one line.
+- **New cell-spec fields in `make_xlsx.py`:** `merge: "A1:D1"` (per-cell
+  merge applied after value/style so openpyxl never writes into a
+  non-top-left cell of a merged range) and `border: true` (thin gray
+  box border).
+- **New sheet-level fields in `make_xlsx.py`:** `column_widths` (e.g.
+  `{"A": 38, "B": 16}`), `row_heights` (e.g. `{"1": 26}`), and `merges`
+  (e.g. `["A1:D1", "A2:D2"]`) — all additive, no breaking changes.
+- **New PDF / HTML branded CSS classes:** `.executive-summary` (light-blue
+  TL;DR panel), `.callout` / `.callout.green` / `.callout.amber` (peach /
+  green / amber emphasis), `.verdict` (prominent end-of-report verdict),
+  `.kpi-grid` + `.kpi` (`.label` / `.value` / `.note`), and `.note`.
+  Agents can wrap markdown in `<div class="...">` for brand-consistent
+  emphasis blocks across PDF and HTML output.
+- **Brand color tokens** for the new dashboard primitives in
+  `data/preferences.yaml` (`report_quality.brand.colors`):
+  `value_green`, `callout_peach`, `subtitle_gray`, `border_gray`. The
+  existing `primary` / `accent_green` / `warning_amber` / `risk_red` /
+  `row_stripe` are unchanged.
+- **`renderers/README.md`** documents the dashboard layout convention
+  end-to-end (style table, sheet-level fields, PDF/HTML class table,
+  full HTML example).
+
+### Fixed
+
+- **`make_xlsx.py` no longer produces `*.xlsx.xlsx` output paths** when
+  the spec file uses Money Desk's `template.xlsx.json` convention. The
+  default output stem now strips a trailing `.xlsx` so
+  `template.xlsx.json` → `<specialist>/template.xlsx`.
+
+### Changed
+
+- `make_xlsx.py` `header` style now uses size 11 (was 10), centered
+  alignment, and a thin gray border — to match the dashboard column
+  headers in the brand screenshot. Existing templates that use
+  `style: header` for tabular headers continue to work and look better
+  out of the box.
+
+## [0.13.0] — 2026-05-29
+
+### Changed
+
+- **Renderer CLIs now have ergonomic defaults** (parity with
+  network-desk). `make_pdf.py`, `make_html.py`, `make_docx.py`, and
+  `make_xlsx.py` no longer require `--output`: when omitted, each
+  renderer writes to `<outdir>/<specialist-slug>/<input-stem>.<ext>`
+  with `--outdir` defaulting to `reports/`. Existing call sites that
+  pass `--output` keep working unchanged.
+- **`make_xlsx.py` gained a `--specialist` flag** so the default output
+  path is grouped under the specialist (was previously missing,
+  forcing every xlsx call to specify `--output` explicitly). The
+  spec's top-level `"specialist"` field still wins when present.
+- **Friendlier error messages for missing dependencies.** All four
+  renderers now catch `ImportError` for their third-party deps
+  (`markdown2`, `playwright`, `python-docx`, `markdown-it-py`,
+  `openpyxl`) and exit with the exact `pip install …` hint instead
+  of a raw traceback. `make_pdf.py` also catches Chromium launch
+  failures and points at `python -m playwright install chromium`.
+- **`make_pdf.py` / `make_html.py` no longer shadow the stdlib `html`
+  module** with a local `html` variable — renamed to `page_html` so
+  `html.unescape(...)` inside `decode_entities()` continues to work
+  even after future refactors.
+- **renderers/README.md** updated with the simpler one-flag invocation
+  pattern (`--input` + `--specialist` is enough).
+
 ## [0.12.0] — 2026-05-28
 
 ### Added

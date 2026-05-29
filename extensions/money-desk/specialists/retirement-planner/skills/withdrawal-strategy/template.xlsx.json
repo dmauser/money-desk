@@ -176,82 +176,57 @@
     },
     {
       "name": "Summary",
+      "column_widths": {"A": 40, "B": 16, "C": 14, "D": 30},
+      "row_heights": {"1": 26, "2": 18, "4": 22, "8": 22, "14": 22, "15": 38},
+      "merges": ["A1:D1", "A2:D2", "A8:D8", "A14:D14", "A15:D15"],
       "cells": [
-        {
-          "ref": "A1",
-          "value": "Withdrawal Strategy - Summary",
-          "style": "h1"
-        },
-        {
-          "ref": "A3",
-          "value": "Initial safe withdrawal rate"
-        },
-        {
-          "ref": "B3",
-          "formula": "=annual_spending/starting_total",
-          "number_format": "0.00%"
-        },
-        {
-          "ref": "A4",
-          "value": "4% rule benchmark check"
-        },
-        {
-          "ref": "B4",
-          "formula": "=IF(annual_spending/starting_total<=0.04, \"At or below 4%\", \"Above 4% - higher risk\")"
-        },
-        {
-          "ref": "A5",
-          "value": "PV of spending (nominal annuity)"
-        },
-        {
-          "ref": "B5",
-          "formula": "=PV(nominal_return_rate, withdrawal_yrs, -annual_spending)",
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A6",
-          "value": "Surplus / shortfall vs starting"
-        },
-        {
-          "ref": "B6",
-          "formula": "=starting_total-B5",
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A8",
-          "value": "Gross-up needed (Traditional)"
-        },
-        {
-          "ref": "B8",
-          "formula": "=annual_spending/(1-effective_tax_rate)",
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A9",
-          "value": "Gross-up needed (Taxable, LTCG)"
-        },
-        {
-          "ref": "B9",
-          "formula": "=annual_spending/(1-ltcg_rate*(1-cost_basis_pct))",
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A10",
-          "value": "Gross-up needed (Roth)"
-        },
-        {
-          "ref": "B10",
-          "formula": "=annual_spending",
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A12",
-          "value": "Lowest-tax-cost source first"
-        },
-        {
-          "ref": "B12",
-          "formula": "=IF(roth_balance_start>=annual_spending, \"Roth (no tax)\", IF(taxable_balance_start>=annual_spending, \"Taxable (LTCG)\", \"Traditional (ordinary)\"))"
-        }
+        {"ref": "A1", "value": "Withdrawal Strategy  -  Summary Dashboard", "style": "banner"},
+        {"ref": "A2", "value": "All figures driven by the Inputs sheet.", "style": "subtitle"},
+
+        {"ref": "A4", "value": "Withdrawal headline", "style": "header"},
+        {"ref": "B4", "value": "Value", "style": "header"},
+        {"ref": "C4", "value": "Threshold", "style": "header"},
+        {"ref": "D4", "value": "Status / Note", "style": "header"},
+
+        {"ref": "A5", "value": "Initial safe withdrawal rate", "style": "metric"},
+        {"ref": "B5", "formula": "=annual_spending/starting_total", "style": "value_highlight", "number_format": "0.00%"},
+        {"ref": "C5", "value": "<= 4%", "style": "threshold"},
+        {"ref": "D5", "formula": "=IF(annual_spending/starting_total<=0.035,\"OK\",IF(annual_spending/starting_total<=0.04,\"At 4% rule\",\"Above 4% - higher risk\"))", "style": "status"},
+
+        {"ref": "A6", "value": "PV of spending (nominal annuity)", "style": "metric"},
+        {"ref": "B6", "formula": "=PV(nominal_return_rate, withdrawal_yrs, -annual_spending)", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C6", "value": "<= portfolio", "style": "threshold"},
+        {"ref": "D6", "formula": "=IF(PV(nominal_return_rate, withdrawal_yrs, -annual_spending)<=starting_total,\"Covered\",\"Underfunded\")", "style": "status"},
+
+        {"ref": "A7", "value": "Surplus / shortfall vs starting", "style": "metric"},
+        {"ref": "B7", "formula": "=starting_total-B6", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C7", "value": ">= 0", "style": "threshold"},
+        {"ref": "D7", "formula": "=IF(starting_total-B6>=0,\"Surplus\",\"Shortfall\")", "style": "status"},
+
+        {"ref": "A8", "value": "Tax-aware gross-up needed", "style": "section_banner"},
+
+        {"ref": "A9", "value": "Gross-up needed (Traditional)", "style": "metric"},
+        {"ref": "B9", "formula": "=annual_spending/(1-effective_tax_rate)", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C9", "value": "vs spend", "style": "threshold"},
+        {"ref": "D9", "value": "Pre-tax withdrawal", "style": "status"},
+
+        {"ref": "A10", "value": "Gross-up needed (Taxable, LTCG)", "style": "metric"},
+        {"ref": "B10", "formula": "=annual_spending/(1-ltcg_rate*(1-cost_basis_pct))", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C10", "value": "vs spend", "style": "threshold"},
+        {"ref": "D10", "value": "After LTCG", "style": "status"},
+
+        {"ref": "A11", "value": "Gross-up needed (Roth)", "style": "metric"},
+        {"ref": "B11", "formula": "=annual_spending", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C11", "value": "= spend", "style": "threshold"},
+        {"ref": "D11", "value": "Tax-free", "style": "status"},
+
+        {"ref": "A12", "value": "Lowest-tax-cost source first", "style": "metric"},
+        {"ref": "B12", "formula": "=IF(roth_balance_start>=annual_spending, \"Roth\", IF(taxable_balance_start>=annual_spending, \"Taxable\", \"Traditional\"))", "style": "value_highlight"},
+        {"ref": "C12", "value": "", "style": "threshold"},
+        {"ref": "D12", "value": "Capacity check this year", "style": "status"},
+
+        {"ref": "A14", "value": "Headline verdict", "style": "section_banner"},
+        {"ref": "A15", "formula": "=\"Initial WR \"&TEXT(annual_spending/starting_total,\"0.00%\")&\". \"&IF(starting_total>=PV(nominal_return_rate, withdrawal_yrs, -annual_spending),\"Plan covers PV of spending.\",\"PV of spending exceeds starting portfolio - tighten plan.\")&\" Pull from \"&IF(roth_balance_start>=annual_spending, \"Roth\", IF(taxable_balance_start>=annual_spending, \"Taxable\", \"Traditional\"))&\" first this year.\"", "style": "callout"}
       ]
     }
   ]

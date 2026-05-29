@@ -2,7 +2,9 @@
 """make_xlsx.py - Money Desk Excel workbook renderer (with REAL formulas).
 
 Install: pip install openpyxl
-Usage:   python make_xlsx.py --spec spec.json --output report.xlsx
+Usage:   python make_xlsx.py --spec spec.json --specialist "Investing Advisor"
+         # --output is optional; defaults to reports/<specialist-slug>/<spec-stem>.xlsx
+         # override with: --output path/to/report.xlsx  (or --outdir to change the base folder)
 
 Spec format (JSON) - multi-sheet workbook with real formulas:
 {
@@ -47,13 +49,25 @@ import argparse, json, pathlib, re, sys
 
 PRIMARY = "1A4D8F"
 STRIPE = "F5F7FB"
+VALUE_GREEN = "E2EFDA"
+CALLOUT_PEACH = "FCE4D6"
+RISK_RED = "C0392B"
+SUBTITLE_GRAY = "595959"
+BORDER_GRAY = "BFBFBF"
+
+
+def _thin_border():
+    from openpyxl.styles import Border, Side
+    side = Side(style="thin", color=BORDER_GRAY)
+    return Border(left=side, right=side, top=side, bottom=side)
 
 
 def style_header(cell):
     from openpyxl.styles import Font, PatternFill, Alignment
-    cell.font = Font(name="Segoe UI", bold=True, color="FFFFFF", size=10)
+    cell.font = Font(name="Segoe UI", bold=True, color="FFFFFF", size=11)
     cell.fill = PatternFill("solid", fgColor=PRIMARY)
-    cell.alignment = Alignment(horizontal="left", vertical="center")
+    cell.alignment = Alignment(horizontal="center", vertical="center")
+    cell.border = _thin_border()
 
 
 def style_h1(cell):
@@ -64,6 +78,90 @@ def style_h1(cell):
 def style_body(cell):
     from openpyxl.styles import Font
     cell.font = Font(name="Segoe UI", size=10)
+
+
+def style_banner(cell):
+    """Full-width section title: solid primary fill, white bold 14pt, padded."""
+    from openpyxl.styles import Font, PatternFill, Alignment
+    cell.font = Font(name="Segoe UI", bold=True, color="FFFFFF", size=14)
+    cell.fill = PatternFill("solid", fgColor=PRIMARY)
+    cell.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+
+
+def style_section_banner(cell):
+    """Sub-section title within a sheet: same brand fill, 12pt."""
+    from openpyxl.styles import Font, PatternFill, Alignment
+    cell.font = Font(name="Segoe UI", bold=True, color="FFFFFF", size=12)
+    cell.fill = PatternFill("solid", fgColor=PRIMARY)
+    cell.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+
+
+def style_subtitle(cell):
+    """Italic gray caption beneath a banner."""
+    from openpyxl.styles import Font, Alignment
+    cell.font = Font(name="Segoe UI", italic=True, color=SUBTITLE_GRAY, size=10)
+    cell.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+
+
+def style_metric(cell):
+    """Bold left-aligned metric label cell with thin border."""
+    from openpyxl.styles import Font, Alignment
+    cell.font = Font(name="Segoe UI", bold=True, size=10)
+    cell.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+    cell.border = _thin_border()
+
+
+def style_value_highlight(cell):
+    """Light-green-filled, bold, right-aligned value cell with thin border."""
+    from openpyxl.styles import Font, PatternFill, Alignment
+    cell.font = Font(name="Segoe UI", bold=True, size=10)
+    cell.fill = PatternFill("solid", fgColor=VALUE_GREEN)
+    cell.alignment = Alignment(horizontal="right", vertical="center", indent=1)
+    cell.border = _thin_border()
+
+
+def style_threshold(cell):
+    """Centered threshold cell with thin border, regular weight."""
+    from openpyxl.styles import Font, Alignment
+    cell.font = Font(name="Segoe UI", size=10, color="333333")
+    cell.alignment = Alignment(horizontal="center", vertical="center")
+    cell.border = _thin_border()
+
+
+def style_status(cell):
+    """Bold right-aligned status cell with thin border."""
+    from openpyxl.styles import Font, Alignment
+    cell.font = Font(name="Segoe UI", bold=True, size=10)
+    cell.alignment = Alignment(horizontal="right", vertical="center", indent=1)
+    cell.border = _thin_border()
+
+
+def style_callout(cell):
+    """Peach-filled bold red callout box for headline verdicts."""
+    from openpyxl.styles import Font, PatternFill, Alignment
+    cell.font = Font(name="Segoe UI", bold=True, size=11, color=RISK_RED)
+    cell.fill = PatternFill("solid", fgColor=CALLOUT_PEACH)
+    cell.alignment = Alignment(horizontal="left", vertical="center", indent=1, wrap_text=True)
+
+
+_STYLE_DISPATCH = {
+    "h1": style_h1,
+    "header": style_header,
+    "body": style_body,
+    "banner": style_banner,
+    "section_banner": style_section_banner,
+    "subtitle": style_subtitle,
+    "metric": style_metric,
+    "value_highlight": style_value_highlight,
+    "threshold": style_threshold,
+    "status": style_status,
+    "callout": style_callout,
+}
+
+
+def _apply_style(cell, style_name: str) -> None:
+    fn = _STYLE_DISPATCH.get(style_name, style_body)
+    fn(cell)
 
 
 def build_sheet(wb, spec: dict) -> None:
@@ -86,6 +184,10 @@ def build_sheet(wb, spec: dict) -> None:
         for col_idx in range(1, len(spec["headers"]) + 1):
             ws.column_dimensions[ws.cell(row=1, column=col_idx).column_letter].width = 18
 
+    # Per-cell merges to apply *after* values are written, so we never write into
+    # a non-top-left cell of a merged range (openpyxl forbids it).
+    deferred_merges: list[str] = []
+
     for cell_spec in spec.get("cells", []):
         ref = cell_spec["ref"]
         c = ws[ref]
@@ -97,12 +199,20 @@ def build_sheet(wb, spec: dict) -> None:
         if nf:
             c.number_format = nf
         style_name = cell_spec.get("style", "body")
-        if style_name == "h1":
-            style_h1(c)
-        elif style_name == "header":
-            style_header(c)
-        else:
-            style_body(c)
+        _apply_style(c, style_name)
+        if cell_spec.get("border") is True:
+            c.border = _thin_border()
+        if "merge" in cell_spec:
+            deferred_merges.append(cell_spec["merge"])
+
+    for col_letter, width in spec.get("column_widths", {}).items():
+        ws.column_dimensions[col_letter].width = width
+    for row_num, height in spec.get("row_heights", {}).items():
+        ws.row_dimensions[int(row_num)].height = height
+    for rng in spec.get("merges", []):
+        ws.merge_cells(rng)
+    for rng in deferred_merges:
+        ws.merge_cells(rng)
 
 
 # Matches "SheetName!$B$4" or "Sheet Name!B4:C10" with optional $ anchors.
@@ -170,13 +280,34 @@ def apply_named_ranges(wb, spec: dict) -> None:
         wb.defined_names[entry["name"]] = dn
 
 
+def _slugify(text: str) -> str:
+    s = re.sub(r"[^a-z0-9]+", "-", str(text).lower()).strip("-")
+    return s or "money-desk"
+
+
+def resolve_output(output, specialist, stem, ext, outdir):
+    """Return the explicit --output, or a structured default:
+    <outdir>/<specialist-slug>/<stem>.<ext>."""
+    if output is not None:
+        return output
+    return pathlib.Path(outdir) / _slugify(specialist) / f"{stem}.{ext}"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Render a Money Desk multi-sheet XLSX workbook with real formulas.")
     ap.add_argument("--spec", required=True, type=pathlib.Path, help="JSON spec describing sheets / cells / formulas")
-    ap.add_argument("--output", required=True, type=pathlib.Path)
+    ap.add_argument("--output", type=pathlib.Path, default=None,
+                    help="Output path. If omitted: reports/<specialist-slug>/<spec-stem>.xlsx")
+    ap.add_argument("--outdir", default="reports",
+                    help="Base dir used when --output is omitted (default: reports)")
+    ap.add_argument("--specialist", default="Money Desk",
+                    help="Specialist name used to build the default output path")
     args = ap.parse_args()
 
-    from openpyxl import Workbook
+    try:
+        from openpyxl import Workbook
+    except ImportError:
+        sys.exit("ERROR: openpyxl not installed. Run: pip install openpyxl")
 
     spec = json.loads(args.spec.read_text(encoding="utf-8"))
     validate_named_ranges(spec)
@@ -193,12 +324,20 @@ def main() -> int:
         ws["A1"] = spec.get("title", "Money Desk Report")
         style_h1(ws["A1"])
 
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    wb.save(args.output)
+    # Prefer specialist from the spec when present (templates set it); fall back to --specialist.
+    specialist = spec.get("specialist") or args.specialist
+    # Spec files use the convention `template.xlsx.json`; strip both extensions
+    # so the default output is `<specialist>/template.xlsx`, not `template.xlsx.xlsx`.
+    stem = args.spec.stem
+    if stem.lower().endswith(".xlsx"):
+        stem = stem[:-5]
+    out = resolve_output(args.output, specialist, stem, "xlsx", args.outdir)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    wb.save(out)
 
-    size = args.output.stat().st_size
+    size = out.stat().st_size
     sheet_count = len(wb.sheetnames)
-    print(f"OK  {args.output}  ({size:,} bytes, {sheet_count} sheet(s))")
+    print(f"OK  {out}  ({size:,} bytes, {sheet_count} sheet(s))")
     return 0
 
 

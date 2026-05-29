@@ -2,7 +2,9 @@
 """make_docx.py - Money Desk Word renderer (with REAL Word styles).
 
 Install: pip install python-docx markdown-it-py
-Usage:   python make_docx.py --input report.md --output report.docx --specialist "Investing Advisor"
+Usage:   python make_docx.py --input report.md --specialist "Investing Advisor"
+         # --output is optional; defaults to reports/<specialist-slug>/<input-stem>.docx
+         # override with: --output path/to/report.docx  (or --outdir to change the base folder)
 
 Policy mandates real Word styles (Heading 1/2/3, Title, Quote, List Bullet) -
 never hand-roll bold runs to fake structure. A TOC field is inserted at the
@@ -70,7 +72,10 @@ def style_headings(doc):
 
 def render_markdown(doc, md_text: str) -> int:
     """Render markdown into the docx using real styles. Returns paragraph count."""
-    from markdown_it import MarkdownIt
+    try:
+        from markdown_it import MarkdownIt
+    except ImportError:
+        sys.exit("ERROR: markdown-it-py not installed. Run: pip install markdown-it-py")
 
     md = MarkdownIt("commonmark", {"breaks": False, "html": False}).enable("table").enable("strikethrough")
     tokens = md.parse(md_text)
@@ -163,14 +168,33 @@ def render_markdown(doc, md_text: str) -> int:
     return para_count
 
 
+def _slugify(text: str) -> str:
+    s = re.sub(r"[^a-z0-9]+", "-", str(text).lower()).strip("-")
+    return s or "money-desk"
+
+
+def resolve_output(output, specialist, stem, ext, outdir):
+    """Return the explicit --output, or a structured default:
+    <outdir>/<specialist-slug>/<stem>.<ext>."""
+    if output is not None:
+        return output
+    return pathlib.Path(outdir) / _slugify(specialist) / f"{stem}.{ext}"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Render a Money Desk markdown report to DOCX with real Word styles.")
     ap.add_argument("--input", required=True, type=pathlib.Path)
-    ap.add_argument("--output", required=True, type=pathlib.Path)
+    ap.add_argument("--output", type=pathlib.Path, default=None,
+                    help="Output path. If omitted: reports/<specialist-slug>/<input-stem>.docx")
+    ap.add_argument("--outdir", default="reports",
+                    help="Base dir used when --output is omitted (default: reports)")
     ap.add_argument("--specialist", default="Money Desk")
     args = ap.parse_args()
 
-    from docx import Document
+    try:
+        from docx import Document
+    except ImportError:
+        sys.exit("ERROR: python-docx not installed. Run: pip install python-docx")
 
     md_text = args.input.read_text(encoding="utf-8")
     md_text = decode_entities(md_text)
@@ -190,11 +214,12 @@ def main() -> int:
     footer = section.footer.paragraphs[0]
     footer.text = f"Money Desk - {args.specialist} - {today}"
 
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    doc.save(args.output)
+    out = resolve_output(args.output, args.specialist, args.input.stem, "docx", args.outdir)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    doc.save(out)
 
-    size = args.output.stat().st_size
-    print(f"OK  {args.output}  ({size:,} bytes, ~{para_count} paragraphs)")
+    size = out.stat().st_size
+    print(f"OK  {out}  ({size:,} bytes, ~{para_count} paragraphs)")
     return 0
 
 

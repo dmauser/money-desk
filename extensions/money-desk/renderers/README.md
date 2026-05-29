@@ -32,6 +32,81 @@ project without touching the source-of-truth scripts in the extension.
 | `make_xlsx.py` | XLSX | openpyxl, real formulas     | `pip install openpyxl` |
 | `make_docx.py` | DOCX | python-docx, real styles    | `pip install python-docx markdown-it-py` |
 
+## XLSX dashboard layout (Summary sheet convention)
+
+Every shipped Summary sheet follows the **dashboard pattern** demonstrated by
+`fire-planner/swr-stress-test/template.xlsx.json` and matches the look
+required by the Money Desk brand:
+
+```
+Row 1 :  banner            → "<Skill Title>  -  Summary Dashboard"   (merged across all dashboard columns)
+Row 2 :  subtitle          → "All figures driven by the Inputs sheet."
+Row 4 :  header (×4)       → Metric | Value | Threshold | Status / Note
+Row 5..N : metric / value_highlight / threshold / status   ← one per metric
+Row N+2 : section_banner   → "Headline verdict"
+Row N+3 : callout          → text formula composing the headline numbers
+```
+
+The required cell styles:
+
+| `style`           | Use                                                            |
+|-------------------|----------------------------------------------------------------|
+| `banner`          | Full-width title row (primary blue fill, white bold 14pt)      |
+| `section_banner`  | Sub-section header (primary blue fill, white bold 12pt)        |
+| `subtitle`        | Italic gray caption beneath a banner                            |
+| `header`          | Column header (primary blue, white bold, centered, thin border) |
+| `metric`          | Left-aligned bold metric label, thin border                     |
+| `value_highlight` | Light-green fill, bold right-aligned value, thin border         |
+| `threshold`       | Centered benchmark text, thin border                            |
+| `status`          | Bold right-aligned status text, thin border                     |
+| `callout`         | Peach fill, bold red 11pt — used for the headline verdict       |
+
+Sheet-level fields supported by `make_xlsx.py`:
+
+```jsonc
+{
+  "name": "Summary",
+  "column_widths": { "A": 38, "B": 16, "C": 14, "D": 28 },
+  "row_heights":   { "1": 26, "2": 18, "16": 22, "17": 38 },
+  "merges":        [ "A1:D1", "A2:D2", "A16:D16", "A17:D17" ],
+  "cells": [ /* ... */ ]
+}
+```
+
+Per-cell extras: `merge: "A1:D1"` and `border: true`. Apply merges *after*
+writing values — never write to a non-top-left cell of a merged range.
+
+## PDF / HTML branded blocks
+
+`make_pdf.py` and `make_html.py` ship CSS classes the agent can wrap markdown
+content in for brand-consistent emphasis:
+
+| Class                 | Use                                                              |
+|-----------------------|------------------------------------------------------------------|
+| `executive-summary`   | Light-blue panel around the TL;DR / headline section             |
+| `kpi-grid` + `kpi`    | Row of KPI cards (`.label` / `.value` / `.note` inner spans)     |
+| `callout`             | Peach + bold red emphasis box (variants: `.green`, `.amber`)     |
+| `verdict`             | Prominent peach verdict box at the end of a report               |
+| `note`                | Inline italic gray sidenote                                      |
+
+Example:
+
+```html
+<div class="executive-summary">
+  <h2>TL;DR</h2>
+  <p>Headline WR is 3.93%; SS-adjusted lifetime avg is 2.83%.</p>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi"><div class="label">Headline WR</div><div class="value">3.93%</div></div>
+  <div class="kpi"><div class="label">Coverage</div><div class="value">42y</div></div>
+</div>
+
+<div class="verdict">
+  Bridge years (12 yrs) at 3.9% WR on 85% equity = primary sequence-risk exposure.
+</div>
+```
+
 ## Brand defaults (do not improvise)
 
 Mirror the YAML `report_quality.brand`:
@@ -49,29 +124,31 @@ Mirror the YAML `report_quality.brand`:
 ## Usage examples
 
 ```bash
-# Markdown -> PDF
+# Markdown -> PDF  (output path auto-derived: ./reports/investing-advisor/portfolio_review_20260527.pdf)
 python ./reports/_renderers/make_pdf.py \
   --input ./reports/investing-advisor/portfolio_review_20260527.md \
-  --output ./reports/investing-advisor/portfolio_review_20260527.pdf \
   --specialist "Investing Advisor"
 
 # Markdown -> HTML
 python ./reports/_renderers/make_html.py \
   --input ./reports/investing-advisor/portfolio_review_20260527.md \
-  --output ./reports/investing-advisor/portfolio_review_20260527.html \
   --specialist "Investing Advisor"
 
 # Markdown -> DOCX
 python ./reports/_renderers/make_docx.py \
   --input ./reports/investing-advisor/portfolio_review_20260527.md \
-  --output ./reports/investing-advisor/portfolio_review_20260527.docx \
   --specialist "Investing Advisor"
 
 # JSON spec -> XLSX (multi-sheet, with real formulas)
 python ./reports/_renderers/make_xlsx.py \
   --spec ./reports/investing-advisor/portfolio_review_20260527.xlsx.json \
-  --output ./reports/investing-advisor/portfolio_review_20260527.xlsx
+  --specialist "Investing Advisor"
 ```
+
+`--output` is optional — when omitted, each renderer writes to
+`<outdir>/<specialist-slug>/<input-stem>.<ext>` with `--outdir` defaulting
+to `reports`. Pass `--output path/to/file.<ext>` to override, or
+`--outdir some/other/dir` to change the base folder.
 
 The XLSX renderer takes a small JSON spec (Inputs sheet values + cell
 formulas) rather than markdown, so the user can edit one input cell and see

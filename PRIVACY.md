@@ -104,6 +104,39 @@ sensitive financial document on your machine:
 - If you remove the extension, also delete any `reports/` folders that
   contain your data.
 
+## MCP server integrations (opt-in, off by default)
+
+Money Desk recommends — but does not bundle — Model Context Protocol
+(MCP) servers that supply authoritative public data (FRED for rates and
+inflation, SEC EDGAR for fund expense ratios, TreasuryDirect for I-bond
+and T-bill yields, BLS for inflation series, government `.gov` fetch
+for IRS / SSA / CMS / FAFSA pages). The `md_sources` tool documents
+the full map; see `extensions/money-desk/data/sources.yaml`.
+
+If you choose to wire any of these MCP servers into your Copilot CLI
+`mcp` config, the following privacy rules apply and are encoded in
+every specialist's prompts:
+
+- **Tier-1 (government) MCPs are public-data-only.** Queries identify
+  data by series id (FRED `MORTGAGE30US`), ticker / CIK (SEC EDGAR),
+  CUSIP (TreasuryDirect), or `.gov` URL — never by user balance, name,
+  account number, address, or SSN.
+- **Tier-2 (market data) and Tier-3 (real-estate / filesystem) MCPs
+  are opt-in per project.** Same no-PII rule applies: the agent must
+  query by ticker / ZIP / scoped path, never by user-identifying fact.
+- **Money Desk does not auto-enable any MCP server.** A fresh `md
+  install` adds zero MCP wiring; the user explicitly opts in via their
+  Copilot CLI `mcp` config and Money Desk just routes its specialists
+  to those tools when the model decides they're relevant.
+- **Cite or refuse.** If an authoritative source is documented for a
+  number but the matching MCP is not reachable in the session, the
+  specialist tags the figure `[UNSOURCED]` and offers to retry once the
+  MCP is wired — it never invents the value.
+- **Money Desk's own runtime still makes ZERO outbound network calls.**
+  Any traffic introduced by an MCP server you enable is the MCP
+  server's responsibility, governed by your Copilot CLI MCP config, and
+  visible in Copilot CLI's MCP logs.
+
 ## Reporting a privacy concern
 
 If you believe a Money Desk prompt could be made safer (for example, a

@@ -44,7 +44,7 @@ export const CITATION_CONVENTIONS = [
     "  • [USER-PROVIDED] — the user told you this; cite the user message.",
     "  • [ASSUMPTION: <value/method>] — explicit modeling default (discount rate, vacancy %, real return); state it so the user can override. NEVER use [ASSUMPTION:] for personal facts the user could provide — ask them instead.",
     "  • [<Friendly Source Label>] — sourced from the bundled facts table; e.g. [IRS 2026 limits], [CMS Medicare 2026], [SSA 2026], [FHFA / IRS RE 2026], [HHS FPL 2026], [IRS / FinCEN Expat 2026]. Call `md_facts` to retrieve and use the label shown in its 'Cite as' header.",
-    "  • [UNSOURCED] — external fact you cannot verify via md_facts or a user document. Use sparingly.",
+    "  • [UNSOURCED] — external fact you cannot verify via md_facts, md_sources, or a user document. Use sparingly.",
     "",
     "Intake first: before running any skill, call `md_intake({ skill: \"<tool-or-friendly-name>\" })` to get the required inputs list. For any missing input, STOP and ask the user in plain language — grouping related questions into one message — instead of inventing values or using [ASSUMPTION:] for personal facts.",
     "",
@@ -53,6 +53,8 @@ export const CITATION_CONVENTIONS = [
     "Always call `md_preferences` BEFORE quoting a deposit-product / cash / HYSA / MMA / CD / money-market / T-bill rate, OR before recommending a source for those products. The YAML config there encodes the persisted source defaults (currently DepositAccounts.com for deposit products, fund-issuer pages for MMFs, TreasuryDirect for T-bills) and overrides any source you might otherwise default to.",
     "",
     "Always consult `md_report_quality` BEFORE producing any user-facing deliverable (rebalance plan, portfolio review, tax analysis, retirement readiness, budget, debt plan, insurance review, estate summary, real-estate underwrite, etc.). It encodes the global rules — markdown-inline-by-default, when to offer PDF / DOCX / XLSX / HTML, file naming under `./reports/<specialist-slug>/`, brand styling, the 9 standard sections, table hygiene, citation tags across formats, and self-verification steps.",
+    "",
+    "Always call `md_sources` BEFORE answering any question that needs a CURRENT public number that is NOT covered by `md_facts` — e.g. live Treasury yields, current 30Y mortgage rate, current I-bond rate, current T-bill auction yield, fund expense ratios from SEC EDGAR, CPI / inflation series, equity / ETF prices. `md_sources` maps each specialist to the Tier-1 authoritative source (FRED / SEC EDGAR / TreasuryDirect / BLS / `.gov` fetch) and to the Model Context Protocol (MCP) servers that can supply those numbers if the user has wired them up. If a Tier-1 source has the number but no matching MCP is reachable in this session, mark the figure `[UNSOURCED]` and offer to retry once the user wires that source — never invent a value. Privacy: Tier-1 MCP queries carry no PII (series id / ticker / CUSIP / `.gov` URL only); Tier-2 (market data) and Tier-3 (real-estate / filesystem) MCPs are opt-in.",
 ].join("\n");
 
 // ── File loader ────────────────────────────────────────────────────────
@@ -1066,6 +1068,63 @@ export async function getChangelog() {
     return formatLatestChangelogN(raw, 3);
 }
 
+// ── Sources of truth (recommended MCP servers, served by md_sources) ───
+//
+// Money Desk itself makes no network calls. This tool returns the curated
+// `data/sources.yaml` document that maps each specialist to the Tier-1
+// (public, free, government-grade) MCP servers that would improve answer
+// accuracy if the user wires them into their Copilot CLI `mcp` config.
+// No PII ever leaves Money Desk's process by virtue of this tool — the
+// YAML is static.
+let _sourcesCache = null;
+async function loadSources() {
+    if (_sourcesCache) return _sourcesCache;
+    const path = join(DATA_DIR, "sources.yaml");
+    _sourcesCache = await readFile(path, "utf8");
+    return _sourcesCache;
+}
+
+export async function getSources() {
+    const raw = await loadSources();
+    return [
+        "# Money Desk — Sources of Truth (recommended MCP servers)",
+        "",
+        "Money Desk's own runtime makes **zero** outbound network calls. This document",
+        "lists the **public, authoritative data sources** each specialist should consult",
+        "before answering — and the Model Context Protocol (MCP) servers that can supply",
+        "those numbers if the user wires them into their Copilot CLI `mcp` config.",
+        "",
+        "**Privacy posture (non-negotiable):** Tier-1 queries are public-data-only and",
+        "carry no user PII. Tier-2 / Tier-3 MCPs are opt-in per project and must respect",
+        "the same no-PII rule. If a number has a Tier-1 source and that source is",
+        "unreachable in the current session, the specialist MUST tag the figure",
+        "`[UNSOURCED]` — never invent a value. See `PRIVACY.md` for the full data-flow.",
+        "",
+        "**Top-3 to wire in first:** FRED (rates / inflation / Treasury yields / mortgage),",
+        "SEC EDGAR (fund expense ratios / prospectuses / 10-Ks), TreasuryDirect (current",
+        "I-bond + T-bill rates).",
+        "",
+        "## Full source matrix (from `extensions/money-desk/data/sources.yaml`)",
+        "",
+        "```yaml",
+        raw.trimEnd(),
+        "```",
+        "",
+        "## How to use this tool",
+        "",
+        "- Call `md_sources` once at the start of a session that needs current numbers",
+        "  (rates, brackets, prices, contribution limits) so you know which authoritative",
+        "  source to consult.",
+        "- For tax / SSA / Medicare / FAFSA limits → call `md_facts` FIRST (the bundled",
+        "  curated table); fall back to `md_sources` Tier-1 only if `md_facts` is silent.",
+        "- For deposit-product rates → `md_preferences` is the authority (DepositAccounts",
+        "  / issuer pages / TreasuryDirect); `md_sources` is the broader map.",
+        "- Cite figures with the source-key format shown in the YAML (e.g.",
+        "  `[FRED:MORTGAGE30US@2026-05]`, `[SEC EDGAR:N-1A VTSAX 0001234567-25-000001]`,",
+        "  `[TreasuryDirect:I-bond@2026-05-01]`).",
+    ].join("\n");
+}
+
 // ── Build the tools array from SPECIALISTS ─────────────────────────────
 
 function buildTools() {
@@ -1123,6 +1182,13 @@ function buildTools() {
             parameters: { type: "object", properties: {} },
             skipPermission: true,
             handler: async () => CITATION_CONVENTIONS,
+        },
+        {
+            name: "md_sources",
+            description: "Money Desk sources-of-truth map — returns the curated list of authoritative public data sources (FRED, SEC EDGAR, TreasuryDirect, BLS, government `.gov` fetch) and the Model Context Protocol (MCP) servers that can supply those numbers if the user wires them into their Copilot CLI `mcp` config. Maps each of the 19 specialists to the Tier-1 sources it should consult before answering questions about current rates, brackets, prices, fund expense ratios, mortgage rates, Treasury yields, inflation, or contribution limits. Encodes the privacy contract: Tier-1 queries are public-data-only (no PII); Tier-2 (market data) and Tier-3 (real-estate / filesystem) MCPs are opt-in. Money Desk itself makes ZERO outbound network calls — this tool only documents which MCPs the user CAN wire in. Call this BEFORE answering when a question needs a current number that has a public authoritative source. Source-of-truth lives at `extensions/money-desk/data/sources.yaml`. Always prefer `md_facts` first for IRS / SSA / CMS / FAFSA tables; use `md_sources` for the broader rates / market / fund / macro picture.",
+            parameters: { type: "object", properties: {} },
+            skipPermission: true,
+            handler: async () => getSources(),
         },
         {
             name: "md_changelog",

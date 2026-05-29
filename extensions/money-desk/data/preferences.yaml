@@ -171,11 +171,15 @@ report_quality:
   # 3. Visual styling — consistent brand across all formats
   brand:
     colors:
-      primary:        "#1a4d8f"  # H1/H2, table headers
+      primary:        "#1a4d8f"  # H1/H2, table headers, banners
       accent_green:   "#2e7d32"  # gains, "on track"
       warning_amber:  "#d4a017"  # caveats, open items
       risk_red:       "#c0392b"  # concentration risk, urgent action
       row_stripe:     "#f5f7fb"
+      value_green:    "#e2efda"  # XLSX dashboard "Value" cell highlight
+      callout_peach:  "#fcefe1"  # PDF/HTML callout / verdict box (XLSX uses #FCE4D6)
+      subtitle_gray:  "#595959"  # italic subtitle beneath banners
+      border_gray:    "#bfbfbf"  # XLSX dashboard cell borders
     fonts:
       body:  "Segoe UI / Helvetica, 10.5pt (PDF/HTML), 11pt (DOCX)"
       table: "9.5pt"
@@ -187,6 +191,22 @@ report_quality:
       caveat:      "amber blockquote, ⚠️ icon"
       opportunity: "green blockquote, 🟢 / 💡 icon"
       risk:        "red blockquote, 🔴 icon"
+    # Dashboard layout primitives (PDF/HTML CSS classes + XLSX cell styles).
+    # PDF/HTML — wrap content in <div class="..."> for branded rendering:
+    #   - executive-summary: light-blue panel for the TL;DR section
+    #   - kpi-grid + kpi (with .label / .value / .note): KPI card row
+    #   - callout (or callout.green / callout.amber): peach/green/amber emphasis box
+    #   - verdict: prominent peach verdict box at the end of a report
+    #   - note: italic gray inline note
+    # XLSX (cell_spec.style values, see renderers/README.md):
+    #   - banner / section_banner: full-width primary-blue title row (merge across columns)
+    #   - subtitle: italic gray caption beneath a banner
+    #   - header: column header with primary-blue fill and thin border
+    #   - metric / value_highlight / threshold / status: bordered dashboard row cells
+    #     (value_highlight uses the light-green fill for "current value" emphasis)
+    #   - callout: peach-filled bold-red verdict cell (merge across columns)
+    # XLSX dashboard sheets also support: column_widths, row_heights, merges,
+    # per-cell merge: "A1:D1", and border: true for ad-hoc cells.
 
   # 4. Content structure — every report, every format, in this order
   standard_sections:

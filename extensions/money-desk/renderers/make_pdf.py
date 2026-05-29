@@ -2,7 +2,9 @@
 """make_pdf.py - Money Desk PDF renderer (Playwright + Chromium + markdown2).
 
 Install: pip install playwright markdown2 && python -m playwright install chromium
-Usage:   python make_pdf.py --input report.md --output report.pdf --specialist "Investing Advisor"
+Usage:   python make_pdf.py --input report.md --specialist "Investing Advisor"
+         # --output is optional; defaults to reports/<specialist-slug>/<input-stem>.pdf
+         # override with: --output path/to/report.pdf  (or --outdir to change the base folder)
 
 Brand defaults follow extensions/money-desk/data/preferences.yaml (report_quality.brand).
 Do NOT switch to xhtml2pdf / reportlab / pdfkit / weasyprint - the policy
@@ -61,6 +63,18 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 blockquote { border-left: 3pt solid var(--warn); background: #fff8e1; padding: 6pt 10pt; margin: 8pt 0; }
 blockquote.green { border-left-color: var(--accent); background: #e8f5e9; }
 blockquote.red { border-left-color: var(--risk); background: #fdecea; }
+.executive-summary { background: #f3f7fb; border-left: 3pt solid var(--primary); padding: 10pt 14pt; margin: 8pt 0 14pt; border-radius: 2pt; }
+.executive-summary h2, .executive-summary h3 { margin-top: 0; }
+.callout { background: #fcefe1; border-left: 3pt solid var(--risk); color: #7a2118; padding: 8pt 12pt; margin: 8pt 0; font-weight: 600; border-radius: 2pt; }
+.callout.green { background: #e8f5e9; border-left-color: var(--accent); color: #1b5e20; }
+.callout.amber { background: #fff8e1; border-left-color: var(--warn); color: #6b4f00; }
+.verdict { background: #fcefe1; border: 0.5pt solid #f1c2a3; padding: 10pt 14pt; margin: 12pt 0; border-radius: 3pt; font-size: 11pt; font-weight: 600; color: #7a2118; }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140pt, 1fr)); gap: 8pt; margin: 8pt 0 12pt; }
+.kpi { background: #f3f7fb; border: 0.5pt solid #d6deec; border-radius: 3pt; padding: 8pt 10pt; }
+.kpi .label { color: #555; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.4pt; margin-bottom: 2pt; }
+.kpi .value { color: var(--primary); font-size: 14pt; font-weight: 700; line-height: 1.1; }
+.kpi .note { color: #555; font-size: 8.5pt; margin-top: 2pt; }
+.note { color: #555; font-size: 9pt; font-style: italic; }
 code, pre { font-family: 'Consolas', 'Menlo', monospace; font-size: 9.5pt; background: #f5f5f7; padding: 1pt 3pt; border-radius: 2pt; }
 pre { padding: 6pt 8pt; overflow-x: auto; }
 ul, ol { margin: 4pt 0 4pt 18pt; }
@@ -73,7 +87,10 @@ HTML_SHELL = """<!doctype html>
 
 
 def render_html(md_text: str, specialist: str, today: str) -> str:
-    import markdown2
+    try:
+        import markdown2
+    except ImportError:
+        sys.exit("ERROR: markdown2 not installed. Run: pip install markdown2")
     body = markdown2.markdown(decode_entities(md_text), extras=[
         "fenced-code-blocks", "tables", "strike", "task_list", "cuddled-lists",
         "header-ids", "footnotes", "code-friendly",
@@ -82,12 +99,18 @@ def render_html(md_text: str, specialist: str, today: str) -> str:
     return HTML_SHELL.replace("__TITLE__", specialist).replace("__CSS__", css).replace("__BODY__", body)
 
 
-async def html_to_pdf(html: str, out_path: pathlib.Path) -> None:
-    from playwright.async_api import async_playwright
+async def html_to_pdf(html_str: str, out_path: pathlib.Path) -> None:
+    try:
+        from playwright.async_api import async_playwright
+    except ImportError:
+        sys.exit("ERROR: playwright not installed. Run: pip install playwright && python -m playwright install chromium")
     async with async_playwright() as p:
-        browser = await p.chromium.launch()
+        try:
+            browser = await p.chromium.launch()
+        except Exception as e:
+            sys.exit(f"ERROR: could not launch Chromium ({e}). Run: python -m playwright install chromium")
         page = await browser.new_page()
-        await page.set_content(html, wait_until="networkidle")
+        await page.set_content(html_str, wait_until="networkidle")
         await page.pdf(
             path=str(out_path),
             format="Letter",
@@ -97,22 +120,39 @@ async def html_to_pdf(html: str, out_path: pathlib.Path) -> None:
         await browser.close()
 
 
+def _slugify(text: str) -> str:
+    s = re.sub(r"[^a-z0-9]+", "-", str(text).lower()).strip("-")
+    return s or "money-desk"
+
+
+def resolve_output(output, specialist, stem, ext, outdir):
+    """Return the explicit --output, or a structured default:
+    <outdir>/<specialist-slug>/<stem>.<ext>."""
+    if output is not None:
+        return output
+    return pathlib.Path(outdir) / _slugify(specialist) / f"{stem}.{ext}"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Render a Money Desk markdown report to PDF.")
     ap.add_argument("--input", required=True, type=pathlib.Path)
-    ap.add_argument("--output", required=True, type=pathlib.Path)
+    ap.add_argument("--output", type=pathlib.Path, default=None,
+                    help="Output path. If omitted: reports/<specialist-slug>/<input-stem>.pdf")
+    ap.add_argument("--outdir", default="reports",
+                    help="Base dir used when --output is omitted (default: reports)")
     ap.add_argument("--specialist", default="Money Desk")
     args = ap.parse_args()
 
     md_text = args.input.read_text(encoding="utf-8")
     today = datetime.date.today().isoformat()
-    html = render_html(md_text, args.specialist, today)
+    page_html = render_html(md_text, args.specialist, today)
 
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    asyncio.run(html_to_pdf(html, args.output))
+    out = resolve_output(args.output, args.specialist, args.input.stem, "pdf", args.outdir)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    asyncio.run(html_to_pdf(page_html, out))
 
-    size = args.output.stat().st_size
-    print(f"OK  {args.output}  ({size:,} bytes)")
+    size = out.stat().st_size
+    print(f"OK  {out}  ({size:,} bytes)")
     return 0
 
 

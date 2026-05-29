@@ -1959,74 +1959,45 @@
     },
     {
       "name": "Summary",
+      "column_widths": {"A": 36, "B": 18, "C": 16, "D": 30},
+      "row_heights": {"1": 26, "2": 18, "11": 22, "12": 38},
+      "merges": ["A1:D1", "A2:D2", "A11:D11", "A12:D12"],
       "cells": [
-        {
-          "ref": "A1",
-          "value": "Rent vs Buy - Summary",
-          "style": "h1"
-        },
-        {
-          "ref": "A3",
-          "value": "Monthly P&I"
-        },
-        {
-          "ref": "B3",
-          "formula": "=monthly_pi",
-          "number_format": "$#,##0.00"
-        },
-        {
-          "ref": "A4",
-          "value": "Loan amount"
-        },
-        {
-          "ref": "B4",
-          "formula": "=loan_amount",
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A5",
-          "value": "Down payment"
-        },
-        {
-          "ref": "B5",
-          "formula": "=down_payment_amount",
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A7",
-          "value": "BUY net worth at horizon"
-        },
-        {
-          "ref": "B7",
-          "formula": "=INDEX(analysis_buy_nw_series, holding_horizon_yrs)",
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A8",
-          "value": "RENT net worth at horizon"
-        },
-        {
-          "ref": "B8",
-          "formula": "=INDEX(analysis_rent_nw_series, holding_horizon_yrs)",
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A9",
-          "value": "Difference (RENT - BUY)"
-        },
-        {
-          "ref": "B9",
-          "formula": "=B8-B7",
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A11",
-          "value": "Verdict (informational)"
-        },
-        {
-          "ref": "B11",
-          "formula": "=IF(B9>0,\"RENT favored at horizon\",\"BUY favored at horizon\")"
-        }
+        {"ref": "A1", "value": "Rent vs Buy  -  Summary Dashboard", "style": "banner"},
+        {"ref": "A2", "value": "All figures driven by the Inputs sheet.", "style": "subtitle"},
+
+        {"ref": "A3", "value": "Monthly P&I", "style": "metric"},
+        {"ref": "B3", "formula": "=monthly_pi", "style": "value_highlight", "number_format": "$#,##0.00"},
+        {"ref": "C3", "value": "", "style": "threshold"},
+        {"ref": "D3", "value": "Principal + interest only", "style": "status"},
+
+        {"ref": "A4", "value": "Loan amount", "style": "metric"},
+        {"ref": "B4", "formula": "=loan_amount", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C4", "value": "", "style": "threshold"},
+        {"ref": "D4", "value": "After down payment", "style": "status"},
+
+        {"ref": "A5", "value": "Down payment", "style": "metric"},
+        {"ref": "B5", "formula": "=down_payment_amount", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C5", "value": "", "style": "threshold"},
+        {"ref": "D5", "value": "Cash at close", "style": "status"},
+
+        {"ref": "A7", "value": "BUY net worth at horizon", "style": "metric"},
+        {"ref": "B7", "formula": "=INDEX(analysis_buy_nw_series, holding_horizon_yrs)", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C7", "value": "", "style": "threshold"},
+        {"ref": "D7", "value": "Equity + appreciation - costs", "style": "status"},
+
+        {"ref": "A8", "value": "RENT net worth at horizon", "style": "metric"},
+        {"ref": "B8", "formula": "=INDEX(analysis_rent_nw_series, holding_horizon_yrs)", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C8", "value": "", "style": "threshold"},
+        {"ref": "D8", "value": "Down payment invested + savings", "style": "status"},
+
+        {"ref": "A9", "value": "Difference (RENT - BUY)", "style": "metric"},
+        {"ref": "B9", "formula": "=B8-B7", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C9", "value": "> 0 favors rent", "style": "threshold"},
+        {"ref": "D9", "formula": "=IF(B9>0,\"RENT favored\",\"BUY favored\")", "style": "status"},
+
+        {"ref": "A11", "value": "Verdict", "style": "section_banner"},
+        {"ref": "A12", "formula": "=IF(B9>0, \"RENT favored at \"&holding_horizon_yrs&\"y horizon by \"&TEXT(B9,\"$#,##0\")&\". Informational only - personal preferences and stability matter.\", \"BUY favored at \"&holding_horizon_yrs&\"y horizon by \"&TEXT(-B9,\"$#,##0\")&\". Informational only - personal preferences and stability matter.\")", "style": "callout"}
       ]
     }
   ]

@@ -2,10 +2,13 @@
 """make_html.py - Money Desk standalone HTML renderer.
 
 Install: pip install markdown2
-Usage:   python make_html.py --input report.md --output report.html --specialist "Investing Advisor"
+Usage:   python make_html.py --input report.md --specialist "Investing Advisor"
+         # --output is optional; defaults to reports/<specialist-slug>/<input-stem>.html
+         # override with: --output path/to/report.html  (or --outdir to change the base folder)
 
-Produces a single .html file that is BOTH viewable in a browser and printable
-with the same brand styling as the PDF renderer.
+Produces a single self-contained .html file (inline CSS, no external links) that
+is BOTH viewable in a browser and printable with the same brand styling as the
+PDF renderer.
 """
 from __future__ import annotations
 import argparse, datetime, html, pathlib, re, sys
@@ -51,6 +54,18 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 blockquote { border-left: 3pt solid var(--warn); background: #fff8e1; padding: 6pt 10pt; margin: 8pt 0; }
 blockquote.green { border-left-color: var(--accent); background: #e8f5e9; }
 blockquote.red { border-left-color: var(--risk); background: #fdecea; }
+.executive-summary { background: #f3f7fb; border-left: 3pt solid var(--primary); padding: 10pt 14pt; margin: 8pt 0 14pt; border-radius: 2pt; }
+.executive-summary h2, .executive-summary h3 { margin-top: 0; }
+.callout { background: #fcefe1; border-left: 3pt solid var(--risk); color: #7a2118; padding: 8pt 12pt; margin: 8pt 0; font-weight: 600; border-radius: 2pt; }
+.callout.green { background: #e8f5e9; border-left-color: var(--accent); color: #1b5e20; }
+.callout.amber { background: #fff8e1; border-left-color: var(--warn); color: #6b4f00; }
+.verdict { background: #fcefe1; border: 0.5pt solid #f1c2a3; padding: 10pt 14pt; margin: 12pt 0; border-radius: 3pt; font-size: 11pt; font-weight: 600; color: #7a2118; }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin: 8pt 0 12pt; }
+.kpi { background: #f3f7fb; border: 1px solid #d6deec; border-radius: 4px; padding: 10px 12px; }
+.kpi .label { color: #555; font-size: 9pt; text-transform: uppercase; letter-spacing: 0.4pt; margin-bottom: 2pt; }
+.kpi .value { color: var(--primary); font-size: 16pt; font-weight: 700; line-height: 1.1; }
+.kpi .note { color: #555; font-size: 9pt; margin-top: 2pt; }
+.note { color: #555; font-size: 9pt; font-style: italic; }
 code, pre { font-family: 'Consolas', 'Menlo', monospace; font-size: 9.5pt; background: #f5f5f7; padding: 1pt 3pt; border-radius: 2pt; }
 pre { padding: 6pt 8pt; overflow-x: auto; }
 .footer { color: #555; font-size: 9pt; border-top: 0.5pt solid #ccc; margin-top: 24pt; padding-top: 6pt; text-align: center; }
@@ -72,7 +87,10 @@ __BODY__
 
 
 def render(md_text: str, specialist: str, today: str) -> str:
-    import markdown2
+    try:
+        import markdown2
+    except ImportError:
+        sys.exit("ERROR: markdown2 not installed. Run: pip install markdown2")
     body = markdown2.markdown(decode_entities(md_text), extras=[
         "fenced-code-blocks", "tables", "strike", "task_list", "cuddled-lists",
         "header-ids", "footnotes", "code-friendly",
@@ -86,22 +104,39 @@ def render(md_text: str, specialist: str, today: str) -> str:
     )
 
 
+def _slugify(text: str) -> str:
+    s = re.sub(r"[^a-z0-9]+", "-", str(text).lower()).strip("-")
+    return s or "money-desk"
+
+
+def resolve_output(output, specialist, stem, ext, outdir):
+    """Return the explicit --output, or a structured default:
+    <outdir>/<specialist-slug>/<stem>.<ext>."""
+    if output is not None:
+        return output
+    return pathlib.Path(outdir) / _slugify(specialist) / f"{stem}.{ext}"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Render a Money Desk markdown report to standalone HTML.")
     ap.add_argument("--input", required=True, type=pathlib.Path)
-    ap.add_argument("--output", required=True, type=pathlib.Path)
+    ap.add_argument("--output", type=pathlib.Path, default=None,
+                    help="Output path. If omitted: reports/<specialist-slug>/<input-stem>.html")
+    ap.add_argument("--outdir", default="reports",
+                    help="Base dir used when --output is omitted (default: reports)")
     ap.add_argument("--specialist", default="Money Desk")
     args = ap.parse_args()
 
     md_text = args.input.read_text(encoding="utf-8")
     today = datetime.date.today().isoformat()
-    html = render(md_text, args.specialist, today)
+    page_html = render(md_text, args.specialist, today)
 
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(html, encoding="utf-8")
+    out = resolve_output(args.output, args.specialist, args.input.stem, "html", args.outdir)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(page_html, encoding="utf-8")
 
-    size = args.output.stat().st_size
-    print(f"OK  {args.output}  ({size:,} bytes)")
+    size = out.stat().st_size
+    print(f"OK  {out}  ({size:,} bytes)")
     return 0
 
 

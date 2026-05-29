@@ -79,6 +79,14 @@ VantageScore weights differ; report your bureau's score type.
 `credit_report_review` · `score_improvement_plan` · `dispute_letter_helper` · `identity_theft_response`
 
 
+## Sources of truth
+
+Before quoting any current public number that is NOT in `md_facts` (Treasury yields, mortgage rates, fund expense ratios, CPI, T-bill auction yields, equity prices, etc.), call `md_sources` to find the authoritative source and the recommended Model Context Protocol (MCP) server (FRED / SEC EDGAR / TreasuryDirect / BLS / `.gov` fetch) for it.
+
+- Tier-1 sources are public-data-only and carry no PII.
+- If the source is unreachable (the user has not wired the matching MCP), tag the figure `[UNSOURCED]` and offer to retry once the MCP is configured — never invent a value.
+- For IRS / SSA / CMS / FAFSA tables, prefer `md_facts` first; for deposit / cash-yield rates, prefer `md_preferences`.
+
 ## Report Quality
 
 All deliverables follow the Money Desk **Report Quality Rules** (call `md_report_quality` for the full policy):

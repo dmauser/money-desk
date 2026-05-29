@@ -176,75 +176,55 @@
     },
     {
       "name": "Summary",
+      "column_widths": {"A": 40, "B": 16, "C": 14, "D": 28},
+      "row_heights": {"1": 26, "2": 18, "4": 22, "12": 22, "13": 38},
+      "merges": ["A1:D1", "A2:D2", "A12:D12", "A13:D13"],
       "cells": [
-        {
-          "ref": "A1",
-          "value": "College Cost Projection - Summary",
-          "style": "h1"
-        },
-        {
-          "ref": "A3",
-          "value": "Total cost in today's dollars"
-        },
-        {
-          "ref": "B3",
-          "formula": "=current_annual_cost*years_in_college",
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A4",
-          "value": "Total cost at matriculation (future)"
-        },
-        {
-          "ref": "B4",
-          "formula": "=total_future_cost",
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A5",
-          "value": "Projected 529 balance at start"
-        },
-        {
-          "ref": "B5",
-          "formula": "=projected_balance",
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A6",
-          "value": "Funding gap (shortfall positive)"
-        },
-        {
-          "ref": "B6",
-          "formula": "=total_future_cost-projected_balance",
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A8",
-          "value": "Funded %"
-        },
-        {
-          "ref": "B8",
-          "formula": "=projected_balance/total_future_cost",
-          "number_format": "0.0%"
-        },
-        {
-          "ref": "A9",
-          "value": "Required monthly contribution to fully fund"
-        },
-        {
-          "ref": "B9",
-          "formula": "=IF(years_to_start<=0,0,-PMT(expected_return/12, years_to_start*12, current_529_balance, -total_future_cost))",
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A10",
-          "value": "Additional monthly contribution needed"
-        },
-        {
-          "ref": "B10",
-          "formula": "=B9-monthly_contribution",
-          "number_format": "$#,##0"
-        }
+        {"ref": "A1", "value": "College Cost Projection  -  Summary Dashboard", "style": "banner"},
+        {"ref": "A2", "value": "All figures driven by the Inputs sheet.", "style": "subtitle"},
+
+        {"ref": "A4", "value": "Metric", "style": "header"},
+        {"ref": "B4", "value": "Value", "style": "header"},
+        {"ref": "C4", "value": "Threshold", "style": "header"},
+        {"ref": "D4", "value": "Status / Note", "style": "header"},
+
+        {"ref": "A5", "value": "Total cost in today's dollars", "style": "metric"},
+        {"ref": "B5", "formula": "=current_annual_cost*years_in_college", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C5", "value": "", "style": "threshold"},
+        {"ref": "D5", "value": "Sticker price baseline", "style": "status"},
+
+        {"ref": "A6", "value": "Total cost at matriculation (future)", "style": "metric"},
+        {"ref": "B6", "formula": "=total_future_cost", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C6", "value": "", "style": "threshold"},
+        {"ref": "D6", "value": "Inflated to start year", "style": "status"},
+
+        {"ref": "A7", "value": "Projected 529 balance at start", "style": "metric"},
+        {"ref": "B7", "formula": "=projected_balance", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C7", "value": "", "style": "threshold"},
+        {"ref": "D7", "value": "Current plan trajectory", "style": "status"},
+
+        {"ref": "A8", "value": "Funding gap (shortfall positive)", "style": "metric"},
+        {"ref": "B8", "formula": "=total_future_cost-projected_balance", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C8", "value": "<= 0", "style": "threshold"},
+        {"ref": "D8", "formula": "=IF(total_future_cost-projected_balance<=0,\"Fully funded\",\"Shortfall\")", "style": "status"},
+
+        {"ref": "A9", "value": "Funded %", "style": "metric"},
+        {"ref": "B9", "formula": "=projected_balance/total_future_cost", "style": "value_highlight", "number_format": "0.0%"},
+        {"ref": "C9", "value": ">= 100%", "style": "threshold"},
+        {"ref": "D9", "formula": "=IF(projected_balance/total_future_cost>=1,\"OK\",IF(projected_balance/total_future_cost>=0.7,\"On track\",\"Underfunded\"))", "style": "status"},
+
+        {"ref": "A10", "value": "Required monthly contribution to fully fund", "style": "metric"},
+        {"ref": "B10", "formula": "=IF(years_to_start<=0,0,-PMT(expected_return/12, years_to_start*12, current_529_balance, -total_future_cost))", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C10", "value": "", "style": "threshold"},
+        {"ref": "D10", "value": "Solves for full coverage", "style": "status"},
+
+        {"ref": "A11", "value": "Additional monthly contribution needed", "style": "metric"},
+        {"ref": "B11", "formula": "=B10-monthly_contribution", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C11", "value": "<= 0", "style": "threshold"},
+        {"ref": "D11", "formula": "=IF(B10-monthly_contribution<=0,\"On track\",\"Increase contributions\")", "style": "status"},
+
+        {"ref": "A12", "value": "Headline verdict", "style": "section_banner"},
+        {"ref": "A13", "formula": "=\"Funded \"&TEXT(projected_balance/total_future_cost,\"0%\")&\" of \"&TEXT(total_future_cost,\"$#,##0\")&\". Gap = \"&TEXT(total_future_cost-projected_balance,\"$#,##0\")&\". Required monthly = \"&TEXT(B10,\"$#,##0\")&\".\"", "style": "callout"}
       ]
     }
   ]
