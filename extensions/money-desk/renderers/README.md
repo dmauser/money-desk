@@ -89,6 +89,27 @@ content in for brand-consistent emphasis:
 | `verdict`             | Prominent peach verdict box at the end of a report               |
 | `note`                | Inline italic gray sidenote                                      |
 
+### Auto-styling (no markup required)
+
+`_branded.py` — shared by `make_pdf.py` and `make_html.py` — runs an
+**auto-styling pass** after markdown2 produces HTML so the agent doesn't
+have to emit raw `<div class="...">` markup to get a professional look.
+Every report from every specialist benefits automatically:
+
+| Markdown pattern                                                   | Auto-applied class                                       |
+|--------------------------------------------------------------------|----------------------------------------------------------|
+| `## Executive Summary` / `## TL;DR` / `## Headline Findings` / `## At a Glance` / `## Snapshot` / `## BLUF` | wraps that heading + the next block in `<div class="executive-summary">` |
+| Paragraph leading with `Verdict:` / `Recommendation:` / `Bottom line:` / `Decision:` / `Key takeaway:` | converts to `<div class="callout [color]">`              |
+| Same paragraph contains `🟢` / `✅` / "favored"                    | adds `.green` modifier                                   |
+| Same paragraph contains `🟠` / `🟡` / `⚠️` / "caution" / "borderline" | adds `.amber` modifier                                   |
+| Paragraph leading with `Disclaimer:` / `Note:`                     | wraps in `<p class="note">`                              |
+| `*Not professional/legal/tax/financial advice*` italic footer      | wraps in `<p class="note">`                              |
+
+The agent can still emit explicit `<div class="kpi-grid">`, `<div class="verdict">`,
+or other CSS-class wrappers when it needs more control — markdown2 passes
+inline HTML through unchanged. Auto-styling is **idempotent**: already-wrapped
+content is detected and left alone.
+
 Example:
 
 ```html

@@ -13,6 +13,12 @@ PDF renderer.
 from __future__ import annotations
 import argparse, datetime, html, pathlib, re, sys
 
+# Auto-styling helper (shared with make_pdf.py). Loaded relative to this script
+# so the standalone CLI works whether run from the repo or copied to
+# ./reports/_renderers/.
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from _branded import apply_branded_blocks  # noqa: E402
+
 _ENTITY_RE = re.compile(r"\\?&(#\d+|#x[0-9a-fA-F]+|[a-zA-Z][a-zA-Z0-9]{1,31});")
 
 
@@ -95,6 +101,7 @@ def render(md_text: str, specialist: str, today: str) -> str:
         "fenced-code-blocks", "tables", "strike", "task_list", "cuddled-lists",
         "header-ids", "footnotes", "code-friendly",
     ])
+    body = apply_branded_blocks(body)
     return (
         HTML_SHELL.replace("__TITLE__", specialist)
         .replace("__CSS__", BRAND_CSS)

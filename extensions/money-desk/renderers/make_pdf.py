@@ -13,6 +13,12 @@ mandates Chromium for faithful CSS, tables, and emoji rendering.
 from __future__ import annotations
 import argparse, asyncio, datetime, html, pathlib, re, sys
 
+# Auto-styling helper (shared with make_html.py). Loaded relative to this script
+# so the standalone CLI works whether run from the repo or copied to
+# ./reports/_renderers/.
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from _branded import apply_branded_blocks  # noqa: E402
+
 # Matches optionally backslash-escaped HTML entity references:
 #   &mdash;        -> em-dash
 #   \&mdash;       -> em-dash (LLM-escaped form)
@@ -95,6 +101,7 @@ def render_html(md_text: str, specialist: str, today: str) -> str:
         "fenced-code-blocks", "tables", "strike", "task_list", "cuddled-lists",
         "header-ids", "footnotes", "code-friendly",
     ])
+    body = apply_branded_blocks(body)
     css = BRAND_CSS.replace("__SPECIALIST__", specialist).replace("__DATE__", today)
     return HTML_SHELL.replace("__TITLE__", specialist).replace("__CSS__", css).replace("__BODY__", body)
 

@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.0] — 2026-05-29
+
+### Added
+
+- **Render-time auto-styling for PDF + HTML reports — every specialist
+  benefits, no per-skill prompt churn required.** New shared helper
+  `extensions/money-desk/renderers/_branded.py` runs after markdown2
+  converts markdown to HTML and automatically wraps common section
+  patterns in the brand CSS classes:
+  - `## Executive Summary` / `## TL;DR` / `## Headline Findings` /
+    `## At a Glance` / `## Snapshot` / `## BLUF` headings → wrapped
+    (heading + next block) in `<div class="executive-summary">` (the
+    light-blue panel).
+  - Paragraphs leading with `Verdict:` / `Recommendation:` /
+    `Bottom line:` / `Decision:` / `Headline:` / `Key takeaway:` →
+    converted to `<div class="callout [green|amber|]">` with the color
+    auto-classified from emoji (`🟢` `✅` `🟠` `🟡` `⚠️` `🔴` `❌`) or
+    keyword cues ("favored" → green, "caution"/"borderline" → amber).
+  - Paragraphs leading with `Disclaimer:` or `Note:`, plus italic
+    footers like `*Not professional financial advice*`, → wrapped in
+    `<p class="note">` (italic gray sidenote style).
+  - Idempotent: already-wrapped content is detected and skipped.
+- Fixes the gap from v0.14.0 where the new CSS classes
+  (`.executive-summary`, `.callout`, `.note`) were defined in the
+  renderers but never actually appeared in real reports because no
+  SKILL.md taught the agent to emit them. Now any markdown report from
+  any of the 93 skills + 20 specialists gets the visual uplift in PDF
+  and HTML automatically.
+
+### Changed
+
+- `make_html.py` and `make_pdf.py` now import `_branded.apply_branded_blocks`
+  and call it on the markdown2 output before injecting the body into the
+  page shell.
+- `renderers/README.md` documents the new auto-styling pass with a full
+  pattern table and notes that the agent can still emit explicit
+  `<div class="kpi-grid">` / `<div class="verdict">` for finer control.
+
+### Tests
+
+- New `tests/test_branded_blocks.py` (10 unit tests) covering every
+  pattern: executive-summary wrapping, TL;DR / Headline Findings / BLUF
+  variants, verdict + recommendation callouts, color classification
+  (green / amber / red), disclaimer notes, "Not professional advice"
+  footer, idempotence, no-match-no-change, and case insensitivity.
+
 ## [0.15.0] — 2026-05-29
 
 ### Added
