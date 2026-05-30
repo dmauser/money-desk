@@ -7,7 +7,7 @@
 // imported by tests without the Copilot SDK installed.
 
 import { joinSession } from "@github/copilot-sdk/extension";
-import { tools, ROUTES, specialistCount } from "./registry.mjs";
+import { tools, ROUTES, specialistCount, REPORT_QUALITY_CONFIG } from "./registry.mjs";
 
 // Throttle the auto-routing hook: each specialist prefix is announced at
 // most once per session. Without this, every matching prompt re-injects the
@@ -34,7 +34,26 @@ const PRESENCE_NOTE =
     "FBAR / PFIC / moving country — or says 'money-desk' / '@money-desk' / " +
     "'this extension' / 'what can you do' in a finance context — call `md_capabilities` FIRST before answering. " +
     "Money Desk is analysis-only: never moves money, executes trades, files returns, or signs documents. " +
-    "Never claim money-desk is unavailable: it is loaded. " +
+    "Never claim money-desk is unavailable: it is loaded.\n\n" +
+    "REPORT QUALITY RULES — INLINE FALLBACK (also returned by `md_report_quality`):\n" +
+    "```json\n" +
+    JSON.stringify(REPORT_QUALITY_CONFIG, null, 2) + "\n" +
+    "```\n" +
+    "**HARD WRITE GUARD:** Refuse to write any .pdf / .docx / .xlsx / .html / .md deliverable file before BOTH " +
+    "(a) `md_report_quality` has been called this turn, and (b) the user has explicitly accepted an OFFER to export. " +
+    "Default behavior is markdown rendered inline in chat. Files land under " +
+    "`./money-desk/<specialist-slug>/<specialist-slug>_<skill-slug>_<YYYYMMDD>_<HHMM>.<ext>` — NEVER in the cwd root, " +
+    "NEVER under random ad-hoc names like `Mortgage_Scenarios.xlsx`. Use the slug from `md_capabilities` (the " +
+    "Deliverable folder column) so the destination matches the routing decision.\n" +
+    "**RENDERER REQUIRED:** Every deliverable MUST go through the canonical renderer. " +
+    "PDF → `make_pdf.py`. HTML → `make_html.py`. **XLSX → `make_xlsx.py` ALWAYS** (emit a JSON spec and run " +
+    "`make_xlsx.py --spec spec.json --specialist \"<Name>\"`; do NOT write .xlsx with raw openpyxl in a one-off " +
+    "script — that produces ugly Calibri output and bypasses the brand styling, the linter, and the recalc gate). " +
+    "DOCX → `make_docx.py`. Renderer scripts ship at `extensions/money-desk/renderers/`; copy them once into " +
+    "`./money-desk/_renderers/` and reuse from there. Canonical XLSX templates (banner / header / value_highlight / " +
+    "callout layout matching the brand) live at " +
+    "`extensions/money-desk/specialists/<specialist>/skills/<skill>/template.xlsx.json` for 6 high-frequency skills; " +
+    "start from those when present.\n\n" +
     "RESPONSE FOOTER (REQUIRED): At the end of EVERY assistant response in this session that touches personal finance " +
     "— any turn where you called an `md_*` tool, or where you discussed budgeting, taxes, investing, retirement, debt, " +
     "credit, insurance, estate, education, real estate, self-employment, or any other money-desk topic — append the " +

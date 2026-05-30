@@ -11,7 +11,7 @@ import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { glob } from "node:fs/promises";
-import { tools, SPECIALISTS, getReportQuality } from "../extensions/money-desk/registry.mjs";
+import { tools, SPECIALISTS, getReportQuality, REPORT_QUALITY_CONFIG } from "../extensions/money-desk/registry.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
@@ -31,6 +31,49 @@ test("md_report_quality returns non-empty markdown with TL;DR + YAML block", asy
     assert.match(out, /markdown[^a-z]*inline/i);
     assert.match(out, /```yaml/);
     assert.match(out, /report_quality:/);
+});
+
+test("md_report_quality emits the structured JSON config the agent must obey", async () => {
+    const out = await getReportQuality();
+    // Must contain a fenced JSON block with the canonical keys.
+    assert.match(out, /```json/);
+    for (const key of [
+        "default_format",
+        "offer_export",
+        "auto_write",
+        "output_root",
+        "specialist_subfolder_convention",
+        "filename_convention",
+        "pre_write_required_tool",
+        "write_guard",
+        "renderer_policy",
+    ]) {
+        assert.match(out, new RegExp(`"${key}"`), `structured config must include "${key}"`);
+    }
+    // The canonical destination root.
+    assert.match(out, /"\.\/money-desk\/"/);
+    // The renderer-required policy must call out make_xlsx.py specifically
+    // (this is the gap the user hit when an agent wrote raw openpyxl).
+    assert.match(out, /make_xlsx\.py/);
+});
+
+test("REPORT_QUALITY_CONFIG canonical defaults are stable", () => {
+    assert.equal(REPORT_QUALITY_CONFIG.default_format, "markdown_inline");
+    assert.equal(REPORT_QUALITY_CONFIG.offer_export, true);
+    assert.equal(REPORT_QUALITY_CONFIG.auto_write, false);
+    assert.equal(REPORT_QUALITY_CONFIG.output_root, "./money-desk/");
+    assert.equal(REPORT_QUALITY_CONFIG.pre_write_required_tool, "md_report_quality");
+    assert.equal(REPORT_QUALITY_CONFIG.renderers.xlsx, "extensions/money-desk/renderers/make_xlsx.py");
+});
+
+test("md_capabilities table includes a per-specialist Deliverable folder column", async () => {
+    const t = tools.find((x) => x.name === "md_capabilities");
+    const out = await t.handler();
+    assert.match(out, /Deliverable folder/);
+    // Spot-check a few specialists.
+    assert.match(out, /\.\/money-desk\/purchase-advisor\//);
+    assert.match(out, /\.\/money-desk\/real-estate-investor\//);
+    assert.match(out, /\.\/money-desk\/retirement-planner\//);
 });
 
 test("preferences.yaml contains a report_quality: block", async () => {

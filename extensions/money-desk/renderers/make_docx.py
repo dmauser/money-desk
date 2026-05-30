@@ -186,7 +186,7 @@ def main() -> int:
     ap.add_argument("--input", required=True, type=pathlib.Path)
     ap.add_argument("--output", type=pathlib.Path, default=None,
                     help="Output path. If omitted: reports/<specialist-slug>/<input-stem>.docx")
-    ap.add_argument("--outdir", default="reports",
+    ap.add_argument("--outdir", default="money-desk",
                     help="Base dir used when --output is omitted (default: reports)")
     ap.add_argument("--specialist", default="Money Desk")
     args = ap.parse_args()

@@ -811,12 +811,12 @@ export const specialistCount = SPECIALISTS.length;
 
 export function buildCapabilitiesSummary() {
     const rows = SPECIALISTS.map((s, i) =>
-        `| ${i + 1} | ${s.icon} ${s.domain} | \`${s.prefix}_\` | \`${s.prefix}_role\` | \`${s.prefix}_orchestrate\` |`,
+        `| ${i + 1} | ${s.icon} ${s.domain} | \`${s.prefix}_\` | \`${s.prefix}_role\` | \`${s.prefix}_orchestrate\` | \`./money-desk/${s.name}/\` |`,
     ).join("\n");
     return `# Money Desk — Available Specialists
 
-| # | Domain | Prefix | Role Tool | Orchestrator |
-|---|--------|--------|-----------|-------------|
+| # | Domain | Prefix | Role Tool | Orchestrator | Deliverable folder |
+|---|--------|--------|-----------|-------------|--------------------|
 ${rows}
 
 ## How to use
@@ -887,19 +887,71 @@ export async function getPreferences() {
     return [
         "# Money Desk — User Preferences (persisted config)",
         "",
-        "Source: `extensions/money-desk/data/preferences.yaml` — single source of truth for source-selection defaults. Every specialist that quotes deposit-product / cash-yield rates (Investing Advisor, Budget Coach, Net Worth & Goals, Retirement Planner, Life Events) must honor these defaults.",
+        "Source: `extensions/money-desk/data/preferences.yaml` — single source of truth for source-selection defaults and deliverable destination. Every specialist that quotes deposit-product / cash-yield rates (Investing Advisor, Budget Coach, Net Worth & Goals, Retirement Planner, Life Events) must honor these defaults; every specialist that produces a file deliverable MUST honor the destination block.",
+        "",
+        "## Output destination (authoritative)",
+        "",
+        "```json",
+        JSON.stringify(REPORT_QUALITY_CONFIG, null, 2),
+        "```",
+        "",
+        "## Full persisted config",
         "",
         "```yaml",
         raw.trimEnd(),
         "```",
         "",
-        "**Override on a single turn:** the user can say e.g. \"use Bankrate instead this time\" — honor that source for THAT turn only and revert to the YAML default on the next deposit-rate question.",
+        "**Override on a single turn:** the user can say e.g. \"use Bankrate instead this time\" — honor that source for THAT turn only and revert to the YAML default on the next deposit-rate question. Same for one-off output paths (e.g. \"save it to ./desk-output/\" → use that path for this turn only).",
         "",
         "**Permanent override:** edit `extensions/money-desk/data/preferences.yaml` and re-run `npm test`.",
     ].join("\n");
 }
 
 // ── Report quality policy (served by md_report_quality) ───────────────
+
+// Structured config object — agents must obey this OBJECT, not free-text
+// path conventions in older SKILL.md prose. Source-of-truth lives in
+// preferences.yaml `report_quality.output_destination`; this constant
+// MUST match it (the report-quality test enforces consistency).
+export const REPORT_QUALITY_CONFIG = {
+    default_format: "markdown_inline",
+    offer_export: true,
+    auto_write: false,
+    pre_write_required_tool: "md_report_quality",
+    output_root: "./money-desk/",
+    specialist_subfolder_convention: "<specialist-slug>/",
+    filename_convention:
+        "<specialist-slug>_<skill-slug>_<YYYYMMDD>_<HHMM>.<ext>",
+    legacy_root: "./reports/",
+    write_guard:
+        "Refuse to write any deliverable file before md_report_quality has " +
+        "been called this turn AND the user has explicitly accepted an OFFER " +
+        "to export. Default behavior is markdown inline in chat only. Files " +
+        "MUST land under output_root + specialist subfolder, never in the cwd root.",
+    renderers: {
+        pdf: "extensions/money-desk/renderers/make_pdf.py",
+        html: "extensions/money-desk/renderers/make_html.py",
+        xlsx: "extensions/money-desk/renderers/make_xlsx.py",
+        docx: "extensions/money-desk/renderers/make_docx.py",
+    },
+    renderer_policy:
+        "ALWAYS render through these scripts. NEVER write a deliverable " +
+        "with raw openpyxl / python-docx / playwright in a one-off script — " +
+        "that bypasses the canonical brand styling (Segoe UI body, primary " +
+        "#1A4D8F banner row, header row fill, value_highlight light-green " +
+        "value cells, callout peach + risk-red verdict, real formulas, " +
+        "lint_formulas + validate_workbook recalc gate). For XLSX, emit a " +
+        "JSON spec and invoke `make_xlsx.py --spec spec.json --specialist " +
+        "\"<Specialist Name>\"`; the renderer auto-applies brand styles, " +
+        "named ranges, lints numeric formulas against Notes/Source/Citation/" +
+        "Comment columns, and recalculates headlessly to fail on " +
+        "#VALUE!/#REF!/#DIV/0!/#NAME?/#NUM!/#N/A.",
+    canonical_xlsx_templates_dir:
+        "extensions/money-desk/specialists/<specialist-slug>/skills/<skill-slug>/template.xlsx.json",
+    canonical_xlsx_templates_note:
+        "If a canonical template.xlsx.json exists for the skill, START from it; only adjust input values. If one does NOT exist, author the spec from scratch following the canonical layout (banner A1, subtitle A2, header row, metric/value_highlight/threshold/status rows, optional section_banner + callout at the bottom) so the output matches the brand look.",
+};
+
 export async function getReportQuality() {
     const raw = await loadPreferences();
     // Extract the report_quality: block from the same YAML.
@@ -918,30 +970,50 @@ export async function getReportQuality() {
     return [
         "# Money Desk — Report Quality Rules",
         "",
+        "## STRUCTURED CONFIG (authoritative — obey this OBJECT, not prose)",
+        "",
+        "The agent MUST honor the JSON object below before producing any user-facing deliverable. It supersedes any path or write-policy mentioned in older SKILL.md prose.",
+        "",
+        "```json",
+        JSON.stringify(REPORT_QUALITY_CONFIG, null, 2),
+        "```",
+        "",
+        "**Per-specialist destination map:**",
+        "",
+        "| Specialist | Destination folder |",
+        "|------------|--------------------|",
+        ...SPECIALISTS.map((s) => `| ${s.icon} ${s.domain} | \`./money-desk/${s.name}/\` |`),
+        "",
+        "**Filename rule:** `<specialist-slug>_<skill-slug>_<YYYYMMDD>_<HHMM>.<ext>` — e.g. `purchase-advisor_rent-vs-buy_20260601_1430.xlsx`. Always save the source markdown alongside any rendered format with the same stem.",
+        "",
+        "**Write guard (HARD):** Refuse to write any deliverable file before this tool has been called this turn AND the user has explicitly accepted an OFFER to export. Files MUST land under `./money-desk/<specialist-slug>/`, never in the cwd root.",
+        "",
+        "---",
+        "",
         "**TL;DR — defaults every specialist applies to every user-facing deliverable:**",
         "",
         "1. **Default output = markdown rendered inline in chat.** Do NOT auto-write files.",
-        "2. **At the end of the deliverable, OFFER additional formats** — PDF, DOCX, XLSX, HTML — and only produce them when the user accepts (or asked for a format up front).",
-        "3. **File naming:** `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`. Never overwrite a prior scenario — append `_scenario_<label>`. Always save the source markdown (`.md`) alongside any rendered format.",
+        "2. **At the end of the deliverable, OFFER additional formats** — PDF, DOCX, XLSX, HTML — and only produce them when the user accepts (or asked for a format up front). Quote the destination path from the structured config above so the user knows where the file will land.",
+        "3. **File naming:** `./money-desk/<specialist-slug>/<specialist-slug>_<skill-slug>_<YYYYMMDD>_<HHMM>[_scenario_<label>].<ext>`. Never overwrite a prior scenario — append `_scenario_<label>`. Always save the source markdown (`.md`) alongside any rendered format.",
         "4. **Renderer stacks (do not improvise):**",
         "   - PDF → Playwright + Chromium (`pip install playwright markdown2 && python -m playwright install chromium`)",
         "   - HTML → markdown2 + inline CSS (`pip install markdown2`)",
-        "   - XLSX → openpyxl, **real formulas** in a multi-sheet workbook (`pip install openpyxl`)",
+        "   - XLSX → openpyxl, **real formulas** in a multi-sheet workbook (`pip install openpyxl`). The renderer auto-runs `lint_formulas` + `validate_workbook` (post-render headless recalc) — fails the build on any #VALUE!/#REF!/#DIV/0!/#NAME?/#NUM!/#N/A.",
         "   - DOCX → python-docx, **real Word styles** + TOC field (`pip install python-docx markdown-it-py`)",
-        "5. **Renderer scripts ship in the extension** at `extensions/money-desk/renderers/`. On first use in a given project, copy them into `./reports/_renderers/` and reuse from there.",
+        "5. **Renderer scripts ship in the extension** at `extensions/money-desk/renderers/`. On first use in a given project, copy them into `./money-desk/_renderers/` and reuse from there.",
         "6. **Standard content sections** (every report, every format, in this order): Title + scope → Intake echo → Headline findings (severity-ranked) → Detailed analysis → Before/After → Prioritized recommendations (🔴/🟠/🟡) → Action checklist (`[ ]`) → Open items & assumptions → Disclaimer footer.",
         "7. **Brand palette:** primary `#1a4d8f`, accent `#2e7d32`, warn `#d4a017`, risk `#c0392b`, stripe `#f5f7fb`. Body font Segoe UI / Helvetica 10.5pt (PDF/HTML), 11pt (DOCX). Table font 9.5pt. Letter paper, 0.55in margins. Footer: `Money Desk — <Specialist> · Page X of Y · <YYYY-MM-DD>`.",
         "8. **Table hygiene:** column-1 header non-empty; max 7 columns on Letter portrait; numeric cols right-aligned (`|---:|`); cells ≤ ~40 chars; currency `$1,234,567`, percentages `12.3%`. XLSX uses number formats — not strings. DOCX uses real Word tables. HTML uses semantic `<thead>`/`<tbody>`.",
         "9. **Citation tags** on every figure: `[USER-PROVIDED]`, `[<md_facts label>]` (call `md_facts` first), `[ASSUMPTION: <value>]`, or `[UNSOURCED]` as last resort. In XLSX add a Source column; in HTML they become tooltips.",
         "10. **What-if scenarios:** new file with `_scenario_<label>` suffix; never overwrite. Add a 'Scenario Change' table comparing prior vs new. In XLSX, scenarios share the Inputs sheet via formulas so one cell edit cascades.",
-        "11. **Self-verification before declaring done:** report each file path + size; for PDF/HTML confirm no cell wraps to <3 chars/line (re-render if so); for XLSX confirm at least one formula evaluates; for DOCX confirm TOC + styles. Fix silently and re-render before responding.",
+        "11. **Self-verification before declaring done (REQUIRED):** report each file path + size; for PDF/HTML confirm no cell wraps to <3 chars/line (re-render if so); for XLSX the renderer's lint_formulas + validate_workbook gates run automatically and fail the build on any error cell or any numeric formula referencing a Notes/Source/Citation/Comment/empty column; for DOCX confirm TOC + styles. Use canonical templates under specialists/<name>/skills/<skill>/template.xlsx.json wherever they exist. Fix silently and re-render before responding.",
         "12. **Analysis-only guardrail:** reports never place trades, file returns, move money, or sign documents. The user takes every final action.",
         "",
         "**Override examples** the user might type:",
         "- *\"Just markdown is fine, skip the PDF.\"* → produce only the inline markdown.",
-        "- *\"Also produce a spreadsheet I can edit.\"* → add `.xlsx`.",
-        "- *\"Draft me a Word doc for my CPA.\"* → add `.docx`.",
-        "- *\"Send me a dashboard link.\"* → add `.html`.",
+        "- *\"Also produce a spreadsheet I can edit.\"* → add `.xlsx` under `./money-desk/<specialist-slug>/`.",
+        "- *\"Draft me a Word doc for my CPA.\"* → add `.docx` under `./money-desk/<specialist-slug>/`.",
+        "- *\"Send me a dashboard link.\"* → add `.html` under `./money-desk/<specialist-slug>/`.",
         "- *\"All four formats.\"* → produce md + pdf + docx + xlsx + html from the same source content.",
         "",
         "## Full persisted config (from `extensions/money-desk/data/preferences.yaml`)",

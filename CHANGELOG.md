@@ -7,6 +7,89 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.0] — 2026-05-29
+
+### Added
+
+- **Report-quality governance: structured config block + write-guard +
+  per-specialist destination map.** Closes the bug class where an agent
+  ignored the prose Report Quality Rules and either auto-wrote a file
+  to the cwd root, or improvised a raw-openpyxl script that produced
+  generic Calibri output instead of the canonical Segoe UI + brand-blue
+  banner + light-green value_highlight + peach callout layout.
+  - New `REPORT_QUALITY_CONFIG` constant in `registry.mjs` exposed as a
+    fenced ```json``` block at the top of `md_report_quality` output.
+    Keys: `default_format` (`"markdown_inline"`), `offer_export`
+    (`true`), `auto_write` (`false`), `pre_write_required_tool`
+    (`"md_report_quality"`), `output_root` (`"./money-desk/"`),
+    `specialist_subfolder_convention`
+    (`"<specialist-slug>/"`), `filename_convention`
+    (`"<specialist-slug>_<skill-slug>_<YYYYMMDD>_<HHMM>.<ext>"`),
+    `legacy_root` (`"./reports/"`), `write_guard`, `renderers` map,
+    `renderer_policy`, `canonical_xlsx_templates_dir`.
+  - `md_report_quality` now also returns a per-specialist destination
+    table (`./money-desk/<specialist-slug>/` for all 20 specialists)
+    and the renderer-required policy as the new TL;DR rule #4.
+  - `md_capabilities` table gains a new **Deliverable folder** column so
+    routing decisions also drive file destinations (the user can see
+    "Real Estate Investor → `./money-desk/real-estate-investor/`" up
+    front).
+  - `md_preferences` now leads with the same structured destination
+    JSON (so it can be the persisted-config authority for one-off
+    folder overrides).
+- **Inline Report Quality Rules in the system-prompt presence note** as
+  a fallback for environments where tool calls might be skipped — the
+  literal `REPORT_QUALITY_CONFIG` JSON is embedded so the agent can
+  honor the rules even if it never calls `md_report_quality`. The
+  presence note also gains a HARD WRITE GUARD ("refuse to write
+  before md_report_quality has been called and the user has accepted
+  an OFFER to export") and a RENDERER REQUIRED clause ("XLSX → always
+  via `make_xlsx.py` with a JSON spec; never raw openpyxl in a one-off
+  script").
+
+### Changed
+
+- **Default deliverable destination:** `./money-desk/<specialist-slug>/`
+  (was `./reports/<specialist-slug>/`). The old root is documented as
+  `legacy_root` in the structured config — files saved under the prior
+  convention may still exist; new writes use `output_root`. Renderer
+  scripts (`make_pdf.py`, `make_html.py`, `make_xlsx.py`,
+  `make_docx.py`) `--outdir` defaults switched from `reports` to
+  `money-desk` to match.
+- `data/preferences.yaml` `report_quality:` block now opens with an
+  authoritative `output_destination:` sub-block listing all the same
+  fields as `REPORT_QUALITY_CONFIG`, and the file-naming /
+  install-location paths everywhere in the block updated to the new
+  root. The `output_destination:` block is the single source of
+  truth; `md_report_quality` reads it and emits the JSON config the
+  agent must obey.
+- Filename convention upgraded from
+  `<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` (skill-only) to
+  `<specialist-slug>_<skill-slug>_<YYYYMMDD>_<HHMM>[_scenario_<label>].<ext>`
+  (specialist + skill + date + time) so a single user can run multiple
+  specialists in the same project without filename collisions.
+
+### Tests
+
+- `tests/report-quality.test.mjs` gains 3 new tests:
+  (1) the structured JSON config appears in `md_report_quality` output
+  with all required keys, the canonical `./money-desk/` root, and the
+  `make_xlsx.py` renderer-required clause; (2) `REPORT_QUALITY_CONFIG`
+  defaults are stable; (3) `md_capabilities` table includes the
+  Deliverable folder column with the right paths for spot-checked
+  specialists.
+- All prior tests still green: 218 Node + 34 xlsx + 10 branded +
+  9 smoke = 271 → **271 + 3 = 274 green**.
+
+### Compatibility note
+
+- This is a behavior change for the deliverable destination. SKILL.md
+  prose still mentions the legacy `./reports/<specialist-slug>/` path
+  in many places; the structured config in `md_report_quality`
+  supersedes that prose. SKILL.md text will be migrated incrementally;
+  in the meantime, agents that obey the structured JSON (the documented
+  contract) will write to the new root automatically.
+
 ## [0.17.0] — 2026-05-29
 
 ### Added

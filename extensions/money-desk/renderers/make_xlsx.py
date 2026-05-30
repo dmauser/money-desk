@@ -615,7 +615,7 @@ def main() -> int:
     ap.add_argument("--spec", required=True, type=pathlib.Path, help="JSON spec describing sheets / cells / formulas")
     ap.add_argument("--output", type=pathlib.Path, default=None,
                     help="Output path. If omitted: reports/<specialist-slug>/<spec-stem>.xlsx")
-    ap.add_argument("--outdir", default="reports",
+    ap.add_argument("--outdir", default="money-desk",
                     help="Base dir used when --output is omitted (default: reports)")
     ap.add_argument("--specialist", default="Money Desk",
                     help="Specialist name used to build the default output path")

@@ -126,6 +126,34 @@ required_sections:
 # on first use in the CWD.
 report_quality:
 
+  # 0. AUTHORITATIVE OUTPUT DESTINATION (added 0.18.0)
+  #
+  # This block is the single source of truth for *where* deliverables go and
+  # *whether* the agent may write them at all. md_report_quality returns
+  # this block as a JSON object at the very top of its response; the agent
+  # must obey the JSON object, NOT free-text path conventions that may
+  # appear in older SKILL.md prose.
+  #
+  # The hard rule: NEVER write a file before md_report_quality has been
+  # called in the current turn AND the user has confirmed an explicit
+  # OFFER to export. Writing into the cwd root or any path outside
+  # `output_root` is a bug.
+  output_destination:
+    default_format: markdown_inline
+    offer_export: true
+    auto_write: false
+    pre_write_required_tool: md_report_quality
+    output_root: "./money-desk/"
+    specialist_subfolder_convention: "<specialist-slug>/"
+    filename_convention: "<specialist-slug>_<skill-slug>_<YYYYMMDD>_<HHMM>.<ext>"
+    legacy_root: "./reports/"   # files saved under the prior convention may still exist; new writes use output_root
+    notes:
+      - "<specialist-slug> is the kebab-case folder name under specialists/, e.g. purchase-advisor, real-estate-investor, retirement-planner."
+      - "<skill-slug> is the kebab-case skill folder name, e.g. rent-vs-buy, mortgage-strategy-review, withdrawal-strategy."
+      - "<YYYYMMDD>_<HHMM> uses the user's local clock (24h)."
+      - "Always save the source markdown alongside any rendered format, with the same stem."
+      - "For what-if scenarios append _scenario_<label> before the extension so prior runs are preserved."
+
   # 1. Output formats — pick the right one for the deliverable
   output_formats:
     default: markdown_inline_only
@@ -140,32 +168,33 @@ report_quality:
 
   # File naming (only used when a file IS being saved)
   file_naming:
-    pattern: "./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>"
+    pattern: "./money-desk/<specialist-slug>/<specialist-slug>_<skill-slug>_<YYYYMMDD>_<HHMM>[_scenario_<label>].<ext>"
+    legacy_pattern: "./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>"
     always_save_source_markdown: true
     never_overwrite_scenarios: "Append _scenario_<label> rather than overwriting a prior file."
 
   # 2. Rendering engines — use these exact stacks, no improvising
   renderers:
-    install_location: "./reports/_renderers/"
-    install_note: "Copy the four scripts from extensions/money-desk/renderers/ into ./reports/_renderers/ on first use in this CWD; do not rewrite them per task."
+    install_location: "./money-desk/_renderers/"
+    install_note: "Copy the four scripts from extensions/money-desk/renderers/ into ./money-desk/_renderers/ on first use in this CWD; do not rewrite them per task."
     pdf:
       stack: "Playwright + Chromium (NEVER xhtml2pdf, reportlab, pdfkit, weasyprint)"
       install: "pip install playwright markdown2 && python -m playwright install chromium"
-      script: "./reports/_renderers/make_pdf.py"
+      script: "./money-desk/_renderers/make_pdf.py"
     html:
       stack: "Same Chromium pipeline; standalone self-contained .html (inline CSS, no external links); printable AND viewable"
       install: "pip install markdown2"
-      script: "./reports/_renderers/make_html.py"
+      script: "./money-desk/_renderers/make_html.py"
     xlsx:
       stack: "openpyxl"
       install: "pip install openpyxl"
-      script: "./reports/_renderers/make_xlsx.py"
+      script: "./money-desk/_renderers/make_xlsx.py"
       sheets: [Summary, Inputs, Analysis, Scenarios, Assumptions]
       formula_rule: "Use real formulas (=SUM, =IF, =NPV, =FV, =PMT) — not pre-computed values — so the user can adjust inputs and see results update."
     docx:
       stack: "python-docx"
       install: "pip install python-docx"
-      script: "./reports/_renderers/make_docx.py"
+      script: "./money-desk/_renderers/make_docx.py"
       style_rule: "Use real Word styles (Heading 1/2/3, Title, Quote, List Bullet) — never hand-roll bold runs to fake structure. Include a TOC field for docs > 3 pages."
 
   # 3. Visual styling — consistent brand across all formats
