@@ -599,6 +599,39 @@ Reports produced by Money Desk are written to `./reports/<specialist>/` or `./re
 
 For the full, explicit data-flow and verification commands, see **[PRIVACY.md](./PRIVACY.md)**.
 
+## Recommended Models
+
+Money Desk's guardrails — citation tags, the disclaimer footer, intake-before-skill,
+the `md_report_quality` pre-write check, friendly-name rendering, no inline HTML in
+tables — are enforced via the system prompt and tool descriptions, **not** by the
+SDK runtime. They work across all models supported by GitHub Copilot CLI, but
+**adherence varies by model**.
+
+For best results, prefer models that:
+
+- Reliably follow long system prompts and multi-step tool-calling rules
+  (e.g. calling `md_intake` before a skill, `md_report_quality` before any export).
+- Are conservative with numerical claims — tax brackets, IRMAA tiers, contribution
+  limits, FAFSA thresholds — and tag unsourced or assumed values with `[UNSOURCED]`
+  / `[ASSUMED]` per `md_citation_conventions`.
+- Honor output formatting constraints: friendly skill names instead of raw tool ids,
+  no `<br>` inside table cells (the CLI markdown renderer prints them as literal text),
+  Mermaid diagrams only where intended.
+
+In practice, **frontier reasoning-tier models** (e.g. Claude Opus, GPT-5
+high-reasoning, and equivalent top-tier offerings from other vendors) hold the
+guardrails most reliably. Smaller / faster / lower-reasoning models still work but
+are more likely to:
+
+- Skip the disclaimer footer on long responses.
+- Quote a tax bracket or IRMAA tier without a citation tag.
+- Make assumptions silently instead of flagging them.
+- Auto-write a deliverable file without first calling `md_report_quality` and
+  offering an export.
+
+If you notice consistent guardrail drift on a specific model, please open an issue —
+the cure is usually a tighter prompt rule in `registry.mjs`, not a model swap.
+
 ## Report Quality & Formats
 
 Every Money Desk deliverable — rebalance plan, portfolio review, tax analysis, retirement readiness, budget, debt plan, insurance review, estate summary, real-estate underwrite, etc. — follows a single shared standard surfaced by the `md_report_quality` tool. Source-of-truth: `extensions/money-desk/data/preferences.yaml` (the `report_quality:` block).

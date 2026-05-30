@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.1] — 2026-05-30
+
+### Added
+
+- **README "Recommended Models" section.** Documents that Money Desk's
+  guardrails (citation tags, disclaimer footer, intake-before-skill,
+  `md_report_quality` pre-write check, friendly-name rendering, no inline
+  HTML in tables) are enforced via the system prompt — not the SDK runtime —
+  and that adherence varies by model. Frames the recommendation in
+  capability terms (instruction adherence, numerical conservatism, format
+  fidelity) rather than naming specific model versions, so the guidance
+  doesn't go stale as new models ship. Invites users to file issues when
+  they observe consistent guardrail drift on a specific model.
+
 ## [0.18.0] — 2026-05-29
 
 ### Added
