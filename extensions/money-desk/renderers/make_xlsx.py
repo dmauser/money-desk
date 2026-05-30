@@ -5,6 +5,7 @@ Install: pip install openpyxl
 Usage:   python make_xlsx.py --spec spec.json --specialist "Investing Advisor"
          # --output is optional; defaults to reports/<specialist-slug>/<spec-stem>.xlsx
          # override with: --output path/to/report.xlsx  (or --outdir to change the base folder)
+         # --no-validate   skip the post-save lint + recalc pass (default: validate)
 
 Spec format (JSON) - multi-sheet workbook with real formulas:
 {
@@ -43,9 +44,22 @@ vs Buy report where Summary!B12 pointed at Inputs!B6 holding_horizon
 instead of Inputs!B4 mortgage_term, off by 75%). Skill templates under
 extensions/money-desk/specialists/*/skills/*/template.xlsx.json codify
 this for the highest-frequency quantitative deliverables.
+
+VALIDATION (default-on, opt-out via --no-validate / validate=False):
+  1. lint_formulas(spec): pre-save linter. Rejects any numeric formula
+     whose operands reference a column whose `style: "header"` cell
+     value is Notes / Source / Citation / Comment / empty. Catches the
+     class of bug where an agent points a numeric formula at a free-text
+     annotation column (the openpyxl pipeline does NOT evaluate
+     formulas, so #VALUE! errors slip through silent self-checks).
+  2. validate_workbook(path): post-save recalculation pass. Tries
+     LibreOffice headless, then Excel COM (Windows), then the
+     `formulas` Python package. Reads the materialized values and
+     fails the build on any #VALUE! / #REF! / #DIV/0! / #NAME? /
+     #NUM! / #N/A cell.
 """
 from __future__ import annotations
-import argparse, json, pathlib, re, sys
+import argparse, json, os, pathlib, re, shutil, subprocess, sys, tempfile
 
 PRIMARY = "1A4D8F"
 STRIPE = "F5F7FB"
@@ -280,6 +294,309 @@ def apply_named_ranges(wb, spec: dict) -> None:
         wb.defined_names[entry["name"]] = dn
 
 
+# ─────────────────────────────────────────────────────────────────────
+# Pre-save formula linter
+# ─────────────────────────────────────────────────────────────────────
+#
+# The Notes-column bug class: an agent edits a Summary dashboard, drops
+# a formula pointing at the cell that USED to hold a numeric input but
+# now holds free-text annotation, and ships it. openpyxl never
+# evaluates the formula, so the file passes self-checks. The user opens
+# the workbook and sees #VALUE!.
+#
+# Defense: at lint time, identify every column whose `style: "header"`
+# cell value is in BAD_HEADERS. Reject any numeric-looking formula that
+# references a cell in such a column.
+
+BAD_HEADERS = {"notes", "source", "citation", "comment", ""}
+
+NUMERIC_FUNCS = {
+    "PMT", "FV", "PV", "NPV", "IRR", "RATE", "NPER", "CUMIPMT", "CUMPRINC",
+    "SUM", "SUMIF", "SUMIFS", "SUMPRODUCT",
+    "AVERAGE", "AVERAGEIF", "AVERAGEIFS",
+    "COUNT", "COUNTIF", "COUNTIFS",
+    "MIN", "MAX", "PRODUCT",
+    "ROUND", "ROUNDUP", "ROUNDDOWN", "ABS", "MOD",
+    "POWER", "SQRT", "LOG", "LN", "EXP", "XIRR", "XNPV",
+}
+
+
+def _is_numeric_formula(formula: str) -> bool:
+    upper = formula.upper()
+    if any((fn + "(") in upper for fn in NUMERIC_FUNCS):
+        return True
+    # strip quoted string literals so concat (&"text") isn't misread as math
+    stripped = re.sub(r'"[^"]*"', "", formula)
+    return bool(re.search(r"[+\-*/^%]", stripped[1:]))  # skip leading '='
+
+
+_HEADER_ROW_REF = re.compile(r"^([A-Z]+)\d+$")
+
+
+def _build_bad_columns(spec: dict) -> dict[str, set[str]]:
+    """Return {sheet_name: {col_letter, ...}} of columns whose `style: "header"`
+    cell value is in BAD_HEADERS (i.e. Notes / Source / Citation / Comment /
+    empty). Tabular sheets (`headers` field) are also scanned: each header
+    string maps to a column letter.
+    """
+    from openpyxl.utils import get_column_letter
+
+    out: dict[str, set[str]] = {}
+    for sheet in spec.get("sheets", []):
+        bad: set[str] = set()
+        if "headers" in sheet:
+            for i, h in enumerate(sheet["headers"], start=1):
+                if (str(h or "").strip().lower()) in BAD_HEADERS:
+                    bad.add(get_column_letter(i))
+        for cell in sheet.get("cells", []):
+            if cell.get("style") != "header":
+                continue
+            ref = cell.get("ref", "")
+            m = _HEADER_ROW_REF.match(ref)
+            if not m:
+                continue
+            value = cell.get("value", "")
+            normalized = str(value or "").strip().lower()
+            if normalized in BAD_HEADERS:
+                bad.add(m.group(1))
+        if bad:
+            out[sheet["name"]] = bad
+    return out
+
+
+_REF_RE = re.compile(
+    r"""^
+        (?:'(?P<sheet_q>[^']+)'|(?P<sheet>[A-Za-z_][A-Za-z0-9_ ]*))?  # optional sheet
+        !?
+        \$?(?P<col>[A-Z]+)\$?(?P<row>\d+)
+        (?::\$?(?P<col2>[A-Z]+)\$?(?P<row2>\d+))?
+        $""",
+    re.VERBOSE,
+)
+
+
+def _resolve_named_range(name: str, spec: dict):
+    for entry in spec.get("named_ranges", []):
+        if entry["name"].lower() == name.lower():
+            return entry["ref"]
+    return None
+
+
+def _expand_columns(col_a: str, col_b: str | None) -> list[str]:
+    from openpyxl.utils import column_index_from_string, get_column_letter
+    a = column_index_from_string(col_a)
+    if not col_b:
+        return [col_a]
+    b = column_index_from_string(col_b)
+    return [get_column_letter(i) for i in range(min(a, b), max(a, b) + 1)]
+
+
+def _parse_ref(ref_str: str, default_sheet: str) -> tuple[str | None, list[str]]:
+    """Parse 'Sheet!A1' / 'A1:B5' / 'A1' into (sheet, [col_letters])."""
+    m = _REF_RE.match(ref_str.strip())
+    if not m:
+        return (None, [])
+    sheet = m.group("sheet_q") or m.group("sheet") or default_sheet
+    return (sheet, _expand_columns(m.group("col"), m.group("col2")))
+
+
+def lint_formulas(spec: dict) -> None:
+    """Reject any numeric-looking formula whose operands target a column
+    whose header is Notes / Source / Citation / Comment / empty.
+
+    Catches the class of bug where a SUM/PMT/etc. formula points at a
+    free-text annotation column and silently produces #VALUE! at open
+    time (since openpyxl never evaluates formulas, the bad file
+    otherwise passes our self-checks).
+    """
+    from openpyxl.formula.tokenizer import Tokenizer
+
+    bad_cols = _build_bad_columns(spec)
+    if not bad_cols:
+        return
+
+    offenders: list[str] = []
+    for sheet in spec.get("sheets", []):
+        sheet_name = sheet["name"]
+        for cell in sheet.get("cells", []):
+            f = cell.get("formula")
+            if not f or not _is_numeric_formula(f):
+                continue
+            try:
+                tokens = list(Tokenizer(f).items)
+            except Exception:
+                continue
+            for tok in tokens:
+                if getattr(tok, "type", "") != "OPERAND":
+                    continue
+                value = tok.value
+                ref_str: str | None = None
+                if getattr(tok, "subtype", "") == "RANGE":
+                    ref_str = value
+                else:
+                    # treat plain identifier operands as candidate named ranges
+                    if re.match(r"^[A-Za-z_][A-Za-z0-9_.]*$", value or ""):
+                        resolved = _resolve_named_range(value, spec)
+                        if resolved:
+                            ref_str = resolved
+                if not ref_str:
+                    continue
+                target_sheet, cols = _parse_ref(ref_str, default_sheet=sheet_name)
+                if not target_sheet:
+                    continue
+                bad_for_sheet = bad_cols.get(target_sheet, set())
+                hit = [c for c in cols if c in bad_for_sheet]
+                if hit:
+                    offenders.append(
+                        f"{sheet_name}!{cell.get('ref')} = {f}  ->  "
+                        f"{target_sheet}!{','.join(hit)} "
+                        f"(column header is Notes/Source/Citation/Comment/empty)"
+                    )
+                    break  # one finding per cell is enough
+
+    if offenders:
+        raise ValueError(
+            "lint_formulas: numeric formulas reference non-numeric columns:\n  "
+            + "\n  ".join(offenders)
+        )
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Post-save recalculation + error-cell scan
+# ─────────────────────────────────────────────────────────────────────
+
+ERROR_CELL_VALUES = {"#VALUE!", "#REF!", "#DIV/0!", "#NAME?", "#NUM!", "#N/A"}
+
+
+class WorkbookValidationError(RuntimeError):
+    """Raised when validate_workbook detects #VALUE!/#REF!/etc. cells."""
+
+
+def _try_libreoffice(src: pathlib.Path) -> pathlib.Path | None:
+    soffice = shutil.which("soffice") or shutil.which("libreoffice")
+    if not soffice:
+        return None
+    with tempfile.TemporaryDirectory() as td:
+        try:
+            subprocess.run(
+                [soffice, "--headless", "--calc",
+                 "--convert-to", "xlsx", "--outdir", td, str(src)],
+                check=True, capture_output=True, timeout=120,
+            )
+        except Exception:
+            return None
+        produced = list(pathlib.Path(td).glob("*.xlsx"))
+        if not produced:
+            return None
+        # overwrite src in place with the recalculated workbook
+        shutil.copyfile(produced[0], src)
+        return src
+
+
+def _try_excel_com(src: pathlib.Path) -> pathlib.Path | None:
+    if sys.platform != "win32":
+        return None
+    try:
+        import win32com.client  # type: ignore
+    except Exception:
+        return None
+    excel = None
+    try:
+        excel = win32com.client.DispatchEx("Excel.Application")
+        excel.Visible = False
+        excel.DisplayAlerts = False
+        wb = excel.Workbooks.Open(str(src.resolve()))
+        wb.RefreshAll()
+        excel.CalculateFullRebuild()
+        wb.Save()
+        wb.Close(SaveChanges=False)
+        return src
+    except Exception:
+        return None
+    finally:
+        if excel is not None:
+            try:
+                excel.Quit()
+            except Exception:
+                pass
+
+
+def _scan_with_formulas_package(src: pathlib.Path) -> list[str]:
+    """Use the `formulas` package as last-resort recalc engine and return
+    the list of cells whose evaluated value is an Excel error.
+    """
+    try:
+        import formulas  # type: ignore
+    except Exception as e:
+        raise WorkbookValidationError(
+            "validate_workbook: no recalc engine available "
+            "(install LibreOffice, Microsoft Excel, or `pip install formulas`); "
+            f"underlying import error: {e}"
+        )
+
+    try:
+        xl = formulas.ExcelModel().loads(str(src)).finish().calculate()
+    except Exception as e:
+        raise WorkbookValidationError(
+            f"validate_workbook: formulas package failed to evaluate {src}: {e}"
+        )
+
+    bad: list[str] = []
+    for k, v in xl.items():
+        if not isinstance(k, str) or "]" not in k or "!" not in k:
+            continue
+        sheet_cell = k.split("]", 1)[1]
+        try:
+            arr = v.value if hasattr(v, "value") else v
+            cell_val = arr[0][0] if hasattr(arr, "__getitem__") else arr
+        except Exception:
+            continue
+        text = str(cell_val).strip()
+        if text in ERROR_CELL_VALUES or any(text.startswith(e) for e in ERROR_CELL_VALUES):
+            bad.append(f"{sheet_cell} -> {text}")
+    return bad
+
+
+def _scan_data_only(src: pathlib.Path) -> list[str]:
+    """Open with data_only=True (post-recalc cache) and report error cells."""
+    from openpyxl import load_workbook
+
+    wb = load_workbook(src, data_only=True)
+    bad: list[str] = []
+    for ws in wb.worksheets:
+        for row in ws.iter_rows():
+            for cell in row:
+                v = cell.value
+                if isinstance(v, str) and v.strip() in ERROR_CELL_VALUES:
+                    bad.append(f"{ws.title}!{cell.coordinate} -> {v}")
+    return bad
+
+
+def validate_workbook(path: pathlib.Path) -> None:
+    """Recalculate `path` (LibreOffice -> Excel COM -> formulas) and raise
+    WorkbookValidationError on any error cells (#VALUE!, #REF!, #DIV/0!,
+    #NAME?, #NUM!, #N/A). The file is overwritten in place with the
+    recalculated copy when LibreOffice / Excel COM succeed, so downstream
+    consumers see materialized cached values.
+    """
+    path = pathlib.Path(path)
+    if not path.exists():
+        raise WorkbookValidationError(f"validate_workbook: file not found: {path}")
+
+    if _try_libreoffice(path) is not None:
+        bad = _scan_data_only(path)
+    elif _try_excel_com(path) is not None:
+        bad = _scan_data_only(path)
+    else:
+        bad = _scan_with_formulas_package(path)
+
+    if bad:
+        raise WorkbookValidationError(
+            f"validate_workbook: workbook {path} contains error cells:\n  "
+            + "\n  ".join(bad)
+        )
+
+
 def _slugify(text: str) -> str:
     s = re.sub(r"[^a-z0-9]+", "-", str(text).lower()).strip("-")
     return s or "money-desk"
@@ -302,6 +619,9 @@ def main() -> int:
                     help="Base dir used when --output is omitted (default: reports)")
     ap.add_argument("--specialist", default="Money Desk",
                     help="Specialist name used to build the default output path")
+    ap.add_argument("--no-validate", dest="validate", action="store_false",
+                    help="Skip the post-save lint + recalc validation pass.")
+    ap.set_defaults(validate=True)
     args = ap.parse_args()
 
     try:
@@ -311,6 +631,8 @@ def main() -> int:
 
     spec = json.loads(args.spec.read_text(encoding="utf-8"))
     validate_named_ranges(spec)
+    if args.validate:
+        lint_formulas(spec)
     wb = Workbook()
     wb.remove(wb.active)
 
@@ -334,6 +656,16 @@ def main() -> int:
     out = resolve_output(args.output, specialist, stem, "xlsx", args.outdir)
     out.parent.mkdir(parents=True, exist_ok=True)
     wb.save(out)
+
+    if args.validate:
+        try:
+            validate_workbook(out)
+        except WorkbookValidationError as e:
+            try:
+                out.unlink()
+            except Exception:
+                pass
+            sys.exit(f"ERROR: {e}")
 
     size = out.stat().st_size
     sheet_count = len(wb.sheetnames)

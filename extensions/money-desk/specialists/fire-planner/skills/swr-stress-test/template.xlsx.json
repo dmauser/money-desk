@@ -170,7 +170,7 @@
         {"ref": "D8", "formula": "=IF(initial_withdrawal/portfolio_start<=0.035,\"OK\",IF(initial_withdrawal/portfolio_start<=0.04,\"WATCH (3.5-4%)\",\"AGGRESSIVE\"))", "style": "status"},
 
         {"ref": "A9", "value": "Coverage years @ base return", "style": "metric"},
-        {"ref": "B9", "formula": "=NPER(expected_real_return,-initial_withdrawal,portfolio_start)", "style": "value_highlight", "number_format": "0.0"},
+        {"ref": "B9", "formula": "=IFERROR(NPER(expected_real_return,-initial_withdrawal,portfolio_start),9999)", "style": "value_highlight", "number_format": "0.0"},
         {"ref": "C9", "formula": "=horizon_yrs", "style": "threshold", "number_format": "0"},
         {"ref": "D9", "formula": "=IF(B9>=horizon_yrs,\"OK\",\"Shortfall\")", "style": "status"},
 

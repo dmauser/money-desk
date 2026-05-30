@@ -1,0 +1,43 @@
+{
+  "title": "Known-bad: numeric formula references Notes column",
+  "specialist": "Test Fixture",
+  "_comment": "This fixture proves lint_formulas() blocks the original May-2026 #VALUE! bug. Summary!B6 sums column D on the Inputs sheet, but column D is the Notes free-text annotation column. openpyxl would never evaluate this, the self-check would pass, and the user would open the workbook to #VALUE!. lint_formulas MUST raise on this spec.",
+  "named_ranges": [
+    {"name": "loan_amount", "ref": "Inputs!$B$2"}
+  ],
+  "sheets": [
+    {
+      "name": "Inputs",
+      "cells": [
+        {"ref": "A1", "value": "Item",        "style": "header"},
+        {"ref": "B1", "value": "Value",       "style": "header"},
+        {"ref": "C1", "value": "Threshold",   "style": "header"},
+        {"ref": "D1", "value": "Notes",       "style": "header"},
+
+        {"ref": "A2", "value": "Loan amount"},
+        {"ref": "B2", "value": 200000, "number_format": "$#,##0"},
+        {"ref": "C2", "value": 250000, "number_format": "$#,##0"},
+        {"ref": "D2", "value": "from May 2026 disclosure"},
+
+        {"ref": "A3", "value": "Down payment"},
+        {"ref": "B3", "value": 40000,  "number_format": "$#,##0"},
+        {"ref": "C3", "value": 50000,  "number_format": "$#,##0"},
+        {"ref": "D3", "value": "20% per lender requirement"}
+      ]
+    },
+    {
+      "name": "Summary",
+      "cells": [
+        {"ref": "A1", "value": "Summary",        "style": "h1"},
+        {"ref": "A4", "value": "Metric",         "style": "header"},
+        {"ref": "B4", "value": "Value",          "style": "header"},
+
+        {"ref": "A5", "value": "Total funded",   "style": "metric"},
+        {"ref": "B5", "formula": "=SUM(Inputs!B2:B3)", "style": "value_highlight", "number_format": "$#,##0"},
+
+        {"ref": "A6", "value": "Total notes (BUG)", "style": "metric"},
+        {"ref": "B6", "formula": "=Inputs!D2+Inputs!D3", "style": "value_highlight", "number_format": "$#,##0"}
+      ]
+    }
+  ]
+}

@@ -7,6 +7,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.0] — 2026-05-29
+
+### Added
+
+- **Hardened XLSX pipeline — two new REQUIRED self-verification gates
+  in `make_xlsx.py` close the May-2026 #VALUE! bug class.** A shipped
+  workbook had a Summary cell pointing at the Notes free-text column;
+  openpyxl never evaluates formulas so the broken file passed all our
+  pre-ship checks and the user opened it to a `#VALUE!`. The two gates:
+  - `lint_formulas(spec)` — pre-save linter that REJECTS any numeric
+    formula (PMT/FV/PV/NPV/IRR/SUM/AVERAGE/MIN/MAX/PRODUCT/COUNT/SUMIF/
+    ROUND/ABS/MOD/POWER/SQRT/XIRR/XNPV or arithmetic operators
+    `+ - * / ^ %`) whose operands or named-range targets land in a
+    column whose `style: "header"` cell value is Notes / Source /
+    Citation / Comment / empty. Tokenizes via
+    `openpyxl.formula.tokenizer.Tokenizer` so cross-sheet refs and
+    named ranges are both followed.
+  - `validate_workbook(path)` — post-save headless recalculation pass
+    that tries LibreOffice (`soffice --headless --calc --convert-to
+    xlsx`), then Excel COM (Windows `win32com.client`), then the
+    `formulas` Python package as last resort. Re-opens with
+    `data_only=True` (or scans the `formulas` model) and FAILS the
+    build on any cell that resolves to `#VALUE!`, `#REF!`, `#DIV/0!`,
+    `#NAME?`, `#NUM!`, or `#N/A`.
+- New CLI flag `--no-validate` (default off; validation runs by
+  default). The renderer API stays backward compatible: `build_sheet`,
+  `validate_named_ranges`, `apply_named_ranges` are unchanged.
+- New `tests/xlsx_smoke/` suite (9 tests): one parametrized test per
+  shipped XLSX template, plus the linter regression and a known-bad
+  fixture (`fixtures/notes_column_bug_spec.json`) reproducing the
+  exact shape of the original production bug. The smoke suite proves
+  (a) the linter blocks the bug at lint time and (b) `validate_workbook`
+  catches it post-save even if the lint gate is bypassed.
+
+### Changed
+
+- `data/preferences.yaml` `report_quality.self_verification`:
+  - The post-render headless recalculation pass and the formula linter
+    are now **REQUIRED** (previously the recalc was a soft "after
+    rendering, recalculate…" suggestion and the linter did not exist).
+  - Canonical XLSX templates promoted from "preferred" to
+    **REQUIRED** for every skill that ships one (and any new skill
+    must author a canonical template alongside the report).
+- The fire-planner / `swr-stress-test` template's `Coverage years` now
+  wraps `NPER` in `IFERROR(..., 9999)` so the canonical default inputs
+  (returns > withdrawals → mathematically infinite coverage) no longer
+  produce `#NUM!` cells.
+- The retirement-planner / `withdrawal-strategy` template's `C11` cell
+  changed from `"= spend"` (a string Excel auto-promoted to the
+  unbound-name formula `=spend`, producing `#NAME?`) to `"vs spend"`,
+  matching the convention used by the rows above.
+
+### Removed
+
+- Nothing.
+
+### Tests
+
+- `tests/xlsx_smoke/test_xlsx_smoke.py` — 9 tests, all green.
+- All prior suites still green: 218 Node tests, 44 prior Python tests
+  (34 xlsx regression + 10 branded blocks).
+
 ## [0.16.0] — 2026-05-29
 
 ### Added

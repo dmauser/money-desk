@@ -217,7 +217,7 @@
 
         {"ref": "A11", "value": "Gross-up needed (Roth)", "style": "metric"},
         {"ref": "B11", "formula": "=annual_spending", "style": "value_highlight", "number_format": "$#,##0"},
-        {"ref": "C11", "value": "= spend", "style": "threshold"},
+        {"ref": "C11", "value": "vs spend", "style": "threshold"},
         {"ref": "D11", "value": "Tax-free", "style": "status"},
 
         {"ref": "A12", "value": "Lowest-tax-cost source first", "style": "metric"},

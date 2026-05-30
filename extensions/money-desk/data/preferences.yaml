@@ -250,15 +250,23 @@ report_quality:
     include_change_table: "Top-of-document 'Scenario Change' table comparing prior vs new inputs."
     xlsx_layout: "Scenarios live on separate sheets, sharing the Inputs sheet via formulas, so editing one cell updates all scenarios."
 
-  # 8. Self-verification — before declaring done
+  # 8. Self-verification — REQUIRED before declaring done.
+  # Bug class prevented (May 2026): a shipped Rent vs Buy workbook had a
+  # Summary cell pointing at the Notes free-text column. openpyxl never
+  # evaluates formulas, so the broken file passed the agent's self-checks
+  # and the user opened it to a #VALUE!. The two new REQUIRED gates below
+  # — pre-save formula linter + post-save headless recalculation — close
+  # that gap. They are the default-on behavior of make_xlsx.py and are
+  # bypassed only when the agent is explicitly debugging with --no-validate.
   self_verification:
     - "Report full file path + size for each format produced."
     - "For PDF/HTML: confirm no table cell wraps to < 3 chars/line; if it does, re-flow and re-render BEFORE telling the user."
     - "For XLSX: for every cell listed in the deliverable's headline_findings, independently recompute the value in Python and assert agreement within 1%. Bug class prevented: a shipped Rent vs Buy workbook had Monthly P&I pointing at the wrong Inputs cell (B6 holding-horizon instead of B4 mortgage-term) — off by 75% — and BUY/RENT cells pointing at the same source. 'At least one formula evaluates' did not catch either."
-    - "For XLSX: after rendering, recalculate the workbook (LibreOffice headless on Linux/Mac, Excel COM on Windows, or the Python `formulas` package) and reload with data_only=True to read materialized values for the assertion — openpyxl alone does NOT evaluate formulas, it only stores them as text."
+    - "REQUIRED for XLSX (a): post-render headless recalculation pass. After saving, re-open the workbook through a real calc engine — LibreOffice headless on Linux/Mac (`soffice --headless --calc --convert-to xlsx`), Excel COM on Windows (`win32com.client.DispatchEx('Excel.Application')`), or the Python `formulas` package as last resort — then re-load with `data_only=True` and FAIL the build if any cell evaluates to #VALUE!, #REF!, #DIV/0!, #NAME?, #NUM!, or #N/A. openpyxl alone does NOT evaluate formulas, so this gate is mandatory; `make_xlsx.py` calls `validate_workbook(out)` by default."
+    - "REQUIRED for XLSX (b): pre-save formula linter. Before the workbook is written, scan every numeric formula (anything containing PMT/FV/PV/NPV/IRR/SUM/AVERAGE/MIN/MAX/PRODUCT/COUNT/SUMIF/ROUND/ABS/MOD/POWER/SQRT/XIRR/XNPV or arithmetic operators +-*/^%) and REJECT if any operand or named-range target lands in a column whose `style: \"header\"` cell value is Notes / Source / Citation / Comment / empty. This is the lint that would have blocked the original Notes-column #VALUE! bug. `make_xlsx.py` calls `lint_formulas(spec)` by default."
     - "When both markdown and XLSX/DOCX are produced, diff every headline figure across formats; abort and re-render if any pair differs by more than 1%."
     - "Flag any case where two differently-labeled cells in the same table evaluate to identical values — this is almost always a reference-pointing bug (as in the Rent vs Buy Summary B5/B6 case where BUY and RENT net worth both displayed $1,327,980)."
-    - "Prefer the canonical XLSX templates shipped under specialists/<name>/skills/<skill>/template.xlsx.json. Templates declare named ranges and pre-wire formulas; the agent should only fill values and narrative cells, never raw A1 coordinates."
+    - "REQUIRED: use the canonical XLSX templates shipped under specialists/<name>/skills/<skill>/template.xlsx.json whenever one exists for the skill. Templates declare named ranges and pre-wire formulas; the agent fills values and narrative cells, never raw A1 coordinates. If no template exists for a skill, author the new spec WITH named_ranges, run `lint_formulas` and `validate_workbook` locally, and ship the canonical template alongside the report. (Promoted from 'preferred' to REQUIRED in 0.17.0.)"
     - "For DOCX: confirm the TOC (if used) was generated and styles are applied."
     - "If any verification fails, fix silently and re-render before responding."
 
