@@ -36,6 +36,28 @@ def decode_entities(text: str) -> str:
     return cur
 
 
+def force_update_fields_on_open(doc):
+    """Set w:updateFields=true in settings.xml so Word offers to refresh
+    fields (notably the TOC) when the document is opened.
+
+    Without this flag, the TOC field inserted by add_toc_field() renders as
+    an empty page until the user manually presses F9. Setting the flag makes
+    Word prompt once on open ("Update fields?") and populate the TOC from
+    the Heading 1/2/3 styles in the body. This is the standard python-docx
+    workaround used by tools like pandoc.
+    """
+    from docx.oxml.ns import qn
+    from docx.oxml import OxmlElement
+    settings = doc.settings.element
+    existing = settings.find(qn("w:updateFields"))
+    if existing is None:
+        update = OxmlElement("w:updateFields")
+        update.set(qn("w:val"), "true")
+        settings.append(update)
+    else:
+        existing.set(qn("w:val"), "true")
+
+
 def add_toc_field(doc):
     from docx.oxml.ns import qn
     from docx.oxml import OxmlElement
@@ -213,6 +235,8 @@ def main() -> int:
     section = doc.sections[0]
     footer = section.footer.paragraphs[0]
     footer.text = f"Money Desk - {args.specialist} - {today}"
+
+    force_update_fields_on_open(doc)
 
     out = resolve_output(args.output, args.specialist, args.input.stem, "docx", args.outdir)
     out.parent.mkdir(parents=True, exist_ok=True)

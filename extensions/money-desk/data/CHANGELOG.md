@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.2] — 2026-06-01
+
+### Fixed
+
+- **Word reports: TOC now auto-populates on open.** The `.docx` renderer
+  inserts a Table of Contents field on the cover page, but Word leaves
+  TOC fields blank until they're refreshed — which made page 1 look
+  empty (just the title + date) until the user manually pressed F9.
+  `make_docx.py` now sets `w:updateFields=true` in `settings.xml`, so
+  Word prompts once on open ("Update fields?") and populates the TOC
+  from the Heading 1/2/3 styles in the body. Applies uniformly to every
+  specialist's `.docx` output. Regression-tested in
+  `tests/renderer-regression.test.mjs`.
+
 ## [0.18.1] — 2026-05-30
 
 ### Added

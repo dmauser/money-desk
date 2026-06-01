@@ -54,3 +54,17 @@ for (const script of ["make_pdf.py", "make_html.py"]) {
             `${script}: thead th CSS must include overflow-wrap: anywhere and word-break: break-word`);
     });
 }
+
+test("make_docx.py: TOC field is auto-populated on open via w:updateFields", async () => {
+    const src = await readRenderer("make_docx.py");
+    // The cover page inserts an empty TOC field. Without w:updateFields=true
+    // in settings.xml, Word leaves it blank until the user manually presses F9,
+    // which makes the first page look empty. The helper must be defined and
+    // called from main() AFTER the TOC field has been inserted.
+    assert.match(src, /def force_update_fields_on_open\(doc\):/,
+        "make_docx.py must define force_update_fields_on_open() to set w:updateFields in settings.xml");
+    assert.match(src, /OxmlElement\("w:updateFields"\)/,
+        "make_docx.py must create a w:updateFields element so Word refreshes the TOC on open");
+    assert.match(src, /force_update_fields_on_open\(doc\)/,
+        "make_docx.py must call force_update_fields_on_open(doc) before saving");
+});
