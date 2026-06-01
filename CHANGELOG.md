@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.3] — 2026-06-01
+
+### Changed
+
+- **Word reports: dropped the cover page.** Content now starts on page 1
+  instead of behind a Title + (empty) Table of Contents + page break.
+  The v0.18.2 `w:updateFields` workaround did not actually populate the
+  TOC in practice — Word still rendered a blank first page — so the
+  cover-page scaffolding (`add_toc_field`, `force_update_fields_on_open`,
+  the Title paragraph, and the leading page break) has been removed
+  outright. The footer (`Money Desk - <Specialist> - <date>`) is
+  retained, so specialist + date attribution still appears on every
+  page. Applies uniformly to every specialist's `.docx` output.
+
 ## [0.18.2] — 2026-06-01
 
 ### Fixed
