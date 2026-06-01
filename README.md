@@ -653,6 +653,18 @@ Every Money Desk deliverable — rebalance plan, portfolio review, tax analysis,
 
 XLSX workbooks use **real `=SUM` / `=IF` / `=NPV` / `=FV` / `=PMT` formulas** with shared Inputs / Scenarios sheets — edit one cell and every scenario updates. DOCX uses **real Word styles** (Heading 1/2/3, Title, Quote, List Bullet) and inserts a TOC field. PDF and HTML share the same Chromium pipeline and brand palette.
 
+> **Note for Word `.docx` users — TOC update prompt.** The first time you
+> open a Money Desk Word report, Word will show this dialog:
+>
+> ![Microsoft Word "Update fields?" prompt](docs/images/word-update-fields-prompt.png)
+>
+> **Click "Yes."** This is expected and safe — the document doesn't link to
+> any external files. The prompt fires because the cover page contains an
+> auto-generated **Table of Contents** field, and Word fills it in from the
+> Heading 1/2/3 styles in the body when you accept. If you click "No," the
+> first page will appear empty (just the title + date); reopen the file and
+> click Yes, or press `Ctrl+A` then `F9` to update fields manually.
+
 **Brand:** primary `#1a4d8f`, accent `#2e7d32`, warn `#d4a017`, risk `#c0392b`, row stripe `#f5f7fb`; Segoe UI / Helvetica body, Letter paper, 0.55in margins; footer `Money Desk — <Specialist> · Page X of Y · <YYYY-MM-DD>`.
 
 **Standard sections in every report:** title + scope → intake echo → headline findings (severity-ranked) → detailed analysis → before/after → prioritized recommendations (🔴/🟠/🟡) → action checklist (`[ ]`) → open items & assumptions → disclaimer footer.

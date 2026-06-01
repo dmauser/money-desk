@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.5] — 2026-06-01
+
+### Added
+
+- **Documentation: Word "Update fields?" prompt is expected.** Documented
+  the dialog Word shows the first time a user opens a Money Desk `.docx`
+  ("This document contains fields that may refer to other files. Do you
+  want to update the fields in this document?"). The prompt is fired by
+  the auto-generated TOC field on the cover page (combined with v0.18.2's
+  `w:updateFields=true` flag) — clicking **Yes** populates the TOC from
+  the Heading 1/2/3 styles. New section in
+  `extensions/money-desk/renderers/README.md` (full explanation +
+  screenshot) and a callout box in the main `README.md` "Report Quality &
+  Formats" section. Screenshot: `docs/images/word-update-fields-prompt.png`.
+
 ## [0.18.4] — 2026-06-01
 
 ### Changed

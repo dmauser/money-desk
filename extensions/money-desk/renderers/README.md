@@ -32,6 +32,34 @@ project without touching the source-of-truth scripts in the extension.
 | `make_xlsx.py` | XLSX | openpyxl, real formulas     | `pip install openpyxl` |
 | `make_docx.py` | DOCX | python-docx, real styles    | `pip install python-docx markdown-it-py` |
 
+## Word (`.docx`): "Update fields?" prompt on first open
+
+The DOCX cover page contains an auto-generated **Table of Contents** field
+plus a `w:updateFields=true` flag in `settings.xml`. The first time the
+user opens a Money Desk Word report, Word displays this dialog:
+
+![Microsoft Word "Update fields?" prompt](../../../docs/images/word-update-fields-prompt.png)
+
+**This is expected and safe.** The document does not link to any external
+files — the prompt fires because Word treats *any* field (including the
+internal TOC field) as a refreshable reference. Clicking **Yes**:
+
+- Walks every Heading 1/2/3 in the body and writes them into the TOC.
+- Resolves page numbers.
+- Renders page 1 as a populated table of contents.
+
+Clicking **No** leaves the first page looking empty (just the title +
+date) — the body content still renders correctly from page 2 onward, but
+the TOC stays blank. The user can recover at any time by pressing
+`Ctrl+A` then `F9` inside Word, or by closing and reopening the file and
+accepting the prompt.
+
+This is a `python-docx` / Word interaction, not a Money Desk bug —
+programmatically generated documents cannot pre-populate field results;
+only Word itself can resolve them. We use the standard `w:updateFields`
+opt-in (same approach pandoc and other generators use) so the user gets
+the prompt automatically rather than having to discover `F9` themselves.
+
 ## XLSX dashboard layout (Summary sheet convention)
 
 Every shipped Summary sheet follows the **dashboard pattern** demonstrated by
