@@ -55,17 +55,16 @@ for (const script of ["make_pdf.py", "make_html.py"]) {
     });
 }
 
-test("make_docx.py: no cover page (content starts on page 1)", async () => {
+test("make_docx.py: TOC field is auto-populated on open via w:updateFields", async () => {
     const src = await readRenderer("make_docx.py");
-    // Word does not auto-populate TOC fields when documents are created
-    // programmatically (even with w:updateFields), and a Title-only cover
-    // page makes the first page look empty in the renderer output. The
-    // cover page (Title paragraph + TOC field + page break) was removed
-    // so content starts on page 1.
-    assert.doesNotMatch(src, /add_toc_field/,
-        "make_docx.py must not insert a TOC field (Word leaves it blank, making page 1 look empty)");
-    assert.doesNotMatch(src, /style="Title"/,
-        "make_docx.py must not emit a Title-only cover paragraph");
-    assert.doesNotMatch(src, /add_page_break/,
-        "make_docx.py must not force a page break before content");
+    // The cover page inserts an empty TOC field. Without w:updateFields=true
+    // in settings.xml, Word leaves it blank until the user manually presses F9,
+    // which makes the first page look empty. The helper must be defined and
+    // called from main() AFTER the TOC field has been inserted.
+    assert.match(src, /def force_update_fields_on_open\(doc\):/,
+        "make_docx.py must define force_update_fields_on_open() to set w:updateFields in settings.xml");
+    assert.match(src, /OxmlElement\("w:updateFields"\)/,
+        "make_docx.py must create a w:updateFields element so Word refreshes the TOC on open");
+    assert.match(src, /force_update_fields_on_open\(doc\)/,
+        "make_docx.py must call force_update_fields_on_open(doc) before saving");
 });

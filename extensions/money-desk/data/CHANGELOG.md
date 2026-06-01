@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.4] — 2026-06-01
+
+### Changed
+
+- **Word reports: restored cover page + TOC.** Reverts v0.18.3's removal
+  of the cover page. The `.docx` renderer once again emits the
+  `Budget Coach` / `Money Desk - <date>` Title paragraph, the TOC field,
+  and a page break before the body. The v0.18.2 `w:updateFields=true`
+  workaround is also restored: when the user opens the document, Word
+  prompts once ("Update fields?") and populating the TOC fills page 1
+  from the Heading 1/2/3 styles. Applies uniformly to every specialist's
+  `.docx` output.
+
 ## [0.18.3] — 2026-06-01
 
 ### Changed
