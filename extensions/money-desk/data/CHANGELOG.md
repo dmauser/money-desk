@@ -7,7 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.19.5] — 2026-06-02
+## [0.19.6] — 2026-06-02
+
+### Performance
+
+Third and final perf pass after v0.19.4 / v0.19.5. Trims the verbose
+discovery-tool descriptions that the model re-ingests on every turn,
+and confirms that startup cost is not a regression target.
+
+### Changed
+
+- **Slimmed the 11 discovery-tool descriptions** (`md_capabilities`,
+  `md_route`, `md_preferences`, `md_facts`, `md_report_quality`,
+  `md_citation_conventions`, `md_sources`, `md_changelog`, `md_intake`,
+  `md_renderers_sync`, `md_renderers_ensure`) from 9 234 chars down to
+  4 358 chars (−53%, ~1 200 fewer tokens per turn). All trigger phrases
+  ("call this BEFORE…", "call this FIRST when…") are preserved so
+  routing behavior is unchanged; what was cut is self-referential
+  meta-prose, repeated bundled-content enumeration that the handler
+  output already returns, and stale historical context (e.g. v0.18.7
+  recalc-gate references in the `md_renderers_sync` description). Tool
+  schemas are sent to the model on every turn, so each character saved
+  here is paid back many times across a session.
+- **`md_renderers_ensure` description deflated to ~240 chars.** As of
+  v0.19.1 the cache auto-syncs before every render-spec-emitting skill
+  returns, so the model normally never needs to call this tool — the
+  description now reflects that it is a defensive-retry shim, nothing
+  more. The tool remains registered (some tests assert that, and a
+  manual recovery path is still useful when a render fails with
+  `ImportError` / `FileNotFoundError`).
+
+### Verified
+
+- **Cold startup is ~15 ms** for `registry.mjs` import on a Windows /
+  Node 24 dev box (146 tools, 20 ROUTES). The 146 tool closures derive
+  purely from the static `SPECIALISTS` table with no filesystem reads,
+  so there is no startup-side optimization to chase. Closing the item
+  out as verified rather than implementing speculative changes.
+
+
 
 ### Performance
 

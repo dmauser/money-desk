@@ -1599,14 +1599,14 @@ function buildTools() {
     const out = [
         {
             name: "md_capabilities",
-            description: "Money Desk entry-point (a.k.a. money-desk / @money-desk). Returns the map of all 20 personal-finance specialists bundled in this extension: Budget Coach, Tax Planner, Investing Advisor, Retirement Planner, Debt Strategist, Credit & Identity, Health & Medicare, Property & Casualty, Life & Disability, Estate & Legacy, Purchase Advisor, Education Planner, Net Worth & Goals, Self-Employed Planner, Life Events (cross-specialist orchestrator for annual reviews and major life events), Real Estate Investor, Behavioral Coach, International / Expat, Financial Literacy, FIRE Planner. Call this FIRST whenever the user mentions personal finance, budgeting, taxes, investing, retirement, debt, credit, insurance (health / auto / home / life / disability / Medicare / LTC), estate planning, college / 529 / FAFSA, net worth, emergency fund, savings goals, self-employment / 1099 / S-corp, a major purchase decision (buy vs lease, rent vs buy), a life event (annual review, new baby, job change, home purchase, inheritance, layoff), residential rental property / house hacking / real-estate tax strategy, market panic / FOMO / couples-money / lifestyle inflation, financial-literacy / plain-English explanations, FIRE / financial-independence / retire-early / safe-withdrawal-rate, or cross-border / expat / FBAR / PFIC / moving country — or says 'money-desk' or '@money-desk' in any form. Lists each specialist's role tool and orchestrator so the agent can pick the right one without guessing. When rendering skills/specialists to the user, use the friendly name (e.g. 'Portfolio Review') — never the raw `md_<prefix>_skill_*` tool id as a label.",
+            description: "Money Desk entry-point. Returns the map of all 20 personal-finance specialists with each one's role tool, orchestrator, and deliverable folder. Call this FIRST when the user mentions any personal-finance topic (budget / tax / investing / retirement / debt / credit / insurance / estate / education / 529 / FAFSA / net worth / self-employment / a major life event / rental property / FIRE / expat) or says 'money-desk' / '@money-desk'. When listing specialists or skills to the user, render their friendly names — never the raw `md_<prefix>_skill_*` tool ids.",
             parameters: { type: "object", properties: {} },
             skipPermission: true,
             handler: async () => buildCapabilitiesSummary(),
         },
         {
             name: "md_route",
-            description: "Money Desk entry-point (a.k.a. money-desk / @money-desk). Given a personal-finance query, returns which money-desk specialist(s) to use and the exact tools to call next. Covers budgeting, taxes, investing, retirement, debt, credit & identity, insurance, estate planning, and major-purchase decisions. Call this FIRST whenever you are unsure which specialist handles a request, whenever the user says 'money-desk' or '@money-desk', or whenever a personal-finance topic appears without an obvious specialist.",
+            description: "Given a free-text personal-finance query, returns which money-desk specialist(s) to invoke and the exact tools to call next. Call this whenever you are unsure which specialist handles a request, or when the user says 'money-desk' without a clear topic.",
             parameters: {
                 type: "object",
                 properties: { query: { type: "string", description: "The user's personal-finance query or task description" } },
@@ -1617,14 +1617,14 @@ function buildTools() {
         },
         {
             name: "md_preferences",
-            description: "Money Desk user preferences (persisted config) — returns the source-selection defaults from `extensions/money-desk/data/preferences.yaml`. Currently encodes `preferred_sources.deposit_rates` (DepositAccounts.com for HYSA / MMA / CD / reward-checking / credit-union specials), `preferred_sources.mmf_yields` (fund issuer pages — Vanguard / Fidelity / Schwab — for VMFXX / SPAXX / SWVXX / SPRXX / VUSXX / FZDXX), and `preferred_sources.treasuries` (TreasuryDirect.gov for T-bills). Call this when the user asks about deposit-product / cash / HYSA / MMA / CD / money-market / T-bill rates, OR whenever you are about to recommend a source for any of those products — the YAML defaults override any baked-in source preference. The user can override on a single turn by saying e.g. 'use Bankrate instead this time' (turn-scoped); to change the default permanently, edit the YAML.",
+            description: "Money Desk persisted source-selection defaults (currently: DepositAccounts.com for HYSA / MMA / CD / reward-checking, fund-issuer pages for MMFs, TreasuryDirect for T-bills). Call this BEFORE quoting a deposit-product / cash / HYSA / MMA / CD / money-market / T-bill rate, or before recommending a source for those products — these defaults override any baked-in preference. The user can override on a single turn (e.g. 'use Bankrate this time').",
             parameters: { type: "object", properties: {} },
             skipPermission: true,
             handler: async () => getPreferences(),
         },
         {
             name: "md_facts",
-            description: "Money Desk bundled facts table — curated 2026 reference data for US federal personal finance: IRS contribution limits (401k/IRA/HSA/FSA/SEP/SIMPLE), 2026 income-tax brackets and standard deduction, LTCG / NIIT / AMT thresholds, Social Security wage base and FRA earnings test, Medicare Part A/B/D premiums and IRMAA brackets, estate & gift exemptions, QBI §199A thresholds, FAFSA / Pell / 529-to-Roth rules, mortgage & real-estate limits (conforming-loan, §121 exclusion, SALT cap, bonus depreciation, §179, §1031), Federal Poverty Level table, expat quick-reference (FEIE / FBAR / FATCA / PFIC), and safe modeling defaults (real returns, withdrawal rates, vacancy/capex). Call this FIRST before marking any contribution limit, bracket, threshold, or fixed dollar amount as [UNSOURCED]. Pass `topic` to retrieve a specific block; call without arguments to list available topics. Each topic carries a friendly citation label (e.g. [IRS 2026 limits], [CMS Medicare 2026], [SSA 2026]) — the tool output shows the exact label to use; cite figures using THAT label, never the raw md_facts or topic-key form.",
+            description: "Money Desk bundled 2026 reference data for US federal personal finance: IRS contribution limits, tax brackets, LTCG / NIIT / AMT thresholds, Social Security values, Medicare premiums + IRMAA, estate & gift exemptions, QBI, FAFSA, mortgage / real-estate limits, FPL, expat (FEIE / FBAR / FATCA / PFIC), and modeling defaults. Call this BEFORE marking any limit, bracket, threshold, or fixed dollar amount as [UNSOURCED]. Pass `topic` for a specific block; omit to list topics. The output shows the friendly citation label to use (e.g. [IRS 2026 limits]).",
             parameters: {
                 type: "object",
                 properties: {
@@ -1639,35 +1639,35 @@ function buildTools() {
         },
         {
             name: "md_report_quality",
-            description: "Money Desk report-quality rules — returns the global standards every specialist applies to every user-facing deliverable: default output is markdown rendered inline in chat (no auto file writes); after delivering, OFFER PDF / DOCX / XLSX / HTML and only produce them on user consent. Encodes file naming (`./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`), the 4 renderer stacks (Playwright PDF, markdown2 HTML, openpyxl XLSX with real formulas, python-docx DOCX with real styles + TOC), brand palette (primary `#1a4d8f` etc.), the 9 standard content sections, table hygiene, citation tags across formats, what-if scenario handling, and self-verification steps. Call this BEFORE writing any rebalance plan, portfolio review, tax analysis, retirement readiness, budget, debt plan, insurance review, estate summary, real-estate underwrite, or similar deliverable. Source-of-truth is `extensions/money-desk/data/preferences.yaml` (the `report_quality:` block).",
+            description: "Money Desk report-quality contract — defaults, file naming under `./money-desk/<specialist-slug>/`, the 4 renderer stacks (PDF / HTML / XLSX / DOCX), brand palette, the 9 standard sections, table hygiene, citation tags, and self-verification steps. Default output is markdown inline; PDF / DOCX / XLSX / HTML are *offered*, never auto-written. Call this BEFORE producing any user-facing deliverable (rebalance plan, portfolio review, tax analysis, retirement plan, budget, debt plan, insurance review, estate summary, real-estate underwrite, etc.).",
             parameters: { type: "object", properties: {} },
             skipPermission: true,
             handler: async () => getReportQuality(),
         },
         {
             name: "md_citation_conventions",
-            description: "Money Desk citation conventions — returns the 4-tag honesty vocabulary ([USER-PROVIDED], [ASSUMPTION], [<Friendly Source Label> from md_facts e.g. IRS 2026 limits / CMS Medicare 2026 / SSA 2026], [UNSOURCED]) used by every specialist. Call this once at the start of any session where the agent is unsure how to cite a figure.",
+            description: "Money Desk 4-tag citation vocabulary: [USER-PROVIDED], [ASSUMPTION: <value>], [<friendly source label> from md_facts], [UNSOURCED]. Call this once at the start of a session if you are unsure how to cite a figure.",
             parameters: { type: "object", properties: {} },
             skipPermission: true,
             handler: async () => CITATION_CONVENTIONS,
         },
         {
             name: "md_sources",
-            description: "Money Desk sources-of-truth map — returns the curated list of authoritative public data sources (FRED, SEC EDGAR, TreasuryDirect, BLS, government `.gov` fetch) and the Model Context Protocol (MCP) servers that can supply those numbers if the user wires them into their Copilot CLI `mcp` config. Maps each of the 19 specialists to the Tier-1 sources it should consult before answering questions about current rates, brackets, prices, fund expense ratios, mortgage rates, Treasury yields, inflation, or contribution limits. Encodes the privacy contract: Tier-1 queries are public-data-only (no PII); Tier-2 (market data) and Tier-3 (real-estate / filesystem) MCPs are opt-in. Money Desk itself makes ZERO outbound network calls — this tool only documents which MCPs the user CAN wire in. Call this BEFORE answering when a question needs a current number that has a public authoritative source. Source-of-truth lives at `extensions/money-desk/data/sources.yaml`. Always prefer `md_facts` first for IRS / SSA / CMS / FAFSA tables; use `md_sources` for the broader rates / market / fund / macro picture.",
+            description: "Money Desk sources-of-truth map — authoritative public data sources (FRED, SEC EDGAR, TreasuryDirect, BLS, .gov) and the MCP servers that can supply them if the user wires them into their Copilot CLI `mcp` config. Money Desk itself makes ZERO outbound network calls. Call this BEFORE answering questions that need a current number (live Treasury yields, mortgage rates, fund expense ratios, CPI, prices) — but prefer `md_facts` first for IRS / SSA / CMS / FAFSA tables.",
             parameters: { type: "object", properties: {} },
             skipPermission: true,
             handler: async () => getSources(),
         },
         {
             name: "md_changelog",
-            description: "Money Desk release notes — returns the **last 3 released versions** from CHANGELOG.md (file preamble + the three most-recent `## [X.Y.Z] — YYYY-MM-DD` sections). Use this ONLY when the user explicitly asks 'what's new in money-desk?', 'what changed?', 'what version am I on?', 'release notes', 'recent updates', 'what was added recently?', or similar. Do NOT call this proactively on every session — it's an on-demand reference, not part of the standard discovery flow. Source-of-truth lives at the repo root `CHANGELOG.md`; an automated `pretest` sync (scripts/sync-changelog.mjs) mirrors it into `extensions/money-desk/data/CHANGELOG.md` which is what this tool reads at runtime.",
+            description: "Money Desk release notes — returns the last 3 released versions from CHANGELOG.md. Use this ONLY when the user explicitly asks 'what's new?', 'what changed?', 'what version am I on?', 'release notes', or similar. Do NOT call proactively.",
             parameters: { type: "object", properties: {} },
             skipPermission: true,
             handler: async () => getChangelog(),
         },
         {
             name: "md_intake",
-            description: "Money Desk intake-checklist tool — returns the structured 'Inputs needed' list for any skill BEFORE you run it. Call this FIRST when starting a skill so you know what to ask the user. The agent should then ask the user (grouped into one message) for missing items, cite the answers as [USER-PROVIDED], and only then invoke the actual `md_<prefix>_skill_<id>` tool. Pass `skill` as either the tool id (e.g. 'md_lp_skill_life_insurance_needs'), the prefix:id form ('md_lp:life_insurance_needs'), or the friendly skill name ('Life Insurance Needs'). Omit `skill` to list every skill with its specialist and tool id.",
+            description: "Money Desk intake-checklist preview — returns the 'Inputs needed' list for any skill BEFORE you run it. Call this FIRST when starting a skill so you know what to ask the user. Then ask the user (grouped into one message) for missing items, cite their answers as [USER-PROVIDED], and invoke the `md_<prefix>_skill_<id>` tool. Pass `skill` as the tool id, prefix:id, or friendly name; omit to list all skills.",
             parameters: {
                 type: "object",
                 properties: {
@@ -1682,18 +1682,18 @@ function buildTools() {
         },
         {
             name: "md_renderers_sync",
-            description: "Money Desk renderer-cache sync. Keeps the user's local `./money-desk/_renderers/` cache aligned with the canonical renderer scripts (make_xlsx.py / make_pdf.py / make_docx.py / make_html.py / _branded.py) shipped inside this extension. **Call this BEFORE every XLSX / PDF / DOCX / HTML export** — first with `{mode:'check'}`; if the verdict line says DRIFT, call again with `{mode:'apply'}` to copy missing or stale files from the extension into the cache, then re-render. Stale `./money-desk/_renderers/` is the #1 source of 'fix shipped but not visible to the user' bugs (e.g. a v0.18.7 recalc-gate WARN that never triggers because the cached make_xlsx.py is from v0.18.4). Never modifies or deletes files NOT listed in the bundled `RENDERERS_MANIFEST.json` — user-authored utilities like `inspect_qa.py` are left untouched. Surface the one-line verdict to the user.",
+            description: "Money Desk renderer-cache drift inspector. The extension already auto-syncs `./money-desk/_renderers/` before every render-spec-emitting skill returns its workflow, so you should rarely need this tool. Use it only for explicit drift inspection (`mode:'check'`) or to force a cache refresh from a specific cwd (`mode:'apply'`). Never modifies files outside the bundled `RENDERERS_MANIFEST.json` — user-authored utilities are preserved.",
             parameters: {
                 type: "object",
                 properties: {
                     cache_dir: {
                         type: "string",
-                        description: "Path to the local renderer cache. Defaults to `./money-desk/_renderers/` (resolved against the agent's CWD), matching the canonical convention in `md_report_quality`.",
+                        description: "Path to the local renderer cache. Defaults to `./money-desk/_renderers/`.",
                     },
                     mode: {
                         type: "string",
                         enum: ["check", "apply"],
-                        description: "`check` (default) reports drift only; `apply` copies any drifted file from the extension into the cache, then re-verifies.",
+                        description: "`check` (default) reports drift only; `apply` copies drifted files and re-verifies.",
                     },
                 },
             },
@@ -1702,7 +1702,7 @@ function buildTools() {
         },
         {
             name: "md_renderers_ensure",
-            description: "Money Desk renderer-cache **defensive-retry shim**. As of v0.19.1 the extension auto-syncs `./money-desk/_renderers/` from the bundled canonical renderers on every `md_report_quality` call AND before every render-spec-emitting skill returns its workflow, so you should normally never need to call this. Use it only when a render fails with `ImportError` or `FileNotFoundError` against one of the cached renderer scripts: call this once (no args, idempotent), then retry the render. For diagnostics or check-only mode use `md_renderers_sync` instead.",
+            description: "Renderer-cache defensive-retry shim. The extension auto-syncs the cache, so you should rarely need this. Call once (no args) ONLY if a render fails with ImportError or FileNotFoundError against a cached renderer script, then retry the render.",
             parameters: { type: "object", properties: {} },
             skipPermission: true,
             handler: async () => {
