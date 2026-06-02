@@ -2,228 +2,67 @@
   "title": "Rental Property Analyzer",
   "specialist": "Real Estate Investor",
   "named_ranges": [
-    {
-      "name": "purchase_price",
-      "ref": "Inputs!$B$2"
-    },
-    {
-      "name": "down_payment_pct",
-      "ref": "Inputs!$B$3"
-    },
-    {
-      "name": "mortgage_rate",
-      "ref": "Inputs!$B$4"
-    },
-    {
-      "name": "mortgage_term_yrs",
-      "ref": "Inputs!$B$5"
-    },
-    {
-      "name": "monthly_rent",
-      "ref": "Inputs!$B$6"
-    },
-    {
-      "name": "vacancy_pct",
-      "ref": "Inputs!$B$7"
-    },
-    {
-      "name": "property_tax_ann",
-      "ref": "Inputs!$B$8"
-    },
-    {
-      "name": "insurance_ann",
-      "ref": "Inputs!$B$9"
-    },
-    {
-      "name": "hoa_monthly",
-      "ref": "Inputs!$B$10"
-    },
-    {
-      "name": "mgmt_pct_of_rent",
-      "ref": "Inputs!$B$11"
-    },
-    {
-      "name": "maintenance_pct",
-      "ref": "Inputs!$B$12"
-    },
-    {
-      "name": "capex_reserve_pct",
-      "ref": "Inputs!$B$13"
-    },
-    {
-      "name": "closing_costs",
-      "ref": "Inputs!$B$14"
-    },
-    {
-      "name": "loan_amount",
-      "ref": "Inputs!$B$16"
-    },
-    {
-      "name": "monthly_pi",
-      "ref": "Inputs!$B$17"
-    },
-    {
-      "name": "cash_invested",
-      "ref": "Inputs!$B$18"
-    }
+    {"name": "purchase_price", "ref": "Inputs!$B$2"},
+    {"name": "down_payment_pct", "ref": "Inputs!$B$3"},
+    {"name": "mortgage_rate", "ref": "Inputs!$B$4"},
+    {"name": "mortgage_term_yrs", "ref": "Inputs!$B$5"},
+    {"name": "monthly_rent", "ref": "Inputs!$B$6"},
+    {"name": "vacancy_pct", "ref": "Inputs!$B$7"},
+    {"name": "property_tax_ann", "ref": "Inputs!$B$8"},
+    {"name": "insurance_ann", "ref": "Inputs!$B$9"},
+    {"name": "hoa_monthly", "ref": "Inputs!$B$10"},
+    {"name": "mgmt_pct_of_rent", "ref": "Inputs!$B$11"},
+    {"name": "maintenance_pct_of_price", "ref": "Inputs!$B$12"},
+    {"name": "capex_pct_of_price", "ref": "Inputs!$B$13"},
+    {"name": "closing_costs", "ref": "Inputs!$B$14"},
+    {"name": "rehab_budget", "ref": "Inputs!$B$15"},
+    {"name": "appreciation_pct", "ref": "Inputs!$B$16"},
+    {"name": "loan_amount", "ref": "Inputs!$B$18"},
+    {"name": "monthly_pi", "ref": "Inputs!$B$19"},
+    {"name": "cash_invested", "ref": "Inputs!$B$20"}
   ],
   "sheets": [
     {
       "name": "Inputs",
       "cells": [
-        {
-          "ref": "A1",
-          "value": "Rental Property Analyzer - Inputs",
-          "style": "h1"
-        },
-        {
-          "ref": "A2",
-          "value": "Purchase price"
-        },
-        {
-          "ref": "B2",
-          "value": 350000,
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A3",
-          "value": "Down payment %"
-        },
-        {
-          "ref": "B3",
-          "value": 0.25,
-          "number_format": "0.00%"
-        },
-        {
-          "ref": "A4",
-          "value": "Mortgage rate (annual)"
-        },
-        {
-          "ref": "B4",
-          "value": 0.075,
-          "number_format": "0.00%"
-        },
-        {
-          "ref": "A5",
-          "value": "Mortgage term (years)"
-        },
-        {
-          "ref": "B5",
-          "value": 30,
-          "number_format": "0"
-        },
-        {
-          "ref": "A6",
-          "value": "Market rent (monthly)"
-        },
-        {
-          "ref": "B6",
-          "value": 2400,
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A7",
-          "value": "Vacancy %"
-        },
-        {
-          "ref": "B7",
-          "value": 0.06,
-          "number_format": "0.00%"
-        },
-        {
-          "ref": "A8",
-          "value": "Property tax (annual)"
-        },
-        {
-          "ref": "B8",
-          "value": 4500,
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A9",
-          "value": "Insurance (annual)"
-        },
-        {
-          "ref": "B9",
-          "value": 1400,
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A10",
-          "value": "HOA (monthly)"
-        },
-        {
-          "ref": "B10",
-          "value": 0,
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A11",
-          "value": "Property mgmt (% of rent)"
-        },
-        {
-          "ref": "B11",
-          "value": 0.08,
-          "number_format": "0.00%"
-        },
-        {
-          "ref": "A12",
-          "value": "Maintenance (% of price/yr)"
-        },
-        {
-          "ref": "B12",
-          "value": 0.01,
-          "number_format": "0.00%"
-        },
-        {
-          "ref": "A13",
-          "value": "CapEx reserve (% of price/yr)"
-        },
-        {
-          "ref": "B13",
-          "value": 0.01,
-          "number_format": "0.00%"
-        },
-        {
-          "ref": "A14",
-          "value": "Closing costs"
-        },
-        {
-          "ref": "B14",
-          "value": 8000,
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A15",
-          "value": "-- derived (do not edit) --"
-        },
-        {
-          "ref": "A16",
-          "value": "Loan amount"
-        },
-        {
-          "ref": "B16",
-          "formula": "=purchase_price*(1-down_payment_pct)",
-          "number_format": "$#,##0"
-        },
-        {
-          "ref": "A17",
-          "value": "Monthly P&I"
-        },
-        {
-          "ref": "B17",
-          "formula": "=PMT(mortgage_rate/12, mortgage_term_yrs*12, -loan_amount)",
-          "number_format": "$#,##0.00"
-        },
-        {
-          "ref": "A18",
-          "value": "Cash invested"
-        },
-        {
-          "ref": "B18",
-          "formula": "=purchase_price*down_payment_pct+closing_costs",
-          "number_format": "$#,##0"
-        }
+        {"ref": "A1", "value": "Rental Property Analyzer - Inputs", "style": "h1"},
+        {"ref": "A2", "value": "Purchase price"},
+        {"ref": "B2", "value": 350000, "number_format": "$#,##0"},
+        {"ref": "A3", "value": "Down payment %"},
+        {"ref": "B3", "value": 0.25, "number_format": "0.00%"},
+        {"ref": "A4", "value": "Mortgage rate (annual)"},
+        {"ref": "B4", "value": 0.075, "number_format": "0.00%"},
+        {"ref": "A5", "value": "Mortgage term (years)"},
+        {"ref": "B5", "value": 30, "number_format": "0"},
+        {"ref": "A6", "value": "Market rent (monthly)"},
+        {"ref": "B6", "value": 2400, "number_format": "$#,##0"},
+        {"ref": "A7", "value": "Vacancy %"},
+        {"ref": "B7", "value": 0.06, "number_format": "0.00%"},
+        {"ref": "A8", "value": "Property tax (annual)"},
+        {"ref": "B8", "value": 4500, "number_format": "$#,##0"},
+        {"ref": "A9", "value": "Insurance (annual)"},
+        {"ref": "B9", "value": 1400, "number_format": "$#,##0"},
+        {"ref": "A10", "value": "HOA (monthly)"},
+        {"ref": "B10", "value": 0, "number_format": "$#,##0"},
+        {"ref": "A11", "value": "Property mgmt (% of rent)"},
+        {"ref": "B11", "value": 0.08, "number_format": "0.00%"},
+        {"ref": "A12", "value": "Maintenance (% of price/yr)"},
+        {"ref": "B12", "value": 0.01, "number_format": "0.00%"},
+        {"ref": "A13", "value": "CapEx reserve (% of price/yr)"},
+        {"ref": "B13", "value": 0.01, "number_format": "0.00%"},
+        {"ref": "A14", "value": "Closing costs"},
+        {"ref": "B14", "value": 8000, "number_format": "$#,##0"},
+        {"ref": "A15", "value": "Rehab / immediate repairs"},
+        {"ref": "B15", "value": 0, "number_format": "$#,##0"},
+        {"ref": "A16", "value": "Long-term appreciation (% / yr)"},
+        {"ref": "B16", "value": 0.03, "number_format": "0.00%"},
+        {"ref": "A17", "value": "-- derived (do not edit) --"},
+        {"ref": "A18", "value": "Loan amount"},
+        {"ref": "B18", "formula": "=purchase_price*(1-down_payment_pct)", "number_format": "$#,##0"},
+        {"ref": "A19", "value": "Monthly P&I"},
+        {"ref": "B19", "formula": "=PMT(mortgage_rate/12, mortgage_term_yrs*12, -loan_amount)", "number_format": "$#,##0.00"},
+        {"ref": "A20", "value": "Cash invested"},
+        {"ref": "B20", "formula": "=purchase_price*down_payment_pct+closing_costs+rehab_budget", "number_format": "$#,##0"}
       ]
     },
     {
@@ -256,7 +95,7 @@
         {"ref": "D7", "value": "Rent net of vacancy", "style": "status"},
 
         {"ref": "A8", "value": "Operating expenses", "style": "metric"},
-        {"ref": "B8", "formula": "=-(property_tax_ann+insurance_ann+hoa_monthly*12+mgmt_pct_of_rent*B5+maintenance_pct*purchase_price+capex_reserve_pct*purchase_price)", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "B8", "formula": "=-(property_tax_ann+insurance_ann+hoa_monthly*12+mgmt_pct_of_rent*B5+maintenance_pct_of_price*purchase_price+capex_pct_of_price*purchase_price)", "style": "value_highlight", "number_format": "$#,##0"},
         {"ref": "C8", "value": "", "style": "threshold"},
         {"ref": "D8", "value": "Tax + ins + mgmt + maint + capex", "style": "status"},
 
@@ -299,6 +138,25 @@
 
         {"ref": "A17", "value": "Headline verdict", "style": "section_banner"},
         {"ref": "A18", "formula": "=\"Cap \"&TEXT(B9/purchase_price,\"0.00%\")&\", CoC \"&TEXT(B12/cash_invested,\"0.00%\")&\", DSCR \"&TEXT(B9/(monthly_pi*12),\"0.00\")&\". Annual cash flow \"&TEXT(B12,\"$#,##0\")&\".\"", "style": "callout"}
+      ]
+    },
+    {
+      "name": "Projection",
+      "column_widths": {"A": 44, "B": 22},
+      "merges": ["A1:B1", "A2:B2", "A4:B4", "A8:B8"],
+      "cells": [
+        {"ref": "A1", "value": "Rental Property Analyzer  -  10-Year Projection", "style": "banner"},
+        {"ref": "A2", "value": "Surfaces appreciation_pct so the assumption is visible and citable as [USER-PROVIDED] rather than silently dropped.", "style": "subtitle"},
+
+        {"ref": "A4", "value": "Assumption", "style": "header"},
+
+        {"ref": "A5", "value": "Long-term appreciation (% / yr)", "style": "metric"},
+        {"ref": "B5", "formula": "=appreciation_pct", "style": "value_highlight", "number_format": "0.00%"},
+
+        {"ref": "A6", "value": "Implied price at year 10", "style": "metric"},
+        {"ref": "B6", "formula": "=purchase_price*(1+appreciation_pct)^10", "style": "value_highlight", "number_format": "$#,##0"},
+
+        {"ref": "A8", "value": "TODO: full 10-year IRR (rent_growth, expense_growth, exit_cost, depreciation recapture, LTCG + NIIT) is planned for v0.19. Until then, surface the headline appreciation assumption here so it isn't collected and ignored.", "style": "callout"}
       ]
     }
   ]

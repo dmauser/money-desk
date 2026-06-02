@@ -270,6 +270,12 @@ new template requires only writing the JSON spec; the structural test
 - Flagging two differently-labeled cells with identical evaluated values
   as a likely reference-pointing bug.
 
-The Python test suite under `extensions/money-desk/tests/` exercises the
-schema, the validator, and the canonical Dallas Rent vs Buy regression
-to lock in the fix.
+When **none** of the three recalc backends is available, `make_xlsx.py`
+no longer raises. Instead it emits a single-line `WARN  recalc gate
+SKIPPED — …` to **stderr** and exits 0 so a workbook can still be
+produced (e.g., on a clean Windows host without LibreOffice). Pass
+`--require-recalc` on CI / when shipping a real deliverable to make a
+skipped recalc gate fail with exit code 2 instead. The Python test
+suite under `extensions/money-desk/tests/` exercises the schema, the
+validator, and the canonical Dallas Rent vs Buy regression to lock in
+the fix.

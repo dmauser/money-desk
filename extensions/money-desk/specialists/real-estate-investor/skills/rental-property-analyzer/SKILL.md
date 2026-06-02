@@ -16,8 +16,9 @@ description: Underwrite a residential 1–4 unit rental property (existing or pr
 - **Gross rent** — current AND market. Get the market number from at least 2 comps (Rentometer, Zillow Rent Estimate, recent same-bedroom comps in the same building / block).
 - **Operating expenses**: property tax, insurance, HOA, utilities owner pays, lawn / snow / pest.
 - **Vacancy assumption** (default 8% if user has no local data).
-- **Capex reserve** (default 8% of gross rent — roof, HVAC, water heater, flooring all have predictable useful lives).
-- **Management** (default 8–10% even self-managed, so the deal stays honest when the owner later hires out or considers their time).
+- **Capex reserve** (default 1% of **property value per year** — roof, HVAC, water heater, flooring all have predictable useful lives; the older "8% of rent" rule of thumb under-reserves on appreciated properties).
+- **Maintenance reserve** (default 1% of **property value per year** — routine repairs).
+- **Management** (default 8–10% **of rent** even self-managed, so the deal stays honest when the owner later hires out or considers their time; use 0% only if the user is explicit about self-managing forever).
 - Holding period assumed for IRR (default 10 years).
 - Tax assumptions: marginal federal + state rate, depreciation schedule (residential 27.5y SL, land typically 20% of price).
 

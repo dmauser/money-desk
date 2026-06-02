@@ -524,15 +524,17 @@ def _try_excel_com(src: pathlib.Path) -> pathlib.Path | None:
 def _scan_with_formulas_package(src: pathlib.Path) -> list[str]:
     """Use the `formulas` package as last-resort recalc engine and return
     the list of cells whose evaluated value is an Excel error.
+
+    Raises ImportError if the package is not installed; the caller
+    decides whether that should warn-and-skip or fail hard.
     """
-    try:
-        import formulas  # type: ignore
-    except Exception as e:
-        raise WorkbookValidationError(
-            "validate_workbook: no recalc engine available "
-            "(install LibreOffice, Microsoft Excel, or `pip install formulas`); "
-            f"underlying import error: {e}"
-        )
+    import formulas  # type: ignore  (intentionally raises ImportError to caller)
+
+    # `formulas` emits its own tqdm bars during model load + calculate.
+    # When the workbook contains few or zero formulas the bars render
+    # as empty `0it` which looks like the gate did nothing — suppress
+    # them so the only stderr noise is from us.
+    os.environ.setdefault("TQDM_DISABLE", "1")
 
     try:
         xl = formulas.ExcelModel().loads(str(src)).finish().calculate()
@@ -572,29 +574,69 @@ def _scan_data_only(src: pathlib.Path) -> list[str]:
     return bad
 
 
-def validate_workbook(path: pathlib.Path) -> None:
-    """Recalculate `path` (LibreOffice -> Excel COM -> formulas) and raise
-    WorkbookValidationError on any error cells (#VALUE!, #REF!, #DIV/0!,
-    #NAME?, #NUM!, #N/A). The file is overwritten in place with the
-    recalculated copy when LibreOffice / Excel COM succeed, so downstream
-    consumers see materialized cached values.
+RECALC_SKIP_WARN = (
+    "WARN  recalc gate SKIPPED — no recalculation backend available "
+    "(tried: {tried}). Install one of: LibreOffice (recommended, free), "
+    "Microsoft Excel + pywin32, or `pip install formulas`. The workbook "
+    "was saved but #VALUE! / #REF! / #DIV/0! / #NAME? / #NUM! / #N/A "
+    "errors were NOT checked."
+)
+
+
+def validate_workbook(path: pathlib.Path) -> bool:
+    """Recalculate `path` and raise WorkbookValidationError on any error
+    cells (#VALUE!, #REF!, #DIV/0!, #NAME?, #NUM!, #N/A).
+
+    Tries LibreOffice → Excel COM → `formulas` (in that order). The
+    file is overwritten in place with the recalculated copy when
+    LibreOffice / Excel COM succeed, so downstream consumers see
+    materialized cached values.
+
+    Returns True when a backend ran successfully (even if it found no
+    bad cells), False when every backend was unavailable. The caller
+    decides what to do with a False return — `main()` emits a stderr
+    WARN by default, or exits 2 if `--require-recalc` was passed.
     """
     path = pathlib.Path(path)
     if not path.exists():
         raise WorkbookValidationError(f"validate_workbook: file not found: {path}")
 
+    attempted: list[str] = []
+    succeeded: str | None = None
+    bad: list[str] = []
+
+    attempted.append("libreoffice")
     if _try_libreoffice(path) is not None:
-        bad = _scan_data_only(path)
-    elif _try_excel_com(path) is not None:
+        succeeded = "libreoffice"
         bad = _scan_data_only(path)
     else:
-        bad = _scan_with_formulas_package(path)
+        attempted.append("excel_com")
+        if _try_excel_com(path) is not None:
+            succeeded = "excel_com"
+            bad = _scan_data_only(path)
+        else:
+            attempted.append("formulas")
+            try:
+                bad = _scan_with_formulas_package(path)
+                succeeded = "formulas"
+            except ImportError:
+                # `formulas` not installed — record and let caller WARN.
+                succeeded = None
+
+    if succeeded is None:
+        # Caller (main, or anyone else calling us programmatically) is
+        # responsible for emitting a user-visible WARN and deciding
+        # whether to exit non-zero. Returning False keeps this function
+        # composable.
+        print(RECALC_SKIP_WARN.format(tried=", ".join(attempted)), file=sys.stderr)
+        return False
 
     if bad:
         raise WorkbookValidationError(
             f"validate_workbook: workbook {path} contains error cells:\n  "
             + "\n  ".join(bad)
         )
+    return True
 
 
 def _slugify(text: str) -> str:
@@ -621,7 +663,12 @@ def main() -> int:
                     help="Specialist name used to build the default output path")
     ap.add_argument("--no-validate", dest="validate", action="store_false",
                     help="Skip the post-save lint + recalc validation pass.")
-    ap.set_defaults(validate=True)
+    ap.add_argument("--require-recalc", dest="require_recalc", action="store_true",
+                    help="Fail with exit 2 if no recalc backend (LibreOffice / "
+                         "Excel COM / formulas) is available. Default: warn on "
+                         "stderr but exit 0 so that environments without a "
+                         "backend can still produce the workbook.")
+    ap.set_defaults(validate=True, require_recalc=False)
     args = ap.parse_args()
 
     try:
@@ -659,13 +706,25 @@ def main() -> int:
 
     if args.validate:
         try:
-            validate_workbook(out)
+            recalc_ran = validate_workbook(out)
         except WorkbookValidationError as e:
             try:
                 out.unlink()
             except Exception:
                 pass
             sys.exit(f"ERROR: {e}")
+        if not recalc_ran and args.require_recalc:
+            try:
+                out.unlink()
+            except Exception:
+                pass
+            print(
+                "ERROR  --require-recalc was set but no recalculation backend "
+                "is available. Install LibreOffice (recommended), Microsoft "
+                "Excel + pywin32, or `pip install formulas`.",
+                file=sys.stderr,
+            )
+            sys.exit(2)
 
     size = out.stat().st_size
     sheet_count = len(wb.sheetnames)

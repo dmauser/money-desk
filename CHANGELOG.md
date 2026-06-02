@@ -7,6 +7,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.7] — 2026-06-01
+
+### Fixed
+
+- **Rental Property Analyzer: corrected `% of rent` vs `% of price`
+  unit mismatch between intake schema and canonical XLSX template
+  (HIGH).** The intake schema collected `maintenance_pct` and
+  `capex_pct` as "% of rent" but the template's
+  `Summary!B8` formula multiplied them by `purchase_price` — a silent
+  reference-type bug that overstated operating expenses by ~10× on a
+  typical SFR ($25,600/yr instead of $2,496/yr on an 8% answer). Both
+  formulas evaluated cleanly so neither the lint pass nor the recalc
+  gate caught it. Renamed the schema fields to make units explicit:
+  `maintenance_pct_of_price`, `capex_pct_of_price`, `mgmt_pct_of_rent`.
+  Renamed the matching named ranges in the template so the JSON
+  contract is self-checking. Updated the SKILL.md "Inputs needed"
+  prose (1% of property value per year is the correct default for
+  both maintenance and capex; the older "8% of rent" capex rule
+  under-reserves on appreciated properties).
+- **Rental Property Analyzer: `rehab_budget` is now wired into the
+  template** (was collected by the intake schema but silently dropped).
+  Added an Inputs row + named range and updated the `cash_invested`
+  formula to `purchase_price*down_payment_pct + closing_costs +
+  rehab_budget`.
+- **Rental Property Analyzer: `appreciation_pct` is now surfaced on a
+  Projection sheet** (was collected but never used). The full 10-year
+  IRR build (rent_growth, expense_growth, exit_cost, depreciation
+  recapture, LTCG + NIIT) is targeted for v0.19; in the meantime the
+  assumption is visible and citable as `[USER-PROVIDED]` rather than
+  silently swallowed.
+- **make_xlsx.py recalc gate now warns instead of silently passing
+  when no recalculation backend is available.** Previously the gate
+  could appear to pass on a clean Windows host without LibreOffice /
+  Excel COM / `formulas` — two empty tqdm bars rendered and `OK <path>`
+  printed. Now `validate_workbook` returns False and writes a single-
+  line `WARN  recalc gate SKIPPED — …` to **stderr** that names every
+  attempted backend plus actionable remediation, while keeping stdout
+  machine-parseable. Added `--require-recalc` CLI flag (default off):
+  when set and no backend is available, `make_xlsx.py` exits with code
+  2 instead of 0 — recommended for CI / when the user explicitly asked
+  for an XLSX deliverable.
+
+### Added
+
+- `extensions/money-desk/tests/test_schema_template_unit_consistency.py`
+  — universal regression test guarding the bug class behind the rental
+  analyzer fix. For every shipped template with a structured intake
+  schema in `intake-schemas.mjs`, asserts that named ranges sharing a
+  name with a schema property classify to the same unit (% of rent vs
+  % of price vs % per year vs $ vs years). Sanity-check confirmed: the
+  test would have caught the original mismatch immediately.
+- `extensions/money-desk/tests/test_xlsx_rental_property_analyzer.py` —
+  synthetic-input recompute test pinning Monthly P&I = $1,596.73,
+  cash invested = $93,000, NOI = $17,228, debt service = -$19,160.84,
+  cash flow before tax = -$1,932.84, cap rate = 5.38%, DSCR = 0.90,
+  cash-on-cash = -2.08%. Each assertion names the specific failure
+  mode it guards (PMT drift, rehab dropped, % unit drift).
+- `extensions/money-desk/tests/test_make_xlsx_recalc_gate.py` — pins
+  the new validate_workbook contract: returns False + WARN on stderr
+  when every backend is unavailable; `main()` exits 2 only when
+  `--require-recalc` is passed; happy path emits no WARN.
+
 ## [0.18.6] — 2026-06-01
 
 ### Fixed
