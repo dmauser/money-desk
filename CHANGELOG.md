@@ -7,7 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.19.2] — 2026-06-02
+## [0.19.3] — 2026-06-02
+
+### Fixed
+
+- **`md_route` was missing the natural-language phrasings real users
+  type for Life Events.** A dry-run hit "we just had a baby what do
+  we update" and got `No specialist matched.` — the trigger had
+  `new baby` and `newborn` but not `had a baby`, `having a baby`,
+  `pregnant`, `pregnancy`, `parental leave`, `adopt(ed|ing)`, or
+  `baby on the way`. Same gap on every other Life Events playbook:
+  Job Change missed `quitting`, `resigning`, `accepted a (job|offer)`,
+  `(old|previous) 401(k)`, `rollover my 401k`; Home Purchase missed
+  `pre-approv(ed|al)`, `under contract`, `closing on a (house|home)`,
+  `mortgage application`, `first home`; Inheritance missed bare
+  `inherited`, `bequest`, `estate distribution`, `9-month
+  (disclaimer|window)`; Layoff missed `RIF`, `reduction in force`,
+  `let go`, `terminated (from|by)`; Annual Review missed
+  `(money|financial) check-in`, `financial review`, `financial
+  tune-up`, `birthday review`. Trigger now covers all six playbooks
+  end-to-end. Anti-over-trigger guards keep bare `house` / `job` /
+  `baby` / `escrow` / `change` / `review` out of the alternation so
+  single-specialist queries do not get swallowed.
+
+- **Three other specialists had matching audit gaps:**
+  - **Behavioral Coach** missed `fighting with my partner about
+    money` (the trigger required `fight(ing) about money` adjacent),
+    pluralized `regretting financial decisions` / `regretting
+    purchases`, and `(partner|spouse) won't talk about money` /
+    bare `talk about money`.
+  - **Credit & Identity** missed `someone opened an account in my
+    name`, `account opened in my name`, `dispute (a) charge /
+    transaction / fee`, and `unauthorized charge`.
+  - **Investing Advisor** missed `review my (portfolio|investments|
+    allocation|holdings)` (the trigger required the noun first:
+    `portfolio review`).
+
+### Added
+
+- **`tests/md-route.test.mjs`** regression suite with 46 cases:
+  41 positive (using a SUPERSET assertion so multi-match — e.g. a
+  401(k) rollover legitimately hitting both Retirement Planner AND
+  Life Events — does not break the test) plus 5 negative cases that
+  pin the Life Events / single-specialist boundary (`review my
+  portfolio`, `budget my groceries`, `should I buy or lease a new
+  car`, `rebalance my IRA`, `best HYSA rates right now` must NOT
+  match Life Events).
+- **`docs/ROUTING.md`** routing-contract document: how `md_route`
+  works, why multi-match is supported, the event-shaped-vs-bare-noun
+  guideline, the worked Life Events vs Purchase Advisor home-buying
+  boundary, and the add-or-expand-triggers checklist.
+- `tests/md-route.test.mjs` is now wired into `npm test` and
+  `npm run test:watch`.
+
+
 
 ### Changed
 
