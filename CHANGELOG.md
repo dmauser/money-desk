@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.7] — 2026-06-02
+
+### Changed
+
+- **`SECURITY.md`** — updated supported-versions table from the stale
+  `0.1.x` to `0.19.x` to reflect the actual current release line.
+- **`PRIVACY.md`** — updated three references to the legacy `./reports/`
+  output path to also mention the canonical `./money-desk/<specialist>/`
+  path (per `md_report_quality`), so the privacy doc matches the
+  renderer/write-guard contract.
+
+### Notes
+
+Documentation-only release in preparation for flipping the repository
+public. Also refreshed the GitHub repo "About" description (was stuck
+at "9 specialist agents") and added `fire` / `estate-planning` /
+`expat` / `medicare` topics; those changes live on GitHub, not in the
+tree.
+
 ## [0.19.6] — 2026-06-02
 
 ### Performance

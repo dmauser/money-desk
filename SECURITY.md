@@ -3,12 +3,12 @@
 ## Supported Versions
 
 Only the latest minor version of `money-desk` receives security fixes.
-At this stage of the project that is the `0.1.x` series.
+At this stage of the project that is the `0.19.x` series.
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.1.x   | ✅                 |
-| < 0.1   | ❌                 |
+| 0.19.x  | ✅                 |
+| < 0.19  | ❌                 |
 
 ## Reporting a Vulnerability
 

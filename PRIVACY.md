@@ -14,7 +14,8 @@ do with that data.
   kind.** It does not know you exist beyond your local machine.
 - **Money Desk stores nothing.** It has no database, no cache, no log
   files. The only files it writes are the markdown reports the agent
-  produces in your working directory (typically `./reports/...`),
+  produces in your working directory (under `./money-desk/<specialist>/`,
+  or the legacy `./reports/...` path in older versions),
   exactly where you can see them.
 - The **only** data that leaves your machine is whatever the GitHub
   Copilot CLI itself sends to GitHub Copilot's model service as part of
@@ -85,7 +86,8 @@ These are encoded into every specialist's role and orchestrator markdown
 
 When a skill produces a deliverable (a budget, a payoff plan, a
 portfolio review), the agent writes markdown / XLSX into your **current
-working directory**, by convention under `./reports/`. These files
+working directory**, by convention under `./money-desk/<specialist>/`
+(older versions used `./reports/`). These files
 contain real numbers from your data — treat them like any other
 sensitive financial document on your machine:
 
@@ -101,8 +103,8 @@ sensitive financial document on your machine:
   plan's terms (consumer / business / enterprise have different
   retention and training opt-out rules — check yours).
 - Redact before screenshotting if you share examples publicly.
-- If you remove the extension, also delete any `reports/` folders that
-  contain your data.
+- If you remove the extension, also delete any `money-desk/` or
+  `reports/` folders that contain your data.
 
 ## MCP server integrations (opt-in, off by default)
 
