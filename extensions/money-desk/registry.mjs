@@ -992,11 +992,6 @@ export const REPORT_QUALITY_CONFIG = {
 };
 
 export async function getReportQuality() {
-    // AUTO-SYNC: silently ensure the user's renderer cache is fresh before
-    // we hand back the report-quality contract. The model treats the cache
-    // as always-fresh per the prompt; this is what makes that promise true.
-    const _syncResult = await _ensureRenderersSynced({});
-
     const raw = await loadPreferences();
     // Extract the report_quality: block from the same YAML.
     const lines = raw.split(/\r?\n/);
@@ -1066,13 +1061,7 @@ export async function getReportQuality() {
         yamlBlock || "report_quality: # (block missing from preferences.yaml — please add it)",
         "```",
         "",
-        "## _meta — renderer cache auto-sync",
-        "",
-        "```json",
-        JSON.stringify({ renderer_cache_synced: _syncResult }, null, 2),
-        "```",
-        "",
-        "_The cache at `./money-desk/_renderers/` was auto-synced before this response. If `ok: false`, call `md_renderers_ensure` once and retry your render._",
+        "_The renderer cache at `./money-desk/_renderers/` is auto-synced before each render-spec-emitting skill returns its workflow. If a render fails with ImportError or a missing-file error, call `md_renderers_ensure` once and retry._",
     ].join("\n");
 }
 
@@ -1411,6 +1400,15 @@ const TRACKED_RENDERERS = [
 
 let _bundledManifestCache = null; // { extension_version, files: { name: { sha256, bytes } } }
 
+// Per-process memo — when a non-forced sync succeeds, remember the result
+// for `_SYNC_MEMO_TTL_MS`. The skill-loader auto-sync hook may fire many
+// times in a single turn (multiple skills in a workflow); without this
+// memo each call would pay the cost of reading the cache-side manifest +
+// stat'ing 6 renderer files. The TTL is short enough that a manual
+// `md_renderers_ensure({force:true})` between calls still wins.
+const _SYNC_MEMO_TTL_MS = 60_000;
+const _syncMemo = new Map(); // cacheDirAbs -> { result, expiresAt }
+
 async function _readBundledManifest() {
     if (_bundledManifestCache) return _bundledManifestCache;
     const raw = await readFile(RENDERERS_MANIFEST_PATH, "utf8");
@@ -1456,6 +1454,19 @@ async function _writeCacheManifestAtomic(cacheDirAbs, payload) {
 export async function _ensureRenderersSynced({ cwd, force = false } = {}) {
     const baseCwd = cwd || process.cwd();
     const cacheDirAbs = resolve(baseCwd, "money-desk", "_renderers");
+
+    // Per-process memo fast-path: if a non-forced sync succeeded recently,
+    // return the memoized result without touching the filesystem at all.
+    // The memo always stores the post-sync "warm" shape — `updated: []`,
+    // `unchanged: <all tracked>` — so callers see a clean fast-path return
+    // even when the original sync that primed the memo did real work.
+    if (!force) {
+        const memo = _syncMemo.get(cacheDirAbs);
+        if (memo && memo.expiresAt > Date.now()) {
+            return { ...memo.result, fast_path: true, memoized: true };
+        }
+    }
+
     try {
         const bundled = await _readBundledManifest();
         if (!force) {
@@ -1470,7 +1481,7 @@ export async function _ensureRenderersSynced({ cwd, force = false } = {}) {
                     }),
                 );
                 if (allPresent.every(Boolean)) {
-                    return {
+                    const result = {
                         ok: true,
                         fast_path: true,
                         updated: [],
@@ -1478,6 +1489,8 @@ export async function _ensureRenderersSynced({ cwd, force = false } = {}) {
                         cache_dir: cacheDirAbs,
                         extension_version: bundled.extension_version,
                     };
+                    _syncMemo.set(cacheDirAbs, { result, expiresAt: Date.now() + _SYNC_MEMO_TTL_MS });
+                    return result;
                 }
             }
         }
@@ -1514,7 +1527,7 @@ export async function _ensureRenderersSynced({ cwd, force = false } = {}) {
         };
         await _writeCacheManifestAtomic(cacheDirAbs, cachePayload);
 
-        return {
+        const result = {
             ok: true,
             fast_path: false,
             updated,
@@ -1522,6 +1535,21 @@ export async function _ensureRenderersSynced({ cwd, force = false } = {}) {
             cache_dir: cacheDirAbs,
             extension_version: bundled.extension_version,
         };
+        // Memoize a normalized post-sync ("warm") shape so subsequent calls
+        // see `updated: []` instead of the cold-path's "we just copied
+        // everything" list.
+        _syncMemo.set(cacheDirAbs, {
+            result: {
+                ok: true,
+                fast_path: true,
+                updated: [],
+                unchanged: TRACKED_RENDERERS.slice(),
+                cache_dir: cacheDirAbs,
+                extension_version: bundled.extension_version,
+            },
+            expiresAt: Date.now() + _SYNC_MEMO_TTL_MS,
+        });
+        return result;
     } catch (err) {
         // Never break the calling tool — just log and report failure.
         process.stderr.write(

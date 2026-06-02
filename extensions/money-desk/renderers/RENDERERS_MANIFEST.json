@@ -1,29 +1,29 @@
 {
-  "extension_version": "0.19.3",
-  "generated_at": "2026-06-02T06:23:07.537Z",
+  "extension_version": "0.19.4",
+  "generated_at": "2026-06-02T15:15:58.970Z",
   "files": {
     "README.md": {
       "sha256": "9eac7b493f1d69ee4bfcd3d0f06d065d8cef89c5292bdaacf490dcfe292f29fc",
       "bytes": 14082
     },
     "_branded.py": {
-      "sha256": "b3a106dc3a0804475d38ff7277aff1e2d8c9e0f2bee753d7cd736f22319e6aa3",
+      "sha256": "b1d8591fb82bfd28e9d0d20de7d8889312af7cd46d20bbfd709adcf08445d19b",
       "bytes": 5679
     },
     "make_docx.py": {
-      "sha256": "9fd35af4d980662a5cd7462fbb1ee5c8ad0f4ad25e9a535e19f844bd8870fa68",
+      "sha256": "f0d40dcf86f1a2992ec037820ff3bf647808495f9e53bc35dc63f94d67e796b7",
       "bytes": 10491
     },
     "make_html.py": {
-      "sha256": "696519a0e69b14daabdf05b387f2d8134aa27e673daf61fa3d2bb9d259df654f",
+      "sha256": "f50393b533761095cd00668d748934cece253f95562e9693f8fd46bb26ae3603",
       "bytes": 8132
     },
     "make_pdf.py": {
-      "sha256": "7a405dd9b65cf9312cdddf92d3ad95bbc3b6dbc6d11a58f424bab5c87e792df0",
+      "sha256": "aa19197fa4189bcd5ea6fe75aa839e2233ec4ef4939b5e96a5c574899e90e13b",
       "bytes": 9551
     },
     "make_xlsx.py": {
-      "sha256": "631bcb5c7fa34ef7bab7a651b3947924be8de9d91dc2ddd85a15940827938ccb",
+      "sha256": "f288113a7c6eee6708177f746942337937eebd3ebc4f9c88848de257acbbf9b4",
       "bytes": 31335
     }
   }

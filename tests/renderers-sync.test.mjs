@@ -135,18 +135,20 @@ test("md_renderers_ensure tool is registered with no parameters", () => {
     assert.deepEqual(t.parameters.properties, {});
 });
 
-test("md_report_quality auto-syncs the renderer cache on first call", async () => {
+test("md_report_quality returns the renderer-sync reminder (auto-sync moved to skill loaders in v0.19.4)", async () => {
     const sb = cwdSandbox("rq-autosync");
     try {
         const out = await getReportQuality();
         assert.equal(typeof out, "string");
-        // The response must surface the sync result so the model sees it.
-        assert.match(out, /renderer_cache_synced/);
-        const cacheDir = join(sb.dir, "money-desk", "_renderers");
-        for (const name of ["make_xlsx.py", "make_pdf.py", "make_docx.py", "make_html.py", "_branded.py", "README.md"]) {
-            assert.ok(existsSync(join(cacheDir, name)), `${name} should exist after auto-sync`);
-        }
-        assert.ok(existsSync(join(cacheDir, "RENDERERS_MANIFEST.json")));
+        // v0.19.4 removed the per-call `_ensureRenderersSynced()` from
+        // getReportQuality (it was redundant with the skill-loader
+        // auto-sync hook and added per-turn fs cost). The response no
+        // longer surfaces a `renderer_cache_synced` _meta block, but it
+        // still tells the model where the cache lives and how to recover
+        // from a render failure.
+        assert.match(out, /\.\/money-desk\/_renderers\//);
+        assert.match(out, /md_renderers_ensure/);
+        assert.doesNotMatch(out, /renderer_cache_synced/, "v0.19.4: no inline auto-sync meta block");
     } finally {
         sb.cleanup();
     }

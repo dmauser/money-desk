@@ -7,7 +7,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.19.3] — 2026-06-02
+## [0.19.4] — 2026-06-02
+
+### Performance
+
+After v0.19.0–v0.19.1 shipped, end-to-end latency in long sessions
+regressed noticeably. Profiling showed two dominant causes — both per-turn
+context bloat — plus a smaller per-skill-call filesystem cost. This
+release restores the v0.18.x feel without removing functionality.
+
+### Changed
+
+- **Slimmed `PRESENCE_NOTE`** from ~5 KB of prose + the entire 3 KB
+  `REPORT_QUALITY_CONFIG` JSON dump down to a ~1 KB single paragraph.
+  The presence note is injected into model context on `onSessionStart`
+  *and* re-injected on the first user prompt as a fallback, so its size
+  multiplies across every turn for the rest of the session. The full
+  report-quality contract, the specialist enumeration, the renderer
+  policy, the per-specialist tool-prefix table, the discovery-tool
+  enumeration, and the response-footer rule have all been removed from
+  the presence note — they remain reachable on demand via
+  `md_capabilities`, `md_report_quality`, and `md_citation_conventions`.
+  Net effect: ~2 000 fewer input tokens per turn.
+- **Throttled `MD_DIRECT_INSTRUCTION` to once per session.** Previously
+  every user message containing `money-desk` / `@money-desk` re-injected
+  the ~2 KB direct-mention instruction block. The instruction is now
+  guarded by a `directInstructionAnnounced` flag and slimmed to ~1 KB.
+- **Dropped the response-footer mandate from `PRESENCE_NOTE`.** The
+  rule forced every assistant turn that touched a finance topic to end
+  with a verbatim disclaimer line, costing output tokens on every turn.
+  The disclaimer remains a soft convention documented in
+  `md_report_quality`; it is no longer hard-required by the presence
+  note.
+
+### Fixed
+
+- **`md_report_quality` no longer triggers the renderer-cache auto-sync.**
+  In v0.19.1 every call to `md_report_quality` ran
+  `_ensureRenderersSynced()` (manifest read + 6 stats per call), and
+  the prompt directs the model to call `md_report_quality` before
+  every deliverable — duplicating work the skill-loader auto-sync hook
+  already performs immediately before returning the workflow. The
+  redundant call is removed; the `_meta.renderer_cache_synced` block in
+  the report-quality output is replaced with a one-line reminder.
+- **Added a 60 s per-process memo to `_ensureRenderersSynced()`** so
+  repeated non-forced calls within the same turn (e.g. when a single
+  workflow chains multiple render-spec-emitting skills) reuse the prior
+  result without re-reading the cache-side manifest or re-stat'ing the
+  six tracked renderer files. `force: true` (used by
+  `md_renderers_ensure`) bypasses the memo and refreshes it on success.
+
+
 
 ### Fixed
 
