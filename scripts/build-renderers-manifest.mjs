@@ -23,16 +23,28 @@ const REPO = resolve(HERE, "..");
 const RENDERERS = resolve(REPO, "extensions", "money-desk", "renderers");
 
 // Files we ship + sync. New renderers must be added here AND get a
-// __renderer_version__ block (see test_renderers_manifest.py).
+// __renderer_version__ block (see test_renderers_manifest.py). Plain
+// docs (README.md) are tracked too so the cache carries the
+// "self-verification policy" / install instructions next to the scripts.
 const TRACKED = [
     "_branded.py",
     "make_docx.py",
     "make_html.py",
     "make_pdf.py",
     "make_xlsx.py",
+    "README.md",
 ];
 
 const VERSION_LINE_RE = /^(__renderer_version__\s*=\s*)"[^"]*"\s*$/m;
+
+// Only Python files carry an embedded version constant.
+const VERSION_EMBED_FILES = new Set([
+    "_branded.py",
+    "make_docx.py",
+    "make_html.py",
+    "make_pdf.py",
+    "make_xlsx.py",
+]);
 
 async function main() {
     const pkg = JSON.parse(await readFile(join(REPO, "package.json"), "utf8"));
@@ -47,7 +59,7 @@ async function main() {
         let body = await readFile(path, "utf8");
 
         // Sync the embedded version string (when the file declares one).
-        if (VERSION_LINE_RE.test(body)) {
+        if (VERSION_EMBED_FILES.has(name) && VERSION_LINE_RE.test(body)) {
             const updated = body.replace(VERSION_LINE_RE, `$1"${version}"`);
             if (updated !== body) {
                 await writeFile(path, updated, "utf8");

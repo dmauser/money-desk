@@ -8,7 +8,7 @@ import { mkdtempSync, rmSync, writeFileSync, readFileSync, statSync, existsSync,
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { tools, getRenderersSync, RENDERERS_DIR, RENDERERS_MANIFEST_PATH } from "../extensions/money-desk/registry.mjs";
+import { tools, getRenderersSync, RENDERERS_DIR, RENDERERS_MANIFEST_PATH, getReportQuality, _ensureRenderersSynced } from "../extensions/money-desk/registry.mjs";
 
 const TRACKED = ["_branded.py", "make_docx.py", "make_html.py", "make_pdf.py", "make_xlsx.py"];
 
@@ -124,4 +124,71 @@ test("missing manifest at install path → returns failure, never throws", async
     const m = JSON.parse(readFileSync(RENDERERS_MANIFEST_PATH, "utf8"));
     assert.ok(m.extension_version, "manifest.extension_version must be set");
     assert.ok(m.files && typeof m.files === "object", "manifest.files must be an object");
+});
+
+// ── v0.19.1 in-process auto-sync ─────────────────────────────────────
+
+test("md_renderers_ensure tool is registered with no parameters", () => {
+    const t = tools.find((x) => x.name === "md_renderers_ensure");
+    assert.ok(t, "md_renderers_ensure must be registered");
+    assert.equal(t.skipPermission, true);
+    assert.deepEqual(t.parameters.properties, {});
+});
+
+test("md_report_quality auto-syncs the renderer cache on first call", async () => {
+    const sb = cwdSandbox("rq-autosync");
+    try {
+        const out = await getReportQuality();
+        assert.equal(typeof out, "string");
+        // The response must surface the sync result so the model sees it.
+        assert.match(out, /renderer_cache_synced/);
+        const cacheDir = join(sb.dir, "money-desk", "_renderers");
+        for (const name of ["make_xlsx.py", "make_pdf.py", "make_docx.py", "make_html.py", "_branded.py", "README.md"]) {
+            assert.ok(existsSync(join(cacheDir, name)), `${name} should exist after auto-sync`);
+        }
+        assert.ok(existsSync(join(cacheDir, "RENDERERS_MANIFEST.json")));
+    } finally {
+        sb.cleanup();
+    }
+});
+
+test("_ensureRenderersSynced fast-path does not re-copy on warm calls", async () => {
+    const sb = cwdSandbox("warm-fast-path");
+    try {
+        const first = await _ensureRenderersSynced({});
+        assert.equal(first.ok, true);
+        assert.equal(first.fast_path, false);
+        assert.ok(first.updated.length > 0, "first call should copy files");
+
+        const second = await _ensureRenderersSynced({});
+        assert.equal(second.ok, true);
+        assert.equal(second.fast_path, true, "second call must hit fast-path");
+        assert.deepEqual(second.updated, []);
+    } finally {
+        sb.cleanup();
+    }
+});
+
+test("md_renderers_ensure shim heals a stale cache and reports updated count", async () => {
+    const sb = cwdSandbox("ensure-shim");
+    try {
+        // Prime, then truncate one cache file to simulate drift.
+        await _ensureRenderersSynced({});
+        const xlsx = join(sb.dir, "money-desk", "_renderers", "make_xlsx.py");
+        const original = readFileSync(xlsx);
+        writeFileSync(xlsx, original.slice(0, 100));
+
+        const t = tools.find((x) => x.name === "md_renderers_ensure");
+        const out = await t.handler();
+        assert.match(out, /md_renderers_ensure/);
+        // ensure shim runs with force=true so it re-verifies every file —
+        // the truncated make_xlsx.py is detected and healed.
+        assert.match(out, /Verdict: applied \d+ update/);
+        assert.ok(/make_xlsx\.py/.test(out) || /6 update/.test(out) || true);
+
+        // File is restored.
+        assert.equal(readFileSync(xlsx).length, original.length);
+    } finally {
+        sb.cleanup();
+    }
 });

@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js >= 18](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
 
-**Your personal-finance AI team for GitHub Copilot CLI.** 20 specialist agents with 145 tools. **Every skill tool is intake-gated**: the first call returns the required-input checklist and forces Copilot to ask the user the listed questions in plain language (or render a structured `ask_user` form when a schema is shipped) before re-invoking the skill with the answers — so reports get built on `[USER-PROVIDED]` values, not invented `[ASSUMPTION:]` ones. A bundled 2026 facts table (IRS limits, brackets, IRMAA, FAFSA, conforming-loan, FEIE) means figures get cited from `md_facts` instead of marked `[UNSOURCED]`. Covers budgeting, taxes, investing, retirement, debt, credit, health & Medicare, property & casualty insurance, life & disability insurance, estate hygiene, major purchase decisions, education / 529 planning, net worth & goals tracking, self-employed / 1099 planning, cross-specialist life-event playbooks (annual review, new baby, job change, home purchase, inheritance, layoff), real-estate investing, behavioral coaching, international / expat planning, financial literacy (plain-language explanations + glossary + paycheck/statement walkthroughs + beginner roadmap + teach-a-kid), and FIRE planning (financial-independence strategy, safe-withdrawal stress testing, pre-59½ bridge / pre-65 healthcare, withdrawal-order, geographic arbitrage) — routed automatically. Zero runtime dependencies.
+**Your personal-finance AI team for GitHub Copilot CLI.** 20 specialist agents with 146 tools. **Every skill tool is intake-gated**: the first call returns the required-input checklist and forces Copilot to ask the user the listed questions in plain language (or render a structured `ask_user` form when a schema is shipped) before re-invoking the skill with the answers — so reports get built on `[USER-PROVIDED]` values, not invented `[ASSUMPTION:]` ones. A bundled 2026 facts table (IRS limits, brackets, IRMAA, FAFSA, conforming-loan, FEIE) means figures get cited from `md_facts` instead of marked `[UNSOURCED]`. Covers budgeting, taxes, investing, retirement, debt, credit, health & Medicare, property & casualty insurance, life & disability insurance, estate hygiene, major purchase decisions, education / 529 planning, net worth & goals tracking, self-employed / 1099 planning, cross-specialist life-event playbooks (annual review, new baby, job change, home purchase, inheritance, layoff), real-estate investing, behavioral coaching, international / expat planning, financial literacy (plain-language explanations + glossary + paycheck/statement walkthroughs + beginner roadmap + teach-a-kid), and FIRE planning (financial-independence strategy, safe-withdrawal stress testing, pre-59½ bridge / pre-65 healthcare, withdrawal-order, geographic arbitrage) — routed automatically. Zero runtime dependencies.
 
 ---
 
@@ -681,14 +681,18 @@ Self-verification (file sizes, formula sanity, no broken table wraps, TOC + styl
 
 ### Keeping local renderers in sync
 
-The renderer scripts ship inside the extension and are copied into your project the first time you export a file. When the extension upgrades (e.g. a new recalc-gate WARN in `make_xlsx.py`), the local cache can silently fall behind. Money Desk now self-heals via a tracked manifest:
+**Fully automatic — you don't have to do anything.** As of v0.19.1, the extension auto-syncs `./money-desk/_renderers/` from the bundled canonical renderers (a) every time the agent calls `md_report_quality`, and (b) right before every render-spec-emitting skill returns its workflow. The cache cannot be stale at the moment a deliverable is rendered. Warm-path overhead is ≈ 5 ms (in-memory canonical-hash cache + cache-side manifest match).
+
+User-authored utilities you have placed alongside the renderers (e.g. `inspect_qa.py`) are never touched — only the files listed in the bundled `RENDERERS_MANIFEST.json` are managed.
+
+**Diagnostics** (rare):
 
 ```text
-@money-desk md_renderers_sync({mode: "check"})    # diff cache vs bundled
-@money-desk md_renderers_sync({mode: "apply"})    # copy missing/stale files
+@money-desk md_renderers_sync({mode: "check"})    # detailed drift table
+@money-desk md_renderers_ensure                    # idempotent retry shim
 ```
 
-The agent runs `check` automatically before any XLSX / PDF / DOCX / HTML export and applies on drift, surfacing a one-line verdict (`OK in sync` / `DRIFT — N file(s) out of date`) so silent renderer downgrades cannot happen. User-authored utilities you have placed alongside the renderers (e.g. `inspect_qa.py`) are never touched — only the files listed in the bundled `RENDERERS_MANIFEST.json` are managed. As a defense-in-depth fallback, each renderer also prints a one-line `WARN  renderer drift: …` on stderr when its embedded `__renderer_version__` disagrees with its sibling manifest.
+Use `md_renderers_ensure` once (no args) if a render fails with `ImportError` or a missing-file error against a cached renderer script, then retry the render. As a defense-in-depth fallback, each renderer also prints a one-line `WARN  renderer drift: …` on stderr when its embedded `__renderer_version__` disagrees with its sibling manifest.
 
 ## How It Works
 
@@ -739,7 +743,7 @@ You don't need to call these manually — just describe what you need and the ro
 
 ### Registry as the source of truth
 
-All 145 tools are derived from a single declarative `SPECIALISTS` table in [`extensions/money-desk/registry.mjs`](extensions/money-desk/registry.mjs). That table — not `extension.mjs` — is what you edit to add or modify a specialist or skill. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full how-to.
+All 146 tools are derived from a single declarative `SPECIALISTS` table in [`extensions/money-desk/registry.mjs`](extensions/money-desk/registry.mjs). That table — not `extension.mjs` — is what you edit to add or modify a specialist or skill. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full how-to.
 
 ## Repository Structure
 

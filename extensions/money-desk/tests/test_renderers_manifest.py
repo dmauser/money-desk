@@ -65,6 +65,10 @@ def test_manifest_sha_and_bytes_match_disk(manifest):
 
 def test_renderer_version_constants_consistent(manifest, package_version):
     for name in manifest["files"]:
+        # Only Python renderers carry an embedded version constant; plain
+        # docs (README.md) are tracked for cache-sync purposes only.
+        if not name.endswith(".py"):
+            continue
         path = RENDERERS_DIR / name
         text = path.read_text(encoding="utf-8")
         m = VERSION_LINE_RE.search(text)

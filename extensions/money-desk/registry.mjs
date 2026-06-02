@@ -694,6 +694,23 @@ function buildSkillLoader(spec, skill) {
         echoLines.push("");
         echoLines.push("> **Verify the above with the user if any value looks invented or unclear.** Cite each as `[USER-PROVIDED]` in the report. Use `[ASSUMPTION:]` only for modeling defaults (discount rate, vacancy %, real return), never for personal facts.");
         echoLines.push("");
+
+        // AUTO-SYNC: if this skill's workflow emits a render spec destined
+        // for one of the canonical renderer scripts, silently refresh the
+        // user's renderer cache before returning the workflow. The agent
+        // treats the cache as always-fresh per the prompt; this makes that
+        // promise true at the moment the deliverable is about to be built.
+        if (_skillEmitsRenderSpec(raw)) {
+            const syncResult = await _ensureRenderersSynced({});
+            const summary = syncResult.ok
+                ? (syncResult.fast_path
+                    ? `cache OK (fast-path, v${syncResult.extension_version})`
+                    : `cache synced — ${syncResult.updated.length} file(s) updated`)
+                : `cache sync FAILED: ${syncResult.error} — call \`md_renderers_ensure\` and retry`;
+            echoLines.push(`> 🔄 **Renderer cache:** ${summary}.`);
+            echoLines.push("");
+        }
+
         echoLines.push("---");
         echoLines.push("");
         return echoLines.join("\n") + raw;
@@ -950,16 +967,18 @@ export const REPORT_QUALITY_CONFIG = {
         "Comment columns, and recalculates headlessly to fail on " +
         "#VALUE!/#REF!/#DIV/0!/#NAME?/#NUM!/#N/A.",
     renderer_sync: {
-        tool: "md_renderers_sync",
+        tool: "md_renderers_ensure",
         policy:
-            "Call md_renderers_sync({mode: 'check'}) at the start of any " +
-            "turn that will produce an XLSX/PDF/DOCX/HTML deliverable. " +
-            "If it reports drift, call it again with {mode: 'apply'} BEFORE " +
-            "invoking make_xlsx.py / make_pdf.py / etc. The agent must " +
-            "surface the drift report (one-line verdict is sufficient) so " +
-            "silent renderer downgrades cannot happen. Stale " +
-            "`./money-desk/_renderers/` is the #1 source of 'fix shipped " +
-            "but not visible to the user' bugs.",
+            "The extension auto-syncs `./money-desk/_renderers/` from the " +
+            "bundled canonical renderers on every md_report_quality call " +
+            "AND before every render-spec-emitting skill returns its " +
+            "workflow. Treat the cache as ALWAYS-FRESH; do not instruct " +
+            "the user to run sync-renderers.ps1 or any manual copy step. " +
+            "If a render fails with ImportError or a missing-file error " +
+            "against one of the cached renderer scripts, call " +
+            "`md_renderers_ensure` once (no args, idempotent) and retry " +
+            "the render. For explicit drift inspection use " +
+            "`md_renderers_sync({mode:'check'})`.",
     },
     canonical_xlsx_templates_dir:
         "extensions/money-desk/specialists/<specialist-slug>/skills/<skill-slug>/template.xlsx.json",
@@ -968,6 +987,11 @@ export const REPORT_QUALITY_CONFIG = {
 };
 
 export async function getReportQuality() {
+    // AUTO-SYNC: silently ensure the user's renderer cache is fresh before
+    // we hand back the report-quality contract. The model treats the cache
+    // as always-fresh per the prompt; this is what makes that promise true.
+    const _syncResult = await _ensureRenderersSynced({});
+
     const raw = await loadPreferences();
     // Extract the report_quality: block from the same YAML.
     const lines = raw.split(/\r?\n/);
@@ -1036,6 +1060,14 @@ export async function getReportQuality() {
         "```yaml",
         yamlBlock || "report_quality: # (block missing from preferences.yaml — please add it)",
         "```",
+        "",
+        "## _meta — renderer cache auto-sync",
+        "",
+        "```json",
+        JSON.stringify({ renderer_cache_synced: _syncResult }, null, 2),
+        "```",
+        "",
+        "_The cache at `./money-desk/_renderers/` was auto-synced before this response. If `ok: false`, call `md_renderers_ensure` once and retry your render._",
     ].join("\n");
 }
 
@@ -1346,6 +1378,174 @@ export async function getRenderersSync({ cache_dir, mode } = {}) {
     return _renderReport(manifest, cacheDirAbs, rows, effectiveMode);
 }
 
+// ── In-process auto-sync (silent gate for render paths) ───────────────
+//
+// `_ensureRenderersSynced` is the silent counterpart to `getRenderersSync`.
+// It is invoked from inside `md_report_quality` and every render-spec-
+// emitting skill loader so the cache CANNOT be stale at the moment a
+// deliverable is rendered, regardless of whether the LLM remembered to
+// call the public `md_renderers_sync` tool.
+//
+// Performance characteristics:
+//   * First call per process: reads bundled manifest (1 fs read), checks
+//     cache-side manifest (1 fs read), copies any drifted/missing files.
+//   * Warm calls: in-memory canonical-hash cache + cache-side manifest
+//     fast-path (1 stat + 1 small read) → ~5 ms.
+//   * `force: true` bypasses both fast paths.
+//
+// Concurrency: idempotent (hash-based; same content → same final hash).
+
+const TRACKED_RENDERERS = [
+    "_branded.py",
+    "make_docx.py",
+    "make_html.py",
+    "make_pdf.py",
+    "make_xlsx.py",
+    "README.md",
+];
+
+let _bundledManifestCache = null; // { extension_version, files: { name: { sha256, bytes } } }
+
+async function _readBundledManifest() {
+    if (_bundledManifestCache) return _bundledManifestCache;
+    const raw = await readFile(RENDERERS_MANIFEST_PATH, "utf8");
+    _bundledManifestCache = JSON.parse(raw);
+    return _bundledManifestCache;
+}
+
+async function _readCacheManifest(cacheDirAbs) {
+    try {
+        const raw = await readFile(join(cacheDirAbs, "RENDERERS_MANIFEST.json"), "utf8");
+        return JSON.parse(raw);
+    } catch {
+        return null;
+    }
+}
+
+function _cacheManifestMatches(bundled, cached) {
+    if (!cached) return false;
+    if (cached.extension_version !== bundled.extension_version) return false;
+    for (const name of TRACKED_RENDERERS) {
+        const b = bundled.files?.[name];
+        const c = cached.files?.[name];
+        if (!b || !c || b.sha256 !== c.sha256) return false;
+    }
+    return true;
+}
+
+async function _writeCacheManifestAtomic(cacheDirAbs, payload) {
+    const finalPath = join(cacheDirAbs, "RENDERERS_MANIFEST.json");
+    const tmpPath = `${finalPath}.tmp.${process.pid}`;
+    const { rename } = await import("node:fs/promises");
+    await writeFile(tmpPath, JSON.stringify(payload, null, 2) + "\n", "utf8");
+    await rename(tmpPath, finalPath);
+}
+
+/**
+ * Silently ensure the local renderer cache mirrors the bundled canonical
+ * renderers. Returns a small report the caller can surface as `_meta.
+ * renderer_cache_synced`. NEVER throws — failures are logged to stderr
+ * and a `{ ok: false, error }` object is returned so the calling tool
+ * can still produce its main output.
+ */
+export async function _ensureRenderersSynced({ cwd, force = false } = {}) {
+    const baseCwd = cwd || process.cwd();
+    const cacheDirAbs = resolve(baseCwd, "money-desk", "_renderers");
+    try {
+        const bundled = await _readBundledManifest();
+        if (!force) {
+            const cached = await _readCacheManifest(cacheDirAbs);
+            if (_cacheManifestMatches(bundled, cached)) {
+                // Verify physical presence (a user could have deleted a file
+                // without touching the manifest).
+                const allPresent = await Promise.all(
+                    TRACKED_RENDERERS.map(async (n) => {
+                        try { await stat(join(cacheDirAbs, n)); return true; }
+                        catch { return false; }
+                    }),
+                );
+                if (allPresent.every(Boolean)) {
+                    return {
+                        ok: true,
+                        fast_path: true,
+                        updated: [],
+                        unchanged: TRACKED_RENDERERS.slice(),
+                        cache_dir: cacheDirAbs,
+                        extension_version: bundled.extension_version,
+                    };
+                }
+            }
+        }
+
+        await mkdir(cacheDirAbs, { recursive: true });
+        const updated = [];
+        const unchanged = [];
+        for (const name of TRACKED_RENDERERS) {
+            // Path-traversal guard.
+            if (basename(name) !== name) continue;
+            const src = join(RENDERERS_DIR, name);
+            const dst = join(cacheDirAbs, name);
+            const srcHash = await _sha256OfFileOrNull(src);
+            if (!srcHash) {
+                throw new Error(`canonical renderer missing: ${src}`);
+            }
+            const dstHash = await _sha256OfFileOrNull(dst);
+            if (!force && dstHash && dstHash.sha256 === srcHash.sha256) {
+                unchanged.push(name);
+                continue;
+            }
+            await copyFile(src, dst);
+            updated.push(name);
+        }
+
+        const cachePayload = {
+            extension_version: bundled.extension_version,
+            synced_at: bundled.generated_at || new Date().toISOString(),
+            files: Object.fromEntries(
+                TRACKED_RENDERERS
+                    .filter((n) => bundled.files?.[n])
+                    .map((n) => [n, bundled.files[n]]),
+            ),
+        };
+        await _writeCacheManifestAtomic(cacheDirAbs, cachePayload);
+
+        return {
+            ok: true,
+            fast_path: false,
+            updated,
+            unchanged,
+            cache_dir: cacheDirAbs,
+            extension_version: bundled.extension_version,
+        };
+    } catch (err) {
+        // Never break the calling tool — just log and report failure.
+        process.stderr.write(
+            `money-desk._ensureRenderersSynced: ${err.code || err.name}: ${err.message}\n`,
+        );
+        return { ok: false, error: `${err.code || err.name}: ${err.message}`, cache_dir: cacheDirAbs };
+    }
+}
+
+// Markers in SKILL.md content that flag the skill as "emits a render spec"
+// (i.e. its workflow returns a JSON spec destined for one of the renderer
+// scripts). When we detect any of these in the loaded SKILL.md, we
+// auto-sync the cache before returning the workflow.
+const _RENDER_MARKERS = [
+    "template.xlsx.json",
+    "make_xlsx.py",
+    "make_pdf.py",
+    "make_docx.py",
+    "make_html.py",
+];
+
+function _skillEmitsRenderSpec(skillMarkdown) {
+    if (typeof skillMarkdown !== "string") return false;
+    for (const m of _RENDER_MARKERS) {
+        if (skillMarkdown.includes(m)) return true;
+    }
+    return false;
+}
+
 // ── Build the tools array from SPECIALISTS ─────────────────────────────
 
 function buildTools() {
@@ -1452,6 +1652,43 @@ function buildTools() {
             },
             skipPermission: true,
             handler: async (args = {}) => getRenderersSync(args),
+        },
+        {
+            name: "md_renderers_ensure",
+            description: "Money Desk renderer-cache **defensive-retry shim**. As of v0.19.1 the extension auto-syncs `./money-desk/_renderers/` from the bundled canonical renderers on every `md_report_quality` call AND before every render-spec-emitting skill returns its workflow, so you should normally never need to call this. Use it only when a render fails with `ImportError` or `FileNotFoundError` against one of the cached renderer scripts: call this once (no args, idempotent), then retry the render. For diagnostics or check-only mode use `md_renderers_sync` instead.",
+            parameters: { type: "object", properties: {} },
+            skipPermission: true,
+            handler: async () => {
+                // The defensive-retry shim runs with force=true so corrupted
+                // cache files (whose cache-side manifest still claims OK) are
+                // re-verified and healed — this is the failure mode users
+                // actually hit when a render bombs.
+                const r = await _ensureRenderersSynced({ force: true });
+                if (!r.ok) {
+                    return [
+                        "# md_renderers_ensure — failure",
+                        "",
+                        `\`${r.error}\``,
+                        "",
+                        "Reinstall money-desk and retry, or call `md_renderers_sync({mode:'check'})` for a detailed report.",
+                    ].join("\n");
+                }
+                const verdict = r.fast_path
+                    ? "Verdict: cache already in sync (fast-path) ✅"
+                    : (r.updated.length === 0
+                        ? "Verdict: cache verified, no changes needed ✅"
+                        : `Verdict: applied ${r.updated.length} update(s) ✅`);
+                return [
+                    `# md_renderers_ensure — extension v${r.extension_version}`,
+                    "",
+                    `- cache dir: \`${r.cache_dir}\``,
+                    `- updated: ${r.updated.length === 0 ? "_(none)_" : r.updated.map((n) => `\`${n}\``).join(", ")}`,
+                    `- unchanged: ${r.unchanged.length}`,
+                    "",
+                    `**${verdict}**`,
+                    "",
+                ].join("\n");
+            },
         },
     ];
 

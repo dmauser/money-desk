@@ -68,7 +68,7 @@ const MD_MENTION = /(^|[^\w])@?money[\s-]?desk\b/i;
 
 const MD_DIRECT_INSTRUCTION =
     "[money-desk — DIRECT MENTION] The user just referenced the money-desk extension by name. " +
-    "It IS loaded in this session (145 tools, 20 specialists). " +
+    "It IS loaded in this session (146 tools, 20 specialists). " +
     "Do NOT tell the user money-desk is unavailable, unknown, or not part of the CLI. " +
     "REQUIRED next action: call the `md_capabilities` tool now to retrieve the specialist map, " +
     "then answer the user's question using that information. " +
@@ -82,8 +82,11 @@ const MD_DIRECT_INSTRUCTION =
     "'underwrite this rental property', 'should I refi my mortgage?', " +
     "'market just dropped — should I sell?', 'audit my beneficiaries', " +
     "'we are moving to [country] — what do I need to do?'). " +
-    "Before producing any XLSX/PDF/DOCX/HTML deliverable, call `md_renderers_sync({mode:'check'})` " +
-    "and apply on drift — stale `./money-desk/_renderers/` is the #1 source of 'fix shipped but not visible to the user' bugs. " +
+    "Before producing any XLSX/PDF/DOCX/HTML deliverable, the extension auto-syncs " +
+    "`./money-desk/_renderers/` from the canonical renderers on every md_report_quality call " +
+    "and before every render-spec-emitting skill returns. Treat the cache as ALWAYS-FRESH. " +
+    "If a render fails with ImportError or a missing-file error, call `md_renderers_ensure` " +
+    "once (no args) and retry. " +
     "Remember the response-footer rule from the presence note: end this response with the Money Desk disclaimer line.";
 
 const session = await joinSession({

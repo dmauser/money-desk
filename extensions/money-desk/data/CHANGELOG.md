@@ -7,6 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.1] — 2026-06-02
+
+### Changed
+
+- **`md_report_quality` and every render-spec-emitting skill tool now
+  auto-sync `./money-desk/_renderers/` in-process before returning.**
+  The cache cannot be stale at the moment a deliverable is rendered,
+  regardless of whether the LLM remembered to call the public sync
+  tool. Warm-path overhead is ≈ 5 ms (in-memory canonical-hash cache
+  + cache-side manifest fast-path). The response from
+  `md_report_quality` now carries a `_meta.renderer_cache_synced`
+  block so the model can verify the sync ran. Skills that emit a
+  render spec (any SKILL.md mentioning `template.xlsx.json`,
+  `make_xlsx.py`, `make_pdf.py`, `make_docx.py`, or `make_html.py`)
+  surface a one-line `🔄 Renderer cache: cache OK (fast-path) / cache
+  synced — N file(s) updated` notice in their inputs-received echo.
+- `REPORT_QUALITY_CONFIG.renderer_sync.policy` rewritten to reflect
+  the auto-sync contract: "treat the cache as ALWAYS-FRESH; do not
+  instruct the user to run sync-renderers.ps1 or any manual copy
+  step."
+- `MD_DIRECT_INSTRUCTION` updated to match.
+- `RENDERERS_MANIFEST.json` now also tracks `renderers/README.md` so
+  the cache carries the renderer install + self-verification docs
+  next to the scripts (6 tracked files, was 5).
+- Capabilities banner bumped 145 → **146 tools**.
+
+### Added
+
+- **`md_renderers_ensure`** — a no-args, idempotent defensive-retry
+  shim. Use it once if a render fails with `ImportError` or a
+  missing-file error against a cached renderer script, then retry the
+  render. For explicit drift inspection use `md_renderers_sync` (still
+  available with check / apply modes).
+- **`extensions/money-desk/lib/renderer_sync.py`** — pure-stdlib
+  `ensure_renderer_cache(project_root, *, force=False)` Python module
+  for renderers / CI / direct-CLI use. Reads the SAME bundled
+  `RENDERERS_MANIFEST.json` as the JS path so both surfaces agree on
+  truth. Exposes a `python -m` entry-point with `--project-root` and
+  `--force` flags. Atomic manifest write via `os.replace`; thread-safe
+  under concurrent calls; never touches files outside the TRACKED
+  list.
+- `extensions/money-desk/tests/test_renderer_sync.py` — 7 tests
+  covering fresh-project sync, stale-overwrite, local-file
+  preservation, manifest fast-path skips I/O, `force=True` bypass,
+  missing-canonical clear error, and concurrent-call idempotency.
+- `tests/renderers-sync.test.mjs` extended with 4 new scenarios:
+  `md_renderers_ensure` registration, `md_report_quality`
+  auto-sync on first call, fast-path no-op on warm calls, and the
+  ensure shim healing a stale cache.
+
 ## [0.19.0] — 2026-06-01
 
 ### Added
