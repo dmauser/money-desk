@@ -11,6 +11,35 @@ is BOTH viewable in a browser and printable with the same brand styling as the
 PDF renderer.
 """
 from __future__ import annotations
+
+__renderer_version__ = "0.19.0"
+def _warn_on_drift() -> None:
+    """Soft-warn if our sibling RENDERERS_MANIFEST.json declares a different version.
+
+    Never raises — legacy users without a manifest still work. The agent is
+    expected to call ``md_renderers_sync`` to heal drift.
+    """
+    import json as _json, os as _os, sys as _sys
+    p = _os.path.join(_os.path.dirname(__file__), "RENDERERS_MANIFEST.json")
+    try:
+        with open(p, "r", encoding="utf-8") as _fh:
+            m = _json.load(_fh)
+        ev = m.get("extension_version")
+        if ev and ev != __renderer_version__:
+            print(
+                f"WARN  renderer drift: {_os.path.basename(__file__)} is "
+                f"__renderer_version__ {__renderer_version__} but sibling "
+                f"RENDERERS_MANIFEST.json declares {ev}. "
+                f"Re-run md_renderers_sync.",
+                file=_sys.stderr,
+            )
+    except Exception:
+        pass
+
+
+_warn_on_drift()
+del _warn_on_drift
+
 import argparse, datetime, html, pathlib, re, sys
 
 # Auto-styling helper (shared with make_pdf.py). Loaded relative to this script

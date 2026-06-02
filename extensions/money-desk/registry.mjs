@@ -9,15 +9,18 @@
 // Adding a new skill:      add an entry to that specialist's `skills` array
 //                          AND create skills/<id-with-hyphens>/SKILL.md.
 
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile, mkdir, copyFile, stat } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
-import { dirname, join, resolve, relative } from "node:path";
+import { dirname, join, resolve, relative, basename } from "node:path";
 
 import { getIntakeSchema } from "./intake-schemas.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const SPECIALISTS_DIR = join(HERE, "specialists");
 export const DATA_DIR = join(HERE, "data");
+export const RENDERERS_DIR = join(HERE, "renderers");
+export const RENDERERS_MANIFEST_PATH = join(RENDERERS_DIR, "RENDERERS_MANIFEST.json");
 
 // ── Citation conventions (single source of truth shared by every spec) ──
 //
@@ -946,6 +949,18 @@ export const REPORT_QUALITY_CONFIG = {
         "named ranges, lints numeric formulas against Notes/Source/Citation/" +
         "Comment columns, and recalculates headlessly to fail on " +
         "#VALUE!/#REF!/#DIV/0!/#NAME?/#NUM!/#N/A.",
+    renderer_sync: {
+        tool: "md_renderers_sync",
+        policy:
+            "Call md_renderers_sync({mode: 'check'}) at the start of any " +
+            "turn that will produce an XLSX/PDF/DOCX/HTML deliverable. " +
+            "If it reports drift, call it again with {mode: 'apply'} BEFORE " +
+            "invoking make_xlsx.py / make_pdf.py / etc. The agent must " +
+            "surface the drift report (one-line verdict is sufficient) so " +
+            "silent renderer downgrades cannot happen. Stale " +
+            "`./money-desk/_renderers/` is the #1 source of 'fix shipped " +
+            "but not visible to the user' bugs.",
+    },
     canonical_xlsx_templates_dir:
         "extensions/money-desk/specialists/<specialist-slug>/skills/<skill-slug>/template.xlsx.json",
     canonical_xlsx_templates_note:
@@ -1197,6 +1212,140 @@ export async function getSources() {
     ].join("\n");
 }
 
+// ── Renderer cache sync (served by md_renderers_sync) ─────────────────
+//
+// Keeps the user's local `./money-desk/_renderers/` cache aligned with the
+// canonical renderer scripts shipped inside this extension. The agent is
+// expected to call `md_renderers_sync({mode:"check"})` before any export
+// and `{mode:"apply"}` if the check reports drift, per the
+// `renderer_sync` policy in REPORT_QUALITY_CONFIG.
+//
+// Never throws: every error is reported through a markdown failure body
+// so the agent can surface it to the user without crashing the session.
+
+async function _sha256OfFile(path) {
+    const buf = await readFile(path);
+    return { sha256: createHash("sha256").update(buf).digest("hex"), bytes: buf.length };
+}
+
+async function _sha256OfFileOrNull(path) {
+    try {
+        return await _sha256OfFile(path);
+    } catch {
+        return null;
+    }
+}
+
+function _verdictLine(rows) {
+    const drift = rows.filter((r) => r.status !== "ok");
+    if (drift.length === 0) return "**Verdict: OK in sync** ✅";
+    return `**Verdict: DRIFT — ${drift.length} file(s) out of date** ⚠️`;
+}
+
+function _renderReport(manifest, cacheDirAbs, rows, mode) {
+    const header = [
+        `# Money Desk renderer sync — extension v${manifest.extension_version}`,
+        "",
+        `- manifest generated: \`${manifest.generated_at}\``,
+        `- bundled source: \`${RENDERERS_DIR}\``,
+        `- cache dir: \`${cacheDirAbs}\``,
+        `- mode: \`${mode}\``,
+        "",
+        "| File | Status | Bundled sha (12) | Cached sha (12) | Bytes |",
+        "|------|--------|------------------|-----------------|-------|",
+    ];
+    const body = rows.map((r) => {
+        const bsha = r.bundled_sha ? r.bundled_sha.slice(0, 12) : "—";
+        const csha = r.cached_sha ? r.cached_sha.slice(0, 12) : "—";
+        return `| \`${r.name}\` | ${r.status} | \`${bsha}\` | \`${csha}\` | ${r.bytes ?? "—"} |`;
+    });
+    return [...header, ...body, "", _verdictLine(rows), ""].join("\n");
+}
+
+export async function getRenderersSync({ cache_dir, mode } = {}) {
+    const effectiveMode = mode === "apply" ? "apply" : "check";
+    const cacheDirRaw = typeof cache_dir === "string" && cache_dir.trim()
+        ? cache_dir
+        : "./money-desk/_renderers/";
+    const cacheDirAbs = resolve(process.cwd(), cacheDirRaw);
+
+    // Read the bundled manifest. Soft-fail with install hint.
+    let manifest;
+    try {
+        const raw = await readFile(RENDERERS_MANIFEST_PATH, "utf8");
+        manifest = JSON.parse(raw);
+    } catch (err) {
+        return {
+            resultType: "failure",
+            textResultForLlm: [
+                "# md_renderers_sync — failure",
+                "",
+                `Could not read the bundled renderer manifest at:`,
+                `\`${RENDERERS_MANIFEST_PATH}\``,
+                "",
+                `Underlying error: \`${err.code || err.name}: ${err.message}\``,
+                "",
+                "This usually means the extension is installed but its `renderers/` subtree is missing or unreadable. Reinstall money-desk (e.g. `npx money-desk init`) to restore the bundled scripts and try again.",
+            ].join("\n"),
+        };
+    }
+
+    if (!manifest || !manifest.files || typeof manifest.files !== "object") {
+        return {
+            resultType: "failure",
+            textResultForLlm: `# md_renderers_sync — failure\n\nManifest at \`${RENDERERS_MANIFEST_PATH}\` is malformed (missing \`files\` map).`,
+        };
+    }
+
+    const rows = [];
+    for (const [name, entry] of Object.entries(manifest.files)) {
+        // Path-traversal guard: only accept simple basenames.
+        if (basename(name) !== name || name.includes("..") || name.includes("/") || name.includes("\\")) {
+            rows.push({ name, status: "manifest-invalid", bundled_sha: null, cached_sha: null, bytes: entry?.bytes ?? null });
+            continue;
+        }
+        const bundledPath = join(RENDERERS_DIR, name);
+        const cachedPath = join(cacheDirAbs, name);
+        const bundled = await _sha256OfFileOrNull(bundledPath);
+        const cached = await _sha256OfFileOrNull(cachedPath);
+
+        let status;
+        if (!bundled) status = "extension-missing";
+        else if (!cached) status = "cache-missing";
+        else if (bundled.sha256 !== cached.sha256) status = "hash-mismatch";
+        else status = "ok";
+
+        rows.push({
+            name,
+            status,
+            bundled_sha: bundled?.sha256 ?? null,
+            cached_sha: cached?.sha256 ?? null,
+            bytes: bundled?.bytes ?? entry?.bytes ?? null,
+            bundledPath,
+            cachedPath,
+        });
+    }
+
+    if (effectiveMode === "apply") {
+        await mkdir(cacheDirAbs, { recursive: true });
+        for (const r of rows) {
+            if (r.status === "ok" || r.status === "extension-missing" || r.status === "manifest-invalid") continue;
+            try {
+                await copyFile(r.bundledPath, r.cachedPath);
+            } catch (err) {
+                r.status = `apply-failed:${err.code || err.name}`;
+                continue;
+            }
+            // Re-verify post-copy.
+            const re = await _sha256OfFileOrNull(r.cachedPath);
+            r.cached_sha = re?.sha256 ?? null;
+            r.status = re && re.sha256 === r.bundled_sha ? "ok" : "hash-mismatch";
+        }
+    }
+
+    return _renderReport(manifest, cacheDirAbs, rows, effectiveMode);
+}
+
 // ── Build the tools array from SPECIALISTS ─────────────────────────────
 
 function buildTools() {
@@ -1283,6 +1432,26 @@ function buildTools() {
             },
             skipPermission: true,
             handler: async (args = {}) => getIntake(args.skill),
+        },
+        {
+            name: "md_renderers_sync",
+            description: "Money Desk renderer-cache sync. Keeps the user's local `./money-desk/_renderers/` cache aligned with the canonical renderer scripts (make_xlsx.py / make_pdf.py / make_docx.py / make_html.py / _branded.py) shipped inside this extension. **Call this BEFORE every XLSX / PDF / DOCX / HTML export** — first with `{mode:'check'}`; if the verdict line says DRIFT, call again with `{mode:'apply'}` to copy missing or stale files from the extension into the cache, then re-render. Stale `./money-desk/_renderers/` is the #1 source of 'fix shipped but not visible to the user' bugs (e.g. a v0.18.7 recalc-gate WARN that never triggers because the cached make_xlsx.py is from v0.18.4). Never modifies or deletes files NOT listed in the bundled `RENDERERS_MANIFEST.json` — user-authored utilities like `inspect_qa.py` are left untouched. Surface the one-line verdict to the user.",
+            parameters: {
+                type: "object",
+                properties: {
+                    cache_dir: {
+                        type: "string",
+                        description: "Path to the local renderer cache. Defaults to `./money-desk/_renderers/` (resolved against the agent's CWD), matching the canonical convention in `md_report_quality`.",
+                    },
+                    mode: {
+                        type: "string",
+                        enum: ["check", "apply"],
+                        description: "`check` (default) reports drift only; `apply` copies any drifted file from the extension into the cache, then re-verifies.",
+                    },
+                },
+            },
+            skipPermission: true,
+            handler: async (args = {}) => getRenderersSync(args),
         },
     ];
 

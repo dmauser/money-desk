@@ -68,7 +68,7 @@ const MD_MENTION = /(^|[^\w])@?money[\s-]?desk\b/i;
 
 const MD_DIRECT_INSTRUCTION =
     "[money-desk — DIRECT MENTION] The user just referenced the money-desk extension by name. " +
-    "It IS loaded in this session (144 tools, 20 specialists). " +
+    "It IS loaded in this session (145 tools, 20 specialists). " +
     "Do NOT tell the user money-desk is unavailable, unknown, or not part of the CLI. " +
     "REQUIRED next action: call the `md_capabilities` tool now to retrieve the specialist map, " +
     "then answer the user's question using that information. " +
@@ -82,6 +82,8 @@ const MD_DIRECT_INSTRUCTION =
     "'underwrite this rental property', 'should I refi my mortgage?', " +
     "'market just dropped — should I sell?', 'audit my beneficiaries', " +
     "'we are moving to [country] — what do I need to do?'). " +
+    "Before producing any XLSX/PDF/DOCX/HTML deliverable, call `md_renderers_sync({mode:'check'})` " +
+    "and apply on drift — stale `./money-desk/_renderers/` is the #1 source of 'fix shipped but not visible to the user' bugs. " +
     "Remember the response-footer rule from the presence note: end this response with the Money Desk disclaimer line.";
 
 const session = await joinSession({
