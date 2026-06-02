@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """make_xlsx.py - Money Desk Excel workbook renderer (with REAL formulas).
 
-Install: pip install openpyxl
+Install: pip install -r requirements.txt   (openpyxl + formulas)
+         # `formulas` is the DEFAULT recalc backend — a pure-Python Excel
+         # formula evaluator with zero external system deps. LibreOffice
+         # headless and Excel COM (Windows + pywin32) are optional
+         # ACCELERATORS that the post-save validate_workbook gate prefers
+         # when present, but neither is required for the gate to run.
 Usage:   python make_xlsx.py --spec spec.json --specialist "Investing Advisor"
          # --output is optional; defaults to reports/<specialist-slug>/<spec-stem>.xlsx
          # override with: --output path/to/report.xlsx  (or --outdir to change the base folder)
@@ -54,13 +59,15 @@ VALIDATION (default-on, opt-out via --no-validate / validate=False):
      formulas, so #VALUE! errors slip through silent self-checks).
   2. validate_workbook(path): post-save recalculation pass. Tries
      LibreOffice headless, then Excel COM (Windows), then the
-     `formulas` Python package. Reads the materialized values and
-     fails the build on any #VALUE! / #REF! / #DIV/0! / #NAME? /
-     #NUM! / #N/A cell.
+     `formulas` Python package (the DEFAULT — pinned in
+     requirements.txt so every install has a working backend out of
+     the box; LibreOffice/Excel COM are optional accelerators).
+     Reads the materialized values and fails the build on any
+     #VALUE! / #REF! / #DIV/0! / #NAME? / #NUM! / #N/A cell.
 """
 from __future__ import annotations
 
-__renderer_version__ = "0.19.1"
+__renderer_version__ = "0.19.2"
 def _warn_on_drift() -> None:
     """Soft-warn if our sibling RENDERERS_MANIFEST.json declares a different version.
 
@@ -605,10 +612,12 @@ def _scan_data_only(src: pathlib.Path) -> list[str]:
 
 RECALC_SKIP_WARN = (
     "WARN  recalc gate SKIPPED — no recalculation backend available "
-    "(tried: {tried}). Install one of: LibreOffice (recommended, free), "
-    "Microsoft Excel + pywin32, or `pip install formulas`. The workbook "
-    "was saved but #VALUE! / #REF! / #DIV/0! / #NAME? / #NUM! / #N/A "
-    "errors were NOT checked."
+    "(tried: {tried}). Fix with `pip install formulas` (the default "
+    "pure-Python recalc backend, pinned in renderers/requirements.txt). "
+    "LibreOffice headless and Microsoft Excel + pywin32 are optional "
+    "accelerators if you prefer one of them. The workbook was saved but "
+    "#VALUE! / #REF! / #DIV/0! / #NAME? / #NUM! / #N/A errors were NOT "
+    "checked."
 )
 
 
@@ -693,10 +702,12 @@ def main() -> int:
     ap.add_argument("--no-validate", dest="validate", action="store_false",
                     help="Skip the post-save lint + recalc validation pass.")
     ap.add_argument("--require-recalc", dest="require_recalc", action="store_true",
-                    help="Fail with exit 2 if no recalc backend (LibreOffice / "
-                         "Excel COM / formulas) is available. Default: warn on "
-                         "stderr but exit 0 so that environments without a "
-                         "backend can still produce the workbook.")
+                    help="Fail with exit 2 if no recalc backend (formulas / "
+                         "LibreOffice / Excel COM) is available. Default: warn "
+                         "on stderr but exit 0 so that environments without a "
+                         "backend can still produce the workbook. The bundled "
+                         "requirements.txt pins `formulas` so a fresh install "
+                         "always has a working default backend.")
     ap.set_defaults(validate=True, require_recalc=False)
     args = ap.parse_args()
 
@@ -749,8 +760,10 @@ def main() -> int:
                 pass
             print(
                 "ERROR  --require-recalc was set but no recalculation backend "
-                "is available. Install LibreOffice (recommended), Microsoft "
-                "Excel + pywin32, or `pip install formulas`.",
+                "is available. Run `pip install formulas` (the default "
+                "pure-Python backend, pinned in renderers/requirements.txt), "
+                "or install LibreOffice / Microsoft Excel + pywin32 as an "
+                "accelerator.",
                 file=sys.stderr,
             )
             sys.exit(2)

@@ -29,8 +29,18 @@ project without touching the source-of-truth scripts in the extension.
 |--------|--------|-------|---------|
 | `make_pdf.py`  | PDF  | Playwright + Chromium       | `pip install playwright markdown2 && python -m playwright install chromium` |
 | `make_html.py` | HTML | markdown2 + inline CSS      | `pip install markdown2` |
-| `make_xlsx.py` | XLSX | openpyxl, real formulas     | `pip install openpyxl` |
+| `make_xlsx.py` | XLSX | openpyxl + `formulas` (recalc) | `pip install -r requirements.txt` |
 | `make_docx.py` | DOCX | python-docx, real styles    | `pip install python-docx markdown-it-py` |
+
+The `requirements.txt` file in this folder pins the XLSX renderer's
+runtime dependencies (`openpyxl` + `formulas`). `formulas` is the
+**default recalc backend** — a pure-Python Excel formula evaluator with
+zero external system deps — so the post-save `validate_workbook()` gate
+catches `#VALUE!` / `#REF!` / `#DIV/0!` / `#NAME?` / `#NUM!` / `#N/A`
+cells on every host out of the box. LibreOffice headless and Excel COM
+are optional **accelerators**: the gate prefers them when present (they
+recalculate faster on large workbooks and cache materialized values
+into the file), but they are not required.
 
 ## Word (`.docx`): "Update fields?" prompt on first open
 

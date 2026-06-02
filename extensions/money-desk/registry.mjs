@@ -965,7 +965,12 @@ export const REPORT_QUALITY_CONFIG = {
         "\"<Specialist Name>\"`; the renderer auto-applies brand styles, " +
         "named ranges, lints numeric formulas against Notes/Source/Citation/" +
         "Comment columns, and recalculates headlessly to fail on " +
-        "#VALUE!/#REF!/#DIV/0!/#NAME?/#NUM!/#N/A.",
+        "#VALUE!/#REF!/#DIV/0!/#NAME?/#NUM!/#N/A. The `formulas` Python " +
+        "package is the DEFAULT recalc backend (pure-Python, zero system " +
+        "deps, pinned in `extensions/money-desk/renderers/requirements.txt` " +
+        "so every install has a working backend out of the box); LibreOffice " +
+        "headless and Excel COM (Windows + pywin32) are optional accelerators " +
+        "the gate prefers when present, but neither is required.",
     renderer_sync: {
         tool: "md_renderers_ensure",
         policy:

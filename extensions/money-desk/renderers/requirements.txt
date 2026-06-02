@@ -1,0 +1,24 @@
+# Money Desk — renderer runtime dependencies.
+#
+# Install once per project (or globally) with:
+#   pip install -r requirements.txt
+#
+# The XLSX renderer (`make_xlsx.py`) post-saves every workbook through a
+# recalculation gate that scans for #VALUE! / #REF! / #DIV/0! / #NAME? /
+# #NUM! / #N/A cells. The gate tries three backends in order:
+#
+#   1. LibreOffice headless (optional accelerator — fastest on CI)
+#   2. Microsoft Excel COM via pywin32 (optional accelerator — Windows only)
+#   3. The pure-Python `formulas` package (DEFAULT — zero system deps)
+#
+# Listing `formulas` here guarantees every install gets a working recalc
+# backend even on a clean Windows/macOS dev box without LibreOffice and
+# without Excel. Without it, the gate would WARN and skip silently and
+# broken cells could ship in agent-produced deliverables.
+#
+# `openpyxl` is the workbook builder; `formulas` is the recalc engine.
+# The PDF/HTML/DOCX renderers have their own per-script install commands
+# documented in README.md (Playwright + markdown2 / python-docx + markdown-it-py).
+
+openpyxl>=3.1,<4
+formulas>=1.3,<2

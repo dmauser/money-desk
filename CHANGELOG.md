@@ -7,7 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.19.1] — 2026-06-02
+## [0.19.2] — 2026-06-02
+
+### Changed
+
+- **`formulas` is now framed as the DEFAULT recalc backend** for
+  `make_xlsx.py`'s post-save `validate_workbook()` gate; LibreOffice
+  headless and Microsoft Excel + pywin32 are documented as optional
+  *accelerators*. The renderer docstring, the `RECALC_SKIP_WARN` /
+  `--require-recalc` ERROR messages, the `renderers/README.md` install
+  table, and the `report_quality.renderer_policy` prose returned by
+  `md_report_quality` were all updated to match. This closes the
+  dry-run finding where a clean Windows/macOS dev box without
+  LibreOffice and without Excel COM would silently `WARN` past the
+  recalc gate and ship workbooks with `#VALUE!` / `#DIV/0!` cells
+  through agent self-checks.
+
+### Added
+
+- **`extensions/money-desk/renderers/requirements.txt`** pinning
+  `openpyxl>=3.1,<4` and `formulas>=1.3,<2`. Install once with
+  `pip install -r requirements.txt` (or per-project under
+  `./money-desk/_renderers/`) so every host has a working pure-Python
+  recalc backend out of the box, with no LibreOffice / Excel COM
+  dependency. The `formulas` package is now shipped to end users
+  (previously it was only listed in the test requirements file).
+- **`extensions/money-desk/tests/test_make_xlsx_formulas_backend.py`**
+  end-to-end smoke test that monkeypatches LibreOffice and Excel COM
+  to unavailable so the real `formulas` evaluator is the only backend
+  that runs. Three cases pin the contract: (a) a clean
+  `=PMT(rate/12, term, -principal)` workbook recalcs cleanly, (b) an
+  intentional `=rate/0` workbook materializes `#DIV/0!` and is caught
+  by `validate_workbook`, (c) when `formulas` itself fails to import
+  the WARN includes `pip install formulas` with prose that frames it
+  as the default backend. Runs in CI on Ubuntu without LibreOffice
+  installed via `extensions/money-desk/tests/requirements.txt`.
+
+
 
 ### Changed
 
