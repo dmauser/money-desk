@@ -7,7 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.19.4] — 2026-06-02
+## [0.19.5] — 2026-06-02
+
+### Performance
+
+Follow-up to v0.19.4. Two small, zero-risk in-process caches that
+eliminate redundant work across the lifetime of a session.
+
+### Fixed
+
+- **In-process content cache for `loadFile()`** keyed by absolute path.
+  Specialist role markdown (`specialists/<name>/agents/<name>.md`) and
+  every `SKILL.md` are read-only at runtime and never change during a
+  session, but each `md_capabilities` / role / skill / orchestrator
+  invocation previously re-read its file from disk. With ~150
+  reachable markdown files across 20 specialists × 7 skills (avg) plus
+  20 role docs, a long session now collapses ~150 fs reads to ~150
+  cache hits. Failure paths (path-traversal guard, ENOENT) are
+  intentionally not cached so a missing file keeps surfacing the real
+  error.
+- **Memoized `buildCapabilitiesSummary()`.** The function is pure
+  (derives entirely from the static `SPECIALISTS` table) but rebuilt
+  the full markdown table + guardrails block on every `md_capabilities`
+  call. Now computed once on first call and reused.
+
+
 
 ### Performance
 

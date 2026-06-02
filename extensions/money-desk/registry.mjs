@@ -62,14 +62,24 @@ export const CITATION_CONVENTIONS = [
 
 // ── File loader ────────────────────────────────────────────────────────
 
+// In-process content cache: SKILL.md / agents/<name>.md content does not
+// change during a session, but every md_capabilities, role, skill, and
+// orchestrator call previously re-read its file from disk. Caching by
+// absolute path collapses ~150 fs reads/session to ~150 cache hits.
+const _fileCache = new Map(); // absPath -> string content
+
 async function loadFile(path) {
     // Path-traversal guard: every file we load must live under SPECIALISTS_DIR.
     const rel = relative(SPECIALISTS_DIR, resolve(path));
     if (rel.startsWith("..") || rel.includes("..")) {
         return { textResultForLlm: `Refusing to load path outside specialists dir: ${path}`, resultType: "failure" };
     }
+    const cached = _fileCache.get(path);
+    if (cached !== undefined) return cached;
     try {
-        return await readFile(path, "utf8");
+        const content = await readFile(path, "utf8");
+        _fileCache.set(path, content);
+        return content;
     } catch (err) {
         return { textResultForLlm: `Failed to load: ${err.message}`, resultType: "failure" };
     }
@@ -829,11 +839,14 @@ export const specialistCount = SPECIALISTS.length;
 
 // ── Capabilities & route discovery ─────────────────────────────────────
 
+let _capabilitiesSummaryCache = null;
+
 export function buildCapabilitiesSummary() {
+    if (_capabilitiesSummaryCache !== null) return _capabilitiesSummaryCache;
     const rows = SPECIALISTS.map((s, i) =>
         `| ${i + 1} | ${s.icon} ${s.domain} | \`${s.prefix}_\` | \`${s.prefix}_role\` | \`${s.prefix}_orchestrate\` | \`./money-desk/${s.name}/\` |`,
     ).join("\n");
-    return `# Money Desk — Available Specialists
+    _capabilitiesSummaryCache = `# Money Desk — Available Specialists
 
 | # | Domain | Prefix | Role Tool | Orchestrator | Deliverable folder |
 |---|--------|--------|-----------|-------------|--------------------|
@@ -862,6 +875,7 @@ Use \`md_changelog\` only when the user asks about release notes / what's new / 
 - For citations to bundled facts: the friendly source label from \`md_facts\` — e.g. \`[IRS 2026 limits]\`, \`[CMS Medicare 2026]\`.
 
 The \`md_<prefix>_skill_<id>\` form is the underlying tool id used by the agent to invoke the skill — it is **never** the label shown to the user. If you need to disambiguate, append the tool id in backticks at the end of the sentence, never as the primary label. The same rule applies to \`md_<prefix>_role\` and \`md_<prefix>_orchestrate\`.`;
+    return _capabilitiesSummaryCache;
 }
 
 function routeQuery(query) {
