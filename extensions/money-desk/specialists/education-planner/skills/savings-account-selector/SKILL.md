@@ -41,7 +41,7 @@ description: Compare account types for education savings — 529 vs Coverdell ES
 
 ## Deliverable shape
 
-Markdown report `./reports/<CHILD>/account-selector-<YYYYMMDD>.md`:
+Markdown report `./money-desk/<CHILD>/account-selector-<YYYYMMDD>.md`:
 - **Headline recommendation** — e.g., "Open a Utah my529 (your state has no deduction; UT is cheapest plan); fund $X/mo; add a Coverdell only if you want K-12 private school flexibility."
 - **Comparison matrix** — 5 vehicles × ~7 dimensions.
 - **Reasoning** — why the recommended stack, what was eliminated and why.
@@ -60,5 +60,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

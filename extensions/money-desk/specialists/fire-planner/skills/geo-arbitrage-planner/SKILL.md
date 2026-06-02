@@ -9,7 +9,18 @@ description: Map the cost-of-living arbitrage opportunity for a FIRE'd household
 - "What's the cheapest US state for FIRE?"
 - "How does geographic arbitrage actually work tax-wise?"
 
-## (No intake gate — this is an exploratory / explanatory skill. The user provides what they want as they go.)
+## Inputs needed
+
+This skill is exploratory — partial answers are fine and the rest can be gathered as you go.
+
+- **current_location** — where the user lives today (city, state, country).
+- **candidate_destinations** — one or more places the user is considering.
+- **household_status** — single / couple / family with kids (ages helpful).
+- **us_person_status** — US citizen / green-card holder / non-US (drives tax citizenship rules).
+- **annual_spend_today** — approximate household annual spend in current location.
+- **work_status** — employed / self-employed / retired / FIRE / studying.
+- **healthcare_situation** — current coverage and what would change after the move.
+- **reversibility_preference** — willing to commit long-term, or want to pilot first?
 
 ## Workflow
 
@@ -119,5 +130,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

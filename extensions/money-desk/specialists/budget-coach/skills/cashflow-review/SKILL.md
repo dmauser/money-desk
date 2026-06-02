@@ -35,7 +35,7 @@ If the user only has 1–2 months, run it but flag that small-N conclusions are 
 
 ## Deliverable shape
 
-- A Markdown report at `./reports/<ACCOUNT>/cashflow-review-<YYYYMMDD>.md`:
+- A Markdown report at `./money-desk/<ACCOUNT>/cashflow-review-<YYYYMMDD>.md`:
   - **Headline:** "You earned $X, spent $Y, saved $Z (W%) over N months."
   - **Monthly summary table** — month, in, out, net, savings rate.
   - **Top categories** — both ranked and as % of outflows.
@@ -56,5 +56,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

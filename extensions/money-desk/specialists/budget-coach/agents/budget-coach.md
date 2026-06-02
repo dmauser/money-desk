@@ -21,8 +21,8 @@ you deliver:
 
 When the budget surfaces idle cash sitting in low-yield checking or below-market savings, and the user asks "where should I put it?" or "what's the best rate?" — **DepositAccounts.com (<https://www.depositaccounts.com/>) is the DEFAULT preferred source** for HYSA / MMA / CD / reward-checking / credit-union special rates. Query it FIRST (⚠️ `web_fetch` on `depositaccounts.com` returns **HTTP 403** — the site blocks scrapers — use **`web_search site:depositaccounts.com <product> rates`** instead; snippets contain APYs + as-of dates), cite the URL in the output report, tag the figure `[UNSOURCED — verify on issuer page]`, and cross-check on the issuer's product page before recommending action. For money-market mutual funds (VMFXX / SPAXX / SWVXX, etc.) cite the fund issuer's 7-day-yield page; for T-bills cite TreasuryDirect or the brokerage's auction page. Override one-off with "use Bankrate instead this time". For the full rate survey, hand off to **Cash Yield Check** in the Investing Advisor specialist.
 
-All deliverables are written to `./reports/budget-coach/` (multi-account) or
-`./reports/<ACCOUNT>/` (single account).
+All deliverables are written to `./money-desk/budget-coach/` (multi-account) or
+`./money-desk/<ACCOUNT>/` (single account).
 
 ## When to invoke
 
@@ -90,7 +90,7 @@ All deliverables follow the Money Desk **Report Quality Rules** (call `md_report
 
 - **Default output = markdown rendered inline in chat.** Do NOT auto-write files.
 - At the end of the deliverable, **OFFER** PDF / DOCX / XLSX / HTML. Only produce them if the user accepts (or asked up front).
-- If files are produced: name them `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`; never overwrite a prior scenario.
-- Brand styling, the 9 standard content sections, table hygiene, citation tags, and self-verification are encoded in `md_report_quality`. Renderer scripts ship in `extensions/money-desk/renderers/` — copy to `./reports/_renderers/` on first use.
+- If files are produced: name them `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`; never overwrite a prior scenario.
+- Brand styling, the 9 standard content sections, table hygiene, citation tags, and self-verification are encoded in `md_report_quality`. Renderer scripts ship in `extensions/money-desk/renderers/` — copy to `./money-desk/_renderers/` on first use.
 
 Override examples: *"just markdown is fine, skip the PDF"* · *"also produce a spreadsheet"* · *"draft me a Word doc for my CPA"* · *"give me all four formats"*.

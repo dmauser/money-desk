@@ -22,9 +22,9 @@ The four money scripts come from Brad Klontz and colleagues' research (Klontz et
 
 **Important**: Vigilance is the only script associated with generally healthier financial behaviors — but taken too far becomes anxiety-driven under-investment.
 
-## Inputs needed (short questionnaire — agree / disagree 1-5)
+## Inputs needed
 
-Ask the user to rate 1 (strongly disagree) to 5 (strongly agree). Three questions per script (12 total):
+A short 12-item questionnaire (three items per script). Ask the user to rate each statement 1 (strongly disagree) to 5 (strongly agree).
 
 **Avoidance:**
 - "Rich people are greedy."
@@ -96,5 +96,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

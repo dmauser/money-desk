@@ -38,7 +38,7 @@ description: Audit beneficiary designations on every retirement account, life po
 
 ## Deliverable shape
 
-- Markdown report `./reports/estate-legacy/beneficiary-audit-<YYYYMMDD>.md`:
+- Markdown report `./money-desk/estate-legacy/beneficiary-audit-<YYYYMMDD>.md`:
   - **Headline** — N accounts, M with missing contingents, P with stale primaries.
   - **Per-account table** — custodian, primary, contingent, % split, last-updated.
   - **Red flags** — ex-spouse, minor without trust, missing contingent, contradiction with will.
@@ -58,5 +58,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

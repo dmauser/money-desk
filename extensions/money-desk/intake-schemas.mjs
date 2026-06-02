@@ -336,6 +336,72 @@ export const INTAKE_SCHEMAS = {
             required: ["current_age", "fire_age", "planning_to_age", "target_spend_post_tax", "filing_status", "state"],
         },
     },
+
+    // ── Behavioral Coach ───────────────────────────────────────────────
+
+    md_bh_skill_panic_circuit_breaker: {
+        message: "Quick — six fast questions so we can run the cooldown protocol without guessing. This is gating an irreversible action, so I need it from you, not from assumptions.",
+        schema: {
+            properties: {
+                trigger: { type: "string", title: "What just happened?", description: "Market drop, layoff news, scary headline, FOMO on a hot asset, etc." },
+                urge: { type: "string", title: "What do you want to do RIGHT NOW?", description: "e.g. 'sell everything', 'cash out 401k', 'buy $20k of [hot asset]'" },
+                dollar_size: { type: "number", title: "Approximate dollars involved ($)" },
+                account_type: { type: "string", title: "Which account is the action in?", enum: ["taxable", "traditional_401k_or_ira", "roth", "hsa", "529", "other"] },
+                has_written_ips: { type: "boolean", title: "Do you have a written Investment Policy Statement?", default: false },
+                market_hours: { type: "boolean", title: "Can you actually execute right now?", description: "False = after-hours / weekend / holiday — perfect cooldown moment", default: true },
+            },
+            required: ["trigger", "urge", "dollar_size", "account_type"],
+        },
+    },
+
+    // ── Investing Advisor ──────────────────────────────────────────────
+
+    md_iv_skill_portfolio_review: {
+        message: "Let's review your portfolio across all accounts. Pull each account's current holdings export — anything you skip, I'll flag rather than guess.",
+        schema: {
+            properties: {
+                holdings: {
+                    type: "array",
+                    title: "Holdings (one row per position)",
+                    description: "Across all accounts. Add { ticker, shares, current_value, cost_basis (if known), account_type } for each position.",
+                    items: {
+                        type: "object",
+                        properties: {
+                            ticker: { type: "string", title: "Ticker / fund symbol", description: "e.g. VTI, FZROX, AAPL, VMFXX" },
+                            shares: { type: "number", title: "Shares" },
+                            current_value: { type: "number", title: "Current market value ($)" },
+                            cost_basis: { type: "number", title: "Cost basis ($, optional — only used for taxable lots)" },
+                            account_type: { type: "string", title: "Account type", enum: ["taxable", "traditional_401k", "roth_401k", "traditional_ira", "roth_ira", "hsa", "529", "other"] },
+                        },
+                        required: ["ticker", "current_value", "account_type"],
+                    },
+                },
+                account_types_summary: { type: "string", title: "Account type summary", description: "Free-text describing which accounts are taxable / traditional / Roth / HSA / 529 and approximate balances" },
+                target_allocation: { type: "string", title: "Target allocation", description: "Free-text or '60/30/10/0' (stocks/bonds/cash/alts %)" },
+                time_horizon_years: { type: "integer", title: "Time horizon (years)", description: "How long until the money is needed", minimum: 1, maximum: 60 },
+                risk_tolerance: { type: "string", title: "Risk tolerance", enum: ["conservative", "moderate", "aggressive"] },
+                constraints: { type: "string", title: "Constraints / preferences (optional)", description: "RSU concentration, ESG, no-bonds, sector exclusions, tax-lot restrictions, etc." },
+            },
+            required: ["holdings", "time_horizon_years", "risk_tolerance"],
+        },
+    },
+
+    // ── Budget Coach ───────────────────────────────────────────────────
+
+    md_bc_skill_cashflow_review: {
+        message: "Let's run a cashflow review. Bank + credit-card statement exports are the cleanest input; otherwise we work from your best estimate.",
+        schema: {
+            properties: {
+                statement_window_months: { type: "integer", title: "Statement window (months)", description: "How many months of statements you can pull", minimum: 1, maximum: 12 },
+                take_home_income_for_window: { type: "number", title: "Take-home income for that window ($)", description: "Net of taxes, 401(k), benefits — what actually hit the bank" },
+                has_bank_csv: { type: "boolean", title: "Bank statement CSV/PDF available?", default: false },
+                has_credit_card_csv: { type: "boolean", title: "Credit-card statement CSV/PDF available?", default: false },
+                cash_only_activity_known: { type: "string", title: "Cash-only activity (optional)", description: "Anything material that won't show up on statements (cash tips, side hustle cash income, hand-to-hand venmo, etc.)" },
+                notes: { type: "string", title: "Notes (optional)", description: "Irregular months, one-off events, anything to call out" },
+            },
+            required: ["statement_window_months", "take_home_income_for_window", "has_bank_csv", "has_credit_card_csv"],
+        },
+    },
 };
 
 export function getIntakeSchema(toolName) {

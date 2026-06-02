@@ -46,7 +46,7 @@ description: A one-page "estate hygiene basics" checklist — the minimum docume
 
 ## Deliverable shape
 
-- Markdown checklist `./reports/estate-legacy/basics-checklist-<YYYYMMDD>.md`:
+- Markdown checklist `./money-desk/estate-legacy/basics-checklist-<YYYYMMDD>.md`:
   - **Headline** — N of 5 minimums in place.
   - **The 5 minimum docs** — status, gap, action.
   - **Beneficiary check pointer** — `beneficiary_audit`.
@@ -67,5 +67,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

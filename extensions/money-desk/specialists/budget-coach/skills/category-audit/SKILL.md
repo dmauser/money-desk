@@ -36,7 +36,7 @@ description: Re-categorize transactions, surface miscategorized merchants, and r
 
 ## Deliverable shape
 
-- Markdown report `./reports/<ACCOUNT>/category-audit-<YYYYMMDD>.md`:
+- Markdown report `./money-desk/<ACCOUNT>/category-audit-<YYYYMMDD>.md`:
   - **Category table** — current period $ and %, prior period $ and %, drift %.
   - **Re-categorizations** — list of changes from source categorization, with merchant + amount + new category.
   - **Open questions** — transactions the audit can't confidently classify; ask the user.
@@ -56,5 +56,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

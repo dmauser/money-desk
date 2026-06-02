@@ -7,6 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.6] — 2026-06-01
+
+### Fixed
+
+- **Panic Circuit Breaker now intake-gated (HIGH).** The
+  `md_bh_skill_panic_circuit_breaker` tool used to return its 7-step
+  protocol on the first call, which let the agent run a panic playbook
+  without confirming what triggered it, what the user wanted to do, or
+  how much money was on the line. Added an `## Inputs needed` section to
+  `behavioral-coach/skills/panic-circuit-breaker/SKILL.md` (trigger,
+  urge, dollar_size, account_type, has_written_ips, market_hours; first
+  4 required) plus a structured `ask_user` schema in
+  `intake-schemas.mjs` so the form renders fast — panic-moment UX
+  matters. Sister skills missing the gate header (Decision Journal,
+  Money Script Diagnostic, Geographic Arbitrage Planner, Cross-Border
+  Investing) also picked up an `## Inputs needed` section so the gate
+  is universal.
+- **Behavioral Coach router now matches panic / FOMO / crash language
+  (MEDIUM).** The `md_bh` regex used to miss `panicking`, `panicked`,
+  `market drop`, `market dropping`, `market falling`, `cash out`,
+  `cashing out`, `freaking out`, `scared`, `anxiety about`, `fear of
+  missing out`, `hot stock`, `hot asset`, `everyone is making money`,
+  `should I buy now`, `before it's too late`, and `fight about money`.
+  Extended the regex to cover all 22 phrases from the QA list while
+  keeping existing matches intact. Added a focused regression test in
+  `tests/routes.test.mjs`.
+- **Legacy `./reports/` paths replaced with `./money-desk/` (LOW).**
+  `md_report_quality` already declared `output_root: "./money-desk/"`,
+  but ~115 SKILL.md / agent.md files still hard-coded
+  `./reports/<specialist-slug>/` and `./reports/_renderers/`. Swept all
+  prose to the canonical `./money-desk/...` paths. The `legacy_root`
+  field in the report-quality config stays as documentation of the old
+  location.
+- **Capabilities banner now says 20 specialists (LOW).** The
+  presence note in `extension.mjs`, the `MD_DIRECT_INSTRUCTION` block,
+  the `md_capabilities` tool description, and the `README.md` intro all
+  used to say "18 personal-finance specialists" / "119 tools" / "139
+  tools". Updated to "20" and "144 tools" and added Financial Literacy
+  + FIRE Planner to the inline list.
+
+### Added
+
+- **Structured intake schemas for Portfolio Review and Cashflow Review
+  (LOW).** `md_iv_skill_portfolio_review` (holdings array,
+  account_types_summary, target_allocation, time_horizon_years,
+  risk_tolerance, constraints) and `md_bc_skill_cashflow_review`
+  (statement_window_months, take_home_income_for_window, has_bank_csv,
+  has_credit_card_csv, cash_only_activity_known, notes) now ship a
+  ready-to-use `ask_user` payload via `intake-schemas.mjs` instead of
+  prose intake. Both drive 9-section deliverables and qualify as
+  high-value skills per the capabilities doc.
+- **Universal intake-gate regression test.**
+  `tests/intake-gate.test.mjs` calls every `md_*_skill_*` tool with no
+  inputs and asserts the response contains `intake required` plus the
+  Step 1 / Step 2 instructions, then re-invokes with synthetic inputs
+  and asserts the workflow + echo are returned. Wired into `npm test`.
+  Prevents future regressions where a new skill ships without the gate
+  header.
+
 ## [0.18.5] — 2026-06-01
 
 ### Added

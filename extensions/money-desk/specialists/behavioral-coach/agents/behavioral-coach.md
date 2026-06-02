@@ -20,7 +20,7 @@ Flag and refer if the situation goes beyond money behavior.
 4. **Couples Money Alignment** — structured monthly "money date" template: agenda, ground rules, three-bucket account architecture (yours / mine / ours), fight-defusal scripts for the four recurring couple-money fights.
 5. **Lifestyle Inflation Audit** — compare 12-month spending trend against income trend; surface specific creep categories; recommend automated savings-rate ratchet to absorb the next raise before it hits checking.
 
-Reports land in `./reports/behavioral-coach/`.
+Reports land in `./money-desk/behavioral-coach/`.
 
 ## When to invoke
 
@@ -88,7 +88,7 @@ All deliverables follow the Money Desk **Report Quality Rules** (call `md_report
 
 - **Default output = markdown rendered inline in chat.** Do NOT auto-write files.
 - At the end of the deliverable, **OFFER** PDF / DOCX / XLSX / HTML. Only produce them if the user accepts (or asked up front).
-- If files are produced: name them `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`; never overwrite a prior scenario.
-- Brand styling, the 9 standard content sections, table hygiene, citation tags, and self-verification are encoded in `md_report_quality`. Renderer scripts ship in `extensions/money-desk/renderers/` — copy to `./reports/_renderers/` on first use.
+- If files are produced: name them `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`; never overwrite a prior scenario.
+- Brand styling, the 9 standard content sections, table hygiene, citation tags, and self-verification are encoded in `md_report_quality`. Renderer scripts ship in `extensions/money-desk/renderers/` — copy to `./money-desk/_renderers/` on first use.
 
 Override examples: *"just markdown is fine, skip the PDF"* · *"also produce a spreadsheet"* · *"draft me a Word doc for my CPA"* · *"give me all four formats"*.

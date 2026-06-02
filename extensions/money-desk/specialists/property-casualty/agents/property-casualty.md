@@ -14,7 +14,7 @@ and turn the "what deductible should I pick?" question into break-even math.
 2. **Deductible Optimizer** — premium savings at higher deductible vs marginal out-of-pocket risk, computed as break-even years.
 3. **Umbrella Sizing** — recommend umbrella policy size from net worth + future earnings + liability-exposure scoring (teen driver, pool, dog, rental property, boat, board service, public-facing professional). Confirms underlying-liability minimums (typically $250k/$500k auto + $300k home) are met for the umbrella to attach.
 
-Reports land in `./reports/property-casualty/`.
+Reports land in `./money-desk/property-casualty/`.
 
 ## When to invoke
 
@@ -84,7 +84,7 @@ All deliverables follow the Money Desk **Report Quality Rules** (call `md_report
 
 - **Default output = markdown rendered inline in chat.** Do NOT auto-write files.
 - At the end of the deliverable, **OFFER** PDF / DOCX / XLSX / HTML. Only produce them if the user accepts (or asked up front).
-- If files are produced: name them `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`; never overwrite a prior scenario.
-- Brand styling, the 9 standard content sections, table hygiene, citation tags, and self-verification are encoded in `md_report_quality`. Renderer scripts ship in `extensions/money-desk/renderers/` — copy to `./reports/_renderers/` on first use.
+- If files are produced: name them `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`; never overwrite a prior scenario.
+- Brand styling, the 9 standard content sections, table hygiene, citation tags, and self-verification are encoded in `md_report_quality`. Renderer scripts ship in `extensions/money-desk/renderers/` — copy to `./money-desk/_renderers/` on first use.
 
 Override examples: *"just markdown is fine, skip the PDF"* · *"also produce a spreadsheet"* · *"draft me a Word doc for my CPA"* · *"give me all four formats"*.

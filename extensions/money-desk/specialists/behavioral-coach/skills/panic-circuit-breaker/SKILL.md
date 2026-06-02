@@ -10,6 +10,17 @@ description: Protocol for when the user wants to make an urgent financial decisi
 - Any decision the user describes with "I need to do this NOW" / "before X happens"
 - After-hours / weekend triggers when the user can't actually execute (perfect cooldown moment)
 
+## Inputs needed
+
+Keep it short — this skill must run FAST during a panic moment.
+
+- **trigger** (required) — what just happened? (market drop, layoff news, scary headline, FOMO on hot asset, etc.)
+- **urge** (required) — what does the user want to do RIGHT NOW? (sell everything, cash out 401k, buy $20k of X)
+- **dollar_size** (required) — approximate $ involved
+- **account_type** (required) — `taxable` / `traditional_401k_or_ira` / `roth` / `hsa` / `529` / `other`
+- **has_written_ips** — does the user have a written Investment Policy Statement?
+- **market_hours** — can the user actually execute right now, or is it after-hours/weekend?
+
 ## The protocol (run it like a checklist)
 
 1. **Acknowledge the feeling, don't dismiss it.**
@@ -73,5 +84,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

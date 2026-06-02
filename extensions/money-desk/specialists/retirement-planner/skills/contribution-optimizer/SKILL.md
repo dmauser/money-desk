@@ -47,7 +47,7 @@ description: Determine optimal $ split across 401(k) (trad vs Roth), IRA (trad v
 
 ## Deliverable shape
 
-- Markdown report `./reports/retirement-planner/contribution-optimizer-<YEAR>.md`:
+- Markdown report `./money-desk/retirement-planner/contribution-optimizer-<YEAR>.md`:
   - **Waterfall** — priority list with $ and % per bucket.
   - **401(k) split** — Trad/Roth with rationale.
   - **Per-paycheck %** — actionable election numbers.
@@ -68,5 +68,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

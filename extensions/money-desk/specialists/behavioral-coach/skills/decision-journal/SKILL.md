@@ -10,6 +10,16 @@ description: Pre-commitment framework for any big money decision ($10k+ purchase
 - BEFORE saying yes to a job offer.
 - AS A REVIEW TOOL at annual review (`md_le_role`) — read prior decision-journal entries and grade against outcome.
 
+## Inputs needed
+
+- **decision** (required) — one-sentence description of what the user is about to do (sell, buy, refinance, take a job, etc.).
+- **dollars_at_stake** (required) — approximate $ amount involved.
+- **deadline** — when must this be decided by? (date or "no hard deadline")
+- **alternatives_considered** — list of other paths the user weighed, even briefly.
+- **expected_outcome** — what the user expects to happen (the testable prediction).
+- **kill_criteria** — what would make the user reverse course later?
+- **emotional_state** — calm / anxious / excited / pressured / FOMO / regretful (free-text OK).
+
 ## The template (fill in BEFORE deciding)
 
 ### 1. The decision
@@ -52,7 +62,7 @@ description: Pre-commitment framework for any big money decision ($10k+ purchase
 
 1. User describes a pending decision.
 2. Walk through the 8 sections in order.
-3. Save the completed journal entry as a dated file in `./reports/behavioral-coach/decision-journal/`.
+3. Save the completed journal entry as a dated file in `./money-desk/behavioral-coach/decision-journal/`.
 4. Schedule the revisit date (12 months default; sooner for high-volatility decisions).
 5. At revisit: re-open, score the prediction against actual outcome, identify which sections most helped or most missed.
 
@@ -83,5 +93,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

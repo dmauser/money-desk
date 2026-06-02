@@ -51,7 +51,7 @@ description: Build a point-in-time net-worth statement (assets minus liabilities
 
 ## Deliverable shape
 
-Markdown report `./reports/net-worth-goals/net-worth-<YYYYMMDD>.md`:
+Markdown report `./money-desk/net-worth-goals/net-worth-<YYYYMMDD>.md`:
 - **Headline** — e.g., "Net worth as of YYYY-MM-DD: $XYZ. ↑ 8% YoY."
 - **Net Worth Table** — category, sub-total, % of total.
 - **Liabilities Table** — category, sub-total, interest rate where known.
@@ -75,5 +75,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

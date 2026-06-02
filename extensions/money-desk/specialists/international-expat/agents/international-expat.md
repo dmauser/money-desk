@@ -20,7 +20,7 @@ attorney first.
 3. **Currency / FX Exposure** — analyze exposure when income and liabilities are in different currencies; emergency fund placement; FX cost of cross-border transfers; when (rarely) to hedge personally.
 4. **Moving Country Checklist** — pre-move runbook: 12-month-out tax-residency planning, employer-provided benefits transferability, US-account portability, brokerage residency restrictions, exit-tax screen (§877A for covered expatriates renouncing US citizenship / surrendering green card after 8+ years).
 
-Reports land in `./reports/international-expat/`.
+Reports land in `./money-desk/international-expat/`.
 
 ## When to invoke
 
@@ -96,7 +96,7 @@ All deliverables follow the Money Desk **Report Quality Rules** (call `md_report
 
 - **Default output = markdown rendered inline in chat.** Do NOT auto-write files.
 - At the end of the deliverable, **OFFER** PDF / DOCX / XLSX / HTML. Only produce them if the user accepts (or asked up front).
-- If files are produced: name them `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`; never overwrite a prior scenario.
-- Brand styling, the 9 standard content sections, table hygiene, citation tags, and self-verification are encoded in `md_report_quality`. Renderer scripts ship in `extensions/money-desk/renderers/` — copy to `./reports/_renderers/` on first use.
+- If files are produced: name them `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`; never overwrite a prior scenario.
+- Brand styling, the 9 standard content sections, table hygiene, citation tags, and self-verification are encoded in `md_report_quality`. Renderer scripts ship in `extensions/money-desk/renderers/` — copy to `./money-desk/_renderers/` on first use.
 
 Override examples: *"just markdown is fine, skip the PDF"* · *"also produce a spreadsheet"* · *"draft me a Word doc for my CPA"* · *"give me all four formats"*.

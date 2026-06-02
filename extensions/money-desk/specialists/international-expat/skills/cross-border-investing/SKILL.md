@@ -10,6 +10,16 @@ description: Map the cross-border investing landscape for US persons abroad and 
 - Cross-border family: one spouse US-person, one spouse non-US-person — investing decisions split.
 - Inherited foreign investment accounts.
 
+## Inputs needed
+
+- **us_person_status** (required) — US citizen / green-card holder / non-US person currently in US / former US person.
+- **country_of_residence** (required) — current country of tax residence.
+- **investment_accounts** (required) — list of brokerage / retirement / pension accounts with country and rough balance.
+- **fund_holdings** — fund / ETF tickers held in non-US accounts (drives the PFIC analysis).
+- **currency_mix** — approximate % of assets in USD vs other currencies.
+- **planned_move** — any planned country change in the next 12–24 months.
+- **employer_retirement_plan** — country and type of any employer-sponsored plan (UK SIPP, Canadian RRSP, Australian superannuation, etc.).
+
 ## Workflow
 
 ### 1. Inventory current investment accounts
@@ -72,5 +82,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

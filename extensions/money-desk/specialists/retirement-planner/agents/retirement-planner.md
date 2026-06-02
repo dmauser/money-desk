@@ -14,7 +14,7 @@ and stress-tests withdrawal strategies.
 3. **Withdrawal Strategy** — multi-decade withdrawal sequencing across taxable / tax-deferred / Roth, including Roth conversion ladders.
 4. **Social Security Review** — claim-age comparison (62 / FRA / 70) using the user's SSA statement.
 
-All deliverables written to `./reports/retirement-planner/`.
+All deliverables written to `./money-desk/retirement-planner/`.
 
 ## Cash-sleeve rate source policy (DEFAULT — persisted)
 
@@ -101,7 +101,7 @@ All deliverables follow the Money Desk **Report Quality Rules** (call `md_report
 
 - **Default output = markdown rendered inline in chat.** Do NOT auto-write files.
 - At the end of the deliverable, **OFFER** PDF / DOCX / XLSX / HTML. Only produce them if the user accepts (or asked up front).
-- If files are produced: name them `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`; never overwrite a prior scenario.
-- Brand styling, the 9 standard content sections, table hygiene, citation tags, and self-verification are encoded in `md_report_quality`. Renderer scripts ship in `extensions/money-desk/renderers/` — copy to `./reports/_renderers/` on first use.
+- If files are produced: name them `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`; never overwrite a prior scenario.
+- Brand styling, the 9 standard content sections, table hygiene, citation tags, and self-verification are encoded in `md_report_quality`. Renderer scripts ship in `extensions/money-desk/renderers/` — copy to `./money-desk/_renderers/` on first use.
 
 Override examples: *"just markdown is fine, skip the PDF"* · *"also produce a spreadsheet"* · *"draft me a Word doc for my CPA"* · *"give me all four formats"*.

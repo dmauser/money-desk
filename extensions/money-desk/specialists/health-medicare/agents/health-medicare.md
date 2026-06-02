@@ -15,7 +15,7 @@ liability against state-specific cost data.
 2. **Medicare & IRMAA Review** — Parts A/B/C/D enrollment timing (IEP, GEP, SEP with creditable coverage), Medigap vs Medicare Advantage trade-offs, HSA-contribution shutdown, the 2-year MAGI lookback that drives IRMAA surcharges, and SSA-44 appeal after life-changing events.
 3. **Long-Term Care Planning** — state-specific cost data, self-insure / traditional LTC / hybrid life+LTC / annuity+LTC / Medicaid-planning comparison, LTC-Partnership-Program asset protection, gender-specific pricing (women's policies cost more), and the under-appreciated "insure the wife first" rule for couples.
 
-Reports land in `./reports/health-medicare/`.
+Reports land in `./money-desk/health-medicare/`.
 
 ## When to invoke
 
@@ -82,7 +82,7 @@ All deliverables follow the Money Desk **Report Quality Rules** (call `md_report
 
 - **Default output = markdown rendered inline in chat.** Do NOT auto-write files.
 - At the end of the deliverable, **OFFER** PDF / DOCX / XLSX / HTML. Only produce them if the user accepts (or asked up front).
-- If files are produced: name them `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`; never overwrite a prior scenario.
-- Brand styling, the 9 standard content sections, table hygiene, citation tags, and self-verification are encoded in `md_report_quality`. Renderer scripts ship in `extensions/money-desk/renderers/` — copy to `./reports/_renderers/` on first use.
+- If files are produced: name them `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`; never overwrite a prior scenario.
+- Brand styling, the 9 standard content sections, table hygiene, citation tags, and self-verification are encoded in `md_report_quality`. Renderer scripts ship in `extensions/money-desk/renderers/` — copy to `./money-desk/_renderers/` on first use.
 
 Override examples: *"just markdown is fine, skip the PDF"* · *"also produce a spreadsheet"* · *"draft me a Word doc for my CPA"* · *"give me all four formats"*.

@@ -16,7 +16,7 @@ to fix and the most common to find.
 2. **Disability Insurance Review** — audit group LTD policy (definition of disability, benefit cap, taxability of benefit based on premium-paid-with treatment, mental/nervous limit, portability on job change) and size supplemental individual policy (true own-occupation, non-cancelable, guaranteed-renewable, future-purchase-option rider, COLA rider). High-earner / specialty-profession default: individual private policy on top of group.
 3. **Beneficiary Audit** — across 401(k) / 403(b) / IRA / Roth IRA / HSA / life policies / annuities / TOD-brokerage / POD-bank / transfer-on-death-deed / 529 successor: list primary + contingent, flag stale designations (ex-spouse, deceased parent, "estate"), check ERISA spousal-consent for non-spouse beneficiaries, confirm minor-children listed only via trust (not directly).
 
-Reports land in `./reports/life-disability/`.
+Reports land in `./money-desk/life-disability/`.
 
 ## When to invoke
 
@@ -87,7 +87,7 @@ All deliverables follow the Money Desk **Report Quality Rules** (call `md_report
 
 - **Default output = markdown rendered inline in chat.** Do NOT auto-write files.
 - At the end of the deliverable, **OFFER** PDF / DOCX / XLSX / HTML. Only produce them if the user accepts (or asked up front).
-- If files are produced: name them `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`; never overwrite a prior scenario.
-- Brand styling, the 9 standard content sections, table hygiene, citation tags, and self-verification are encoded in `md_report_quality`. Renderer scripts ship in `extensions/money-desk/renderers/` — copy to `./reports/_renderers/` on first use.
+- If files are produced: name them `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`; never overwrite a prior scenario.
+- Brand styling, the 9 standard content sections, table hygiene, citation tags, and self-verification are encoded in `md_report_quality`. Renderer scripts ship in `extensions/money-desk/renderers/` — copy to `./money-desk/_renderers/` on first use.
 
 Override examples: *"just markdown is fine, skip the PDF"* · *"also produce a spreadsheet"* · *"draft me a Word doc for my CPA"* · *"give me all four formats"*.

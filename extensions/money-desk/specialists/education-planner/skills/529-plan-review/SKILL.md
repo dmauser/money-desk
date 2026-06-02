@@ -33,7 +33,7 @@ description: Audit an existing 529 college-savings plan: state plan choice, fund
 
 ## Deliverable shape
 
-Markdown report `./reports/<CHILD>/529-review-<YYYYMMDD>.md`:
+Markdown report `./money-desk/<CHILD>/529-review-<YYYYMMDD>.md`:
 - **Headline** — e.g., "Plan is fine but glidepath is 5 years behind; rolling to in-state would gain $440/yr in state tax savings."
 - **Plan summary table** — plan, state, balance, monthly contribution, beneficiary, successor.
 - **Fund audit table** — fund, % of portfolio, expense ratio, asset class, flag.
@@ -53,5 +53,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

@@ -84,7 +84,7 @@ description: Survey current **high-yield savings (HYSA)**, **money-market (MMA)*
 
 ## Deliverable shape
 
-Markdown report `./reports/investing-advisor/cash-yield-check-<YYYYMMDD>.md`:
+Markdown report `./money-desk/investing-advisor/cash-yield-check-<YYYYMMDD>.md`:
 
 - **Source** — at the top of the report, a one-liner: `Primary source: DepositAccounts.com (<category-page-URL>), as-of <timestamp shown on page>. Cross-checked on issuer product pages (links in shortlist). [UNSOURCED — verify on issuer page]`. If a one-off override was used this turn (e.g. Bankrate), name the override source here and note that the persisted default is DepositAccounts.com.
 - **Bucket & constraints** — echoed back: amount, horizon, access needs, minimums OK, eligibility constraints.
@@ -142,5 +142,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

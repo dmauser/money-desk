@@ -25,7 +25,7 @@ Money Desk ships **20 specialists** with **95 skills** plus 2 discovery tools (`
 | 14 | 💼 Self-Employed Planner | `md_se` | `md_se_role` | `md_se_orchestrate` | `self`, `employ`, `freelanc`, `income` |
 | 15 | 🌟 Life Events | `md_le` | `md_le_role` | `md_le_orchestrate` | `annual`, `financial`, `review`, `year` |
 | 16 | 🏘️ Real Estate Investor | `md_re` | `md_re_role` | `md_re_orchestrate` | `rental`, `property`, `real`, `estate` |
-| 17 | 🧠 Behavioral Coach | `md_bh` | `md_bh_role` | `md_bh_orchestrate` | `panic`, `FOMO`, `loss`, `aversion` |
+| 17 | 🧠 Behavioral Coach | `md_bh` | `md_bh_role` | `md_bh_orchestrate` | `panic`, `king`, `FOMO`, `fear` |
 | 18 | 🌍 International / Expat | `md_in` | `md_in_role` | `md_in_orchestrate` | `expat`, `expatriate`, `citizen`, `abroad` |
 | 19 | 🎓 Financial Literacy | `md_fl` | `md_fl_role` | `md_fl_orchestrate` | `what`, `does`, `what`, `explain` |
 | 20 | 🔥 FIRE Planner | `md_fi` | `md_fi_role` | `md_fi_orchestrate` | `FIRE`, `financial`, `independence`, `retire` |

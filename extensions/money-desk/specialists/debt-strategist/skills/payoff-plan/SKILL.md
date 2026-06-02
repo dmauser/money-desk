@@ -41,7 +41,7 @@ description: Build a debt payoff plan comparing avalanche (highest APR first) vs
 
 ## Deliverable shape
 
-- Markdown report + optional XLSX `./reports/debt-strategist/payoff-plan-<YYYYMMDD>.md`:
+- Markdown report + optional XLSX `./money-desk/debt-strategist/payoff-plan-<YYYYMMDD>.md`:
   - **Headline** — months-to-debt-free and total interest under each method.
   - **Inventory table** — debt, balance, APR, min, due date.
   - **Avalanche schedule summary** + key milestones.
@@ -62,5 +62,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

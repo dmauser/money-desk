@@ -40,7 +40,7 @@ description: Surface what FAFSA and the CSS Profile actually count, compute appr
 
 ## Deliverable shape
 
-Markdown report `./reports/<CHILD>/aid-positioning-<YYYYMMDD>.md`:
+Markdown report `./money-desk/<CHILD>/aid-positioning-<YYYYMMDD>.md`:
 - **Headline** — e.g., "Estimated SAI: $X. At a $35k/yr in-state public, need-based aid potential is ~$Y."
 - **SAI breakdown table** — parent income / parent assets / student income / student assets.
 - **Positioning levers** — ranked by SAI impact, with the action and the deadline.
@@ -61,5 +61,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

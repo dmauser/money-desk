@@ -49,7 +49,7 @@ description: Compare renting vs buying a home on total cost over a holding horiz
 
 ## Deliverable shape
 
-- Markdown report `./reports/purchase-advisor/rent-vs-buy-<YYYYMMDD>.md`:
+- Markdown report `./money-desk/purchase-advisor/rent-vs-buy-<YYYYMMDD>.md`:
   - **Headline verdict** — buy / rent / break-even at year N.
   - **Price-to-rent ratio** + interpretation.
   - **Year-by-year comparison table** for at least 10 years.
@@ -71,8 +71,8 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).
 
 
 ### XLSX deliverables — template + named-ranges contract

@@ -55,7 +55,7 @@ description: For a sole prop / single-member LLC owner, analyze whether electing
 
 ## Deliverable shape
 
-Markdown report `./reports/self-employed-planner/s-corp-election-<YYYYMMDD>.md`:
+Markdown report `./money-desk/self-employed-planner/s-corp-election-<YYYYMMDD>.md`:
 - **Headline** — e.g., "At $145k net SE, S-corp saves ~$5,800/yr in FICA after $3,200/yr admin → net $2,600/yr. Worth it but tight; budget for CPA + payroll service before electing."
 - **Savings calculation** — current SE tax vs projected S-corp FICA, line by line.
 - **Reasonable comp benchmark** — recommended W-2 wage with sources.
@@ -79,5 +79,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

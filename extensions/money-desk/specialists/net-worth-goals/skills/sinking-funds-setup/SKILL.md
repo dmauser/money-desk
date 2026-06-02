@@ -42,7 +42,7 @@ description: Convert known irregular expenses (annual insurance premium, car mai
 
 ## Deliverable shape
 
-Markdown report `./reports/net-worth-goals/sinking-funds-<YYYYMMDD>.md`:
+Markdown report `./money-desk/net-worth-goals/sinking-funds-<YYYYMMDD>.md`:
 - **Headline** — e.g., "Bumpy cash flow smoothed: $980/mo across 6 sinking-fund buckets covers $11,760 of annual irregulars."
 - **Funds table** — bucket, annual total, monthly contribution, target balance to maintain.
 - **Account structure** — recommendation with rationale. **For every HYSA / MMA / sub-account suggested, cite the DepositAccounts.com URL (category or product page) with the as-of timestamp, tagged `[UNSOURCED — verify on issuer page]`, and link the institution's own product page alongside it.** For each option include: expense ratio (`n/a` for deposits), federal-tax treatment (ordinary income via 1099-INT), and state-tax treatment (fully taxable for HYSA / MMA / CD; state-tax-free for T-bill alternatives if the user prefers them for sinking-fund cash with > 4-week horizons). Include a one-line "Primary rate source: DepositAccounts.com" footnote (note any one-off override the user requested).
@@ -63,5 +63,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

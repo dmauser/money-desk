@@ -34,7 +34,7 @@ irreversible move.
 7. **Withdrawal Order Optimizer** — drawdown sequencing for early retirees: brokerage → Trad → Roth vs Roth-conversion-ladder front-loaded vs balanced; tax-bracket-filling conversions in the low-income early-FIRE years; ACA-MAGI ceiling as the binding constraint.
 8. **Geographic Arbitrage Planner** — domestic (low-cost-of-living, no-state-income-tax states) and international (Portugal / Spain / Mexico / Thailand / Malaysia) moves; tax-residency implications, telehealth, banking, currency exposure; hand-off to International / Expat for filing mechanics.
 
-Reports land in `./reports/fire-planner/` if persisted.
+Reports land in `./money-desk/fire-planner/` if persisted.
 
 ## When to invoke
 
@@ -109,7 +109,7 @@ All deliverables follow the Money Desk **Report Quality Rules** (call `md_report
 
 - **Default output = markdown rendered inline in chat.** Do NOT auto-write files.
 - At the end of the deliverable, **OFFER** PDF / DOCX / XLSX / HTML. Only produce them if the user accepts (or asked up front).
-- If files are produced: name them `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`; never overwrite a prior scenario.
-- Brand styling, the 9 standard content sections, table hygiene, citation tags, and self-verification are encoded in `md_report_quality`. Renderer scripts ship in `extensions/money-desk/renderers/` — copy to `./reports/_renderers/` on first use.
+- If files are produced: name them `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`; never overwrite a prior scenario.
+- Brand styling, the 9 standard content sections, table hygiene, citation tags, and self-verification are encoded in `md_report_quality`. Renderer scripts ship in `extensions/money-desk/renderers/` — copy to `./money-desk/_renderers/` on first use.
 
 Override examples: *"just markdown is fine, skip the PDF"* · *"also produce a spreadsheet"* · *"draft me a Word doc for my CPA"* · *"give me all four formats"*.

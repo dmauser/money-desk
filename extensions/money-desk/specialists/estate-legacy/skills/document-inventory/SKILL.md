@@ -43,7 +43,7 @@ description: Build a structured inventory of all estate-related documents — wi
 
 ## Deliverable shape
 
-- Markdown register `./reports/estate-legacy/document-inventory-<YYYYMMDD>.md`:
+- Markdown register `./money-desk/estate-legacy/document-inventory-<YYYYMMDD>.md`:
   - **Headline** — N documents, M missing, P stale.
   - **Master register table** — category, date, location, agent/beneficiary, status.
   - **Missing items** — what doesn't exist and why it matters.
@@ -63,5 +63,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

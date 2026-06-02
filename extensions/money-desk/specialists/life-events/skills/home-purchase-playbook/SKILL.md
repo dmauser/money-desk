@@ -72,7 +72,7 @@ description: Pre-approval through 90-days-post-close runbook for buying a home. 
 
 ## Deliverable shape
 
-- Markdown playbook `./reports/life-events/home-purchase-<DATE>.md`:
+- Markdown playbook `./money-desk/life-events/home-purchase-<DATE>.md`:
   - **Affordability ceiling** (honest PITI-based price).
   - **Total cash needed** (DP + CC + reserves).
   - **Buy-vs-rent crossover** (months / years).
@@ -92,5 +92,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

@@ -53,3 +53,42 @@ test("each route has the required shape", () => {
         assert.ok(r.trigger instanceof RegExp);
     }
 });
+
+// QA 2026-06-01: the 22 panic / FOMO / market-crash phrases must route to
+// Behavioral Coach. Earlier the regex missed forms like 'panicking',
+// 'market dropping', 'cash out', 'before it's too late', etc.
+const PANIC_PHRASES = [
+    "I'm panicking about the market dropping 10%",
+    "I'm panicked",
+    "the market is crashing",
+    "market crash today",
+    "market drop",
+    "market dropping 10%",
+    "market falling",
+    "I want to sell everything",
+    "should I sell everything",
+    "I want to cash out",
+    "cashing out",
+    "FOMO on this stock",
+    "freaking out about money",
+    "I'm scared",
+    "I have anxiety about money",
+    "fear of missing out",
+    "hot stock everyone talks about",
+    "this is a hot asset",
+    "everyone is making money on X",
+    "should I sell",
+    "should I buy now",
+    "before it's too late",
+];
+
+test("Behavioral Coach matches all 22 panic / FOMO phrases", () => {
+    const bh = ROUTES.find((r) => r.prefix === "md_bh");
+    assert.ok(bh, "md_bh route must exist");
+    for (const phrase of PANIC_PHRASES) {
+        assert.ok(
+            bh.trigger.test(phrase),
+            `md_bh did not match: "${phrase}"`,
+        );
+    }
+});

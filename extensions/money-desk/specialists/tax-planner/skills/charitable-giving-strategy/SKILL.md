@@ -35,7 +35,7 @@ description: Optimize the tax treatment of charitable gifts. Compares cash givin
 
 ## Deliverable shape
 
-- Markdown report `./reports/tax-planner/charitable-giving-<YEAR>.md`:
+- Markdown report `./money-desk/tax-planner/charitable-giving-<YEAR>.md`:
   - **Strategy stack** — which giving vehicle for which dollars and why.
   - **Tax savings table** — federal + state savings under each path; cash-out-of-pocket equivalent.
   - **DAF bunching schedule** (if applicable) — years on vs years off.
@@ -54,5 +54,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

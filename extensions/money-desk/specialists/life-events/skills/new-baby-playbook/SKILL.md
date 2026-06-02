@@ -57,7 +57,7 @@ description: 30/60/90-day runbook for a new baby (biological or adopted). Sequen
 
 ## Deliverable shape
 
-- Markdown playbook `./reports/life-events/new-baby-<DATE>.md`:
+- Markdown playbook `./money-desk/life-events/new-baby-<DATE>.md`:
   - **Pre-arrival checklist** (insurance quotes, will outline).
   - **30-day must-do list** with deadlines.
   - **60-day list.**
@@ -79,5 +79,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

@@ -34,7 +34,7 @@ description: Find the optimal deductible across auto, home, and health policies 
 
 ## Deliverable shape
 
-- Markdown report `./reports/insurance-reviewer/deductible-optimizer-<YYYYMMDD>.md`:
+- Markdown report `./money-desk/insurance-reviewer/deductible-optimizer-<YYYYMMDD>.md`:
   - **Per-policy table** — current deductible, current premium, recommended deductible, new premium, $ saved/yr, breakeven years.
   - **Emergency-fund check** — green/yellow/red per recommendation.
   - **Health-policy section** — HDHP+HSA case if applicable.
@@ -55,5 +55,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

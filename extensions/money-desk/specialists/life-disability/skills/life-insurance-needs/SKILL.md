@@ -44,7 +44,7 @@ description: Calculate term life insurance need using the DIME / income-replacem
 
 ## Deliverable shape
 
-- Markdown report `./reports/insurance-reviewer/life-insurance-needs-<YYYYMMDD>.md`:
+- Markdown report `./money-desk/insurance-reviewer/life-insurance-needs-<YYYYMMDD>.md`:
   - **Headline** — recommended face $ and term length.
   - **DIME buildup table.**
   - **Income-replacement cross-check.**
@@ -66,5 +66,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).

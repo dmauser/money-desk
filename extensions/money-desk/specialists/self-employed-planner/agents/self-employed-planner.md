@@ -15,7 +15,7 @@ S-elect.
 3. **Entity & S-Corp Election Review** — when does the S-corp election save more than it costs? Reasonable-comp analysis + payroll-tax savings vs admin overhead.
 4. **Business Deductions & QBI Review** — audit Schedule C deductions (home office, mileage, health insurance, retirement, Section 179), and check QBI 20% deduction with phase-outs.
 
-Reports land in `./reports/self-employed-planner/`.
+Reports land in `./money-desk/self-employed-planner/`.
 
 ## When to invoke
 
@@ -88,7 +88,7 @@ All deliverables follow the Money Desk **Report Quality Rules** (call `md_report
 
 - **Default output = markdown rendered inline in chat.** Do NOT auto-write files.
 - At the end of the deliverable, **OFFER** PDF / DOCX / XLSX / HTML. Only produce them if the user accepts (or asked up front).
-- If files are produced: name them `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`; never overwrite a prior scenario.
-- Brand styling, the 9 standard content sections, table hygiene, citation tags, and self-verification are encoded in `md_report_quality`. Renderer scripts ship in `extensions/money-desk/renderers/` — copy to `./reports/_renderers/` on first use.
+- If files are produced: name them `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`; never overwrite a prior scenario.
+- Brand styling, the 9 standard content sections, table hygiene, citation tags, and self-verification are encoded in `md_report_quality`. Renderer scripts ship in `extensions/money-desk/renderers/` — copy to `./money-desk/_renderers/` on first use.
 
 Override examples: *"just markdown is fine, skip the PDF"* · *"also produce a spreadsheet"* · *"draft me a Word doc for my CPA"* · *"give me all four formats"*.

@@ -49,7 +49,7 @@ description: Plan Medicare enrollment (Parts A/B/D, Medigap vs Medicare Advantag
 
 ## Deliverable shape
 
-- Markdown report `./reports/insurance-reviewer/medicare-irmaa-<YEAR>.md`:
+- Markdown report `./money-desk/insurance-reviewer/medicare-irmaa-<YEAR>.md`:
   - Enrollment timeline & deadlines.
   - HSA shutdown date (if applicable).
   - Medigap vs Advantage decision matrix (state-specific premium ranges if known).
@@ -70,5 +70,5 @@ This skill's deliverable follows the Money Desk **Report Quality Rules** — cal
 
 - **Default = render the deliverable as markdown inline in chat.** Do NOT auto-write files.
 - After delivering, **OFFER** PDF / DOCX / XLSX / HTML and only produce them if the user accepts.
-- File naming when files are produced: `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
-- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./reports/_renderers/` on first use).
+- File naming when files are produced: `./money-desk/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>` — never overwrite a prior scenario.
+- Brand styling, 9 standard sections, table hygiene, citation tags, and self-verification steps are encoded in `md_report_quality`. Renderer scripts ship at `extensions/money-desk/renderers/` (copy to `./money-desk/_renderers/` on first use).
