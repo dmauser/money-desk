@@ -5,6 +5,11 @@
 
 **Your personal-finance AI team for GitHub Copilot CLI.** 20 specialist agents with 146 tools. **Every skill tool is intake-gated**: the first call returns the required-input checklist and forces Copilot to ask the user the listed questions in plain language (or render a structured `ask_user` form when a schema is shipped) before re-invoking the skill with the answers — so reports get built on `[USER-PROVIDED]` values, not invented `[ASSUMPTION:]` ones. A bundled 2026 facts table (IRS limits, brackets, IRMAA, FAFSA, conforming-loan, FEIE) means figures get cited from `md_facts` instead of marked `[UNSOURCED]`. Covers budgeting, taxes, investing, retirement, debt, credit, health & Medicare, property & casualty insurance, life & disability insurance, estate hygiene, major purchase decisions, education / 529 planning, net worth & goals tracking, self-employed / 1099 planning, cross-specialist life-event playbooks (annual review, new baby, job change, home purchase, inheritance, layoff), real-estate investing, behavioral coaching, international / expat planning, financial literacy (plain-language explanations + glossary + paycheck/statement walkthroughs + beginner roadmap + teach-a-kid), and FIRE planning (financial-independence strategy, safe-withdrawal stress testing, pre-59½ bridge / pre-65 healthcare, withdrawal-order, geographic arbitrage) — routed automatically. Zero runtime dependencies.
 
+> [!WARNING]
+> **Analysis only — not professional advice.** Money Desk produces drafts and analysis for your review. It does **not** execute trades, move funds, file taxes, submit disputes, or sign legal documents, and it is **not** a substitute for a licensed tax professional, fiduciary advisor, attorney, or insurance broker. It is informational only — **not professional tax, legal, investment, or insurance advice**.
+>
+> **🇺🇸 Scope: United States only.** Money Desk is built around US tax law, US account types (IRA / Roth / 401k / 529 / HSA), US insurance (ACA, Medicare, P&C), and US regulators (IRS, SSA, CMS, FAFSA). The 🌍 International / Expat desk covers cross-border topics from a **US-person perspective** only (FBAR, FATCA, FEIE vs FTC, PFIC) — it does **not** cover non-US home-country tax regimes.
+
 ---
 
 ### 📌 Table of Contents

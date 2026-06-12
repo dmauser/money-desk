@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.8] — 2026-06-12
+
+### Added
+
+- **`README.md`** — added a GitHub `[!WARNING]` alert (the yellow-bang
+  callout) near the top of the repo combining the standard
+  *analysis-only / not professional advice* disclaimer with an explicit
+  **🇺🇸 Scope: United States only** statement, so both are visible
+  above the fold instead of only inside the "What is Money Desk?"
+  section.
+
 ## [0.19.7] — 2026-06-02
 
 ### Changed
