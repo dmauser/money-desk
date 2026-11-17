@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.3] — 2026-11-17
+
+### Added
+
+- **`md_facts` → `credits_and_ira_phaseouts_2026`** — Child Tax Credit
+  ($2,200 per child, $1,700 refundable, statutory $200k / $400k phase-out),
+  Roth IRA contribution phase-outs, traditional-IRA deduction phase-outs,
+  Saver's Credit limits (MFJ / HoH). Sources: Rev. Proc. 2025-32 §4.05,
+  IRS Notice 2025-67.
+- **`md_facts` → `irs_contribution_limits`** — HSA-eligible HDHP thresholds
+  for 2026 (minimum deductible $1,700 / $3,400; out-of-pocket maximum
+  $8,500 / $17,000; Rev. Proc. 2025-19).
+- **`md_facts`** — FHA one-unit high-cost ceiling ($1,249,125).
+
+### Fixed
+
+- **Part D base beneficiary premium** — $38.99 for 2026 (was $36).
+- **FHA one-unit floor** — $541,287 for 2026 (was $522,000; HUD Mortgagee
+  Letter 2025-23).
+- Eight skills that sent these figures to `md_sources` / `[UNSOURCED]`
+  (and treated the Child Tax Credit as $0) now read them from `md_facts`.
+
 ## [0.24.2] — 2026-11-17
 
 ### Changed

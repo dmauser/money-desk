@@ -77,7 +77,7 @@ Markdown report `./money-desk/<CHILD>/account-selector-<YYYYMMDD>.md`:
 | Annual gift exclusion (UTMA gifts, 529 contributions) | `md_facts` → `estate_and_gift_2026.annual_gift_exclusion_per_donee` (×2 for a married couple splitting gifts) | `[IRS Estate 2026]` |
 | 529 five-year superfund | 5 × `annual_gift_exclusion_per_donee` per donor | `[IRS Estate 2026]` |
 | Roth IRA contribution limit | `md_facts` → `irs_contribution_limits.ira_traditional_or_roth` + `.ira_catchup_age_50_plus` | `[IRS 2026 limits]` |
-| Roth IRA MAGI phase-out | not in md_facts — look up via `md_sources` (IRS), else `[UNSOURCED]` | `[UNSOURCED]` until sourced |
+| Roth IRA MAGI phase-out | `md_facts` → `credits_and_ira_phaseouts_2026.roth_ira_contribution_phaseout_single_hoh` / `.roth_ira_contribution_phaseout_mfj` (MAGI `start`–`end`) | `[IRS credits & IRA phase-outs 2026]` |
 | Coverdell limit ($2,000 / beneficiary) and MAGI phase-out ($95k–$110k single, $190k–$220k MFJ) | Statutory, not inflation-indexed (IRC §530) | statute |
 | 529 K-12 tuition annual limit | not in md_facts — verify the current federal limit via `md_sources` (changed by 2025 legislation), else `[UNSOURCED]` | `[UNSOURCED]` until sourced |
 | State 529 deduction | State plan website via `md_sources`; else "Unknown" | — |

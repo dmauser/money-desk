@@ -99,7 +99,8 @@ description: Compare itemized vs standard deduction; identify above-the-line ded
 | Medical AGI floor | 7.5% of AGI (statutory) | — |
 | HSA limits | `md_facts` → `irs_contribution_limits.hsa_self_only` / `hsa_family` / `hsa_catchup_age_55_plus` | `[IRS 2026 limits]` |
 | IRA limits | `md_facts` → `irs_contribution_limits.ira_traditional_or_roth` / `ira_catchup_age_50_plus` | `[IRS 2026 limits]` |
-| IRA deductibility phase-outs, student-loan-interest phase-outs, Saver's Credit / education / energy credit limits | Not in md_facts — look up via `md_sources`, else tag `[UNSOURCED]` and mark the item "verify" | `[UNSOURCED]` |
+| IRA deductibility phase-outs, Child Tax Credit, Saver's Credit (MFJ / HoH) | `md_facts` → `credits_and_ira_phaseouts_2026` (`credits_and_ira_phaseouts_2026.traditional_ira_deduction_phaseout_covered_single_hoh` / `_covered_mfj` / `_spouse_of_covered_mfj`, `.child_tax_credit_*`, `.savers_credit_agi_limit_mfj` / `_hoh`) | `[IRS credits & IRA phase-outs 2026]` |
+| Student-loan-interest phase-outs, single-filer Saver's Credit limit, education / energy credit limits | Not in md_facts — look up via `md_sources`, else tag `[UNSOURCED]` and mark the item "verify" | `[UNSOURCED]` |
 | Marginal federal rate | Bracket containing `agi_estimate_usd − chosen deduction` from `md_facts` → `income_tax_brackets_mfj_2026.brackets` (MFJ), `.brackets_single`, `.brackets_hoh` or `.brackets_mfs` | `[IRS 2026 brackets]` |
 
 ### Calculation method

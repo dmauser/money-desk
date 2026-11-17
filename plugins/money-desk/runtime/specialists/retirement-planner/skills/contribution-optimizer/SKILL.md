@@ -98,7 +98,7 @@ Names match the `md_rp_skill_contribution_optimizer` intake schema; extra keys f
 | 415(c) total limit | `md_facts` → `irs_contribution_limits.401k_total_415c_limit_employee_plus_employer` | `[IRS 2026 limits]` |
 | IRA limit and catch-up | `md_facts` → `irs_contribution_limits.ira_traditional_or_roth`, `.ira_catchup_age_50_plus` | `[IRS 2026 limits]` |
 | HSA limit and catch-up | `md_facts` → `irs_contribution_limits.hsa_self_only` / `.hsa_family`, `.hsa_catchup_age_55_plus` | `[IRS 2026 limits]` |
-| Roth IRA income phase-out range; traditional-IRA deductibility phase-out | Not in md_facts — look up via `md_sources` (IRS Pub 590-A / annual COLA notice), else tag `[UNSOURCED]` | `[UNSOURCED]` |
+| Roth IRA income phase-out range; traditional-IRA deductibility phase-out | Roth: `md_facts` → `credits_and_ira_phaseouts_2026.roth_ira_contribution_phaseout_single_hoh` / `.roth_ira_contribution_phaseout_mfj` (MAGI `start`–`end`). Traditional: `md_facts` → `credits_and_ira_phaseouts_2026.traditional_ira_deduction_phaseout_covered_single_hoh` / `_covered_mfj` / `_spouse_of_covered_mfj`. MFS ranges ($0–$10,000) are statutory | `[IRS credits & IRA phase-outs 2026]` |
 | Federal marginal rate | Derive from taxable income with `md_facts` → `income_tax_brackets_mfj_2026.brackets` (MFJ), `.brackets_single`, `.brackets_hoh` or `.brackets_mfs` | `[IRS 2026 brackets]` |
 | Expected retirement marginal rate | `unknown` | `[ASSUMPTION]` |
 | Pay periods | **Ask — no default** | — |
@@ -115,7 +115,7 @@ Names match the `md_rp_skill_contribution_optimizer` intake schema; extra keys f
    1. 401(k) to `match_cap_pct` of salary.
    2. HSA to its limit.
    3. If `high_interest_debt` → stop the waterfall here and route the remainder to Debt Strategist (flag).
-   4. Roth IRA to the IRA limit — direct if MAGI is below the phase-out start (`md_sources`), backdoor if above and `traditional_ira_pretax_balance_usd = 0`; if above and pre-tax IRA balance > 0, skip and flag the pro-rata rule.
+   4. Roth IRA to the IRA limit — direct if MAGI is below the phase-out `start` (`md_facts` → `credits_and_ira_phaseouts_2026`; a reduced direct amount inside the range), backdoor if above and `traditional_ira_pretax_balance_usd = 0`; if above and pre-tax IRA balance > 0, skip and flag the pro-rata rule.
    5. 401(k) from the match cap up to `deferral_limit`.
    6. Mega Backdoor Roth (only if `After-tax contributions` and an in-plan conversion or in-service rollover are offered): room = `415c_limit − deferral_limit_used − employer_contribution_usd` (catch-up excluded from 415(c)).
    7. Taxable brokerage: the remainder.

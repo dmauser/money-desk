@@ -95,7 +95,7 @@ Markdown report `./money-desk/self-employed-planner/quarterly-tax-<YYYYMMDD>.md`
 | SE earnings factor | 92.35% (statutory, Schedule SE) | — |
 | Standard deduction | `md_facts` → `income_tax_brackets_mfj_2026.standard_deduction_mfj` / `standard_deduction_single` / `standard_deduction_hoh` | `[IRS 2026 brackets]` |
 | Brackets — MFJ | `md_facts` → `income_tax_brackets_mfj_2026.brackets` | `[IRS 2026 brackets]` |
-| Brackets — other statuses, Child Tax Credit amount | Brackets: Single / HoH / MFS: `md_facts` → `income_tax_brackets_mfj_2026.brackets_single` / `.brackets_hoh` / `.brackets_mfs`. CTC: not in md_facts — `md_sources`, else `[UNSOURCED]` (CTC treated as $0) | `[UNSOURCED]` |
+| Brackets — other statuses, Child Tax Credit amount | Brackets: Single / HoH / MFS: `md_facts` → `income_tax_brackets_mfj_2026.brackets_single` / `.brackets_hoh` / `.brackets_mfs`. CTC: `md_facts` → `credits_and_ira_phaseouts_2026.child_tax_credit_max_per_child`, `.child_tax_credit_refundable_max_per_child`, `.child_tax_credit_phaseout_start_mfj` / `_other` (credit falls `.child_tax_credit_phaseout_per_1000_over` dollars per $1,000 of MAGI above the start) | `[IRS 2026 brackets]` / `[IRS credits & IRA phase-outs 2026]` |
 | QBI rate and threshold | `md_facts` → `qbi_section_199a_2026.deduction_rate`, `phase_in_start_mfj` / `phase_in_start_single` | `[IRS QBI 2026]` |
 | State estimated-tax rules and rates | Not in md_facts — look up via `md_sources` (state DoR), else state section reads "Not computed — [UNSOURCED]" | `[UNSOURCED]` |
 | Capital gains taxed as | Ordinary income (conservative — overstates tax) | `[ASSUMPTION]` |

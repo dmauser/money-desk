@@ -13,7 +13,7 @@ description: Pick the best health plan for the household this year — from an e
 ## Inputs needed
 
 - All available plan options: monthly premium (employee-only and family tier), deductible, out-of-pocket max (OOPM), copay / coinsurance structure, in-network vs out-of-network, prescription tier costs.
-- Whether plan is HDHP-qualified (deductible meets the IRS HSA-eligible HDHP minimum for the plan year — not in `md_facts`; look it up via `md_sources` or tag `[UNSOURCED]`).
+- Whether plan is HDHP-qualified (deductible and out-of-pocket maximum meet the IRS HSA-eligible HDHP thresholds for the plan year — `md_facts` → `irs_contribution_limits.hdhp_min_deductible_self_only` / `_family` and `.hdhp_out_of_pocket_max_self_only` / `_family`).
 - Household composition: ages, any chronic conditions, planned procedures, expected scripts.
 - Last 12 months actual medical utilization (visits, ER, scripts, procedures) — proxy for next 12 months unless known reason to differ (planned pregnancy, planned surgery, new chronic dx).
 - Marginal tax rate (federal + FICA + state) — drives HSA tax-benefit math.
@@ -106,7 +106,7 @@ Names match the intake schema `md_ih_skill_health_plan_selector`; extra plans an
 | Employee HSA contribution | **Ask — no default**; `max` = HSA limit − employer contribution | — |
 | HSA limit (self-only / family / 55+ catch-up) | `md_facts` → `irs_contribution_limits.hsa_self_only`, `.hsa_family`, `.hsa_catchup_age_55_plus` | `[IRS 2026 limits]` |
 | FICA saved on payroll HSA contributions | `md_facts` → `social_security_2026.fica_employee_rate` + `.medicare_employee_rate` (zero if `hsa_via_payroll` is false) | `[SSA 2026]` |
-| HDHP minimum deductible / maximum OOP for HSA eligibility | not in md_facts — look up the IRS Revenue Procedure for the plan year via `md_sources`, else tag `[UNSOURCED]`; if `plan_x_hsa_eligible` is supplied, use it | `[UNSOURCED]` until sourced |
+| HDHP minimum deductible / maximum OOP for HSA eligibility | `md_facts` → `irs_contribution_limits.hdhp_min_deductible_self_only` / `_family` and `.hdhp_out_of_pocket_max_self_only` / `_family` for 2026 (other plan years: `md_sources`); if `plan_x_hsa_eligible` is supplied, use it. From 2026, Exchange bronze and catastrophic plans are HSA-compatible regardless | `[IRS 2026 limits]` |
 | Federal poverty level by household size | `md_facts` → `federal_poverty_level_2026_48_states.household_size_to_fpl` | `[HHS FPL 2026]` |
 | PTC income ceiling | `md_facts` → `federal_poverty_level_2026_48_states.aca_premium_tax_credit_eligibility_ceiling_post_2025_unless_extended` — verify current law via `md_sources` | `[HHS FPL 2026]` |
 | Marketplace net premium after PTC | **Ask — no default** (healthcare.gov / state exchange quote); the skill does not compute PTC itself | — |

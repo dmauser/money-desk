@@ -96,7 +96,7 @@ description: 30/60/90-day runbook for a new baby (biological or adopted). Sequen
 | Qualifying-event window | Plan SPD (`qualifying_event_window_days`); if unknown, plan to the **30-day** HIPAA special-enrollment minimum | `[UNSOURCED — verify SPD]` |
 | Dependent-care FSA limit | `md_facts` → `irs_contribution_limits.fsa_dependent_care_married_or_single` (MFS = half) | `[IRS 2026 limits]` |
 | Health FSA limit | `md_facts` → `irs_contribution_limits.fsa_healthcare` | `[IRS 2026 limits]` |
-| Child Tax Credit amount / phase-out | Not in md_facts — IRS (Form 8812 instructions) via `md_sources`, else `[UNSOURCED]` | `[UNSOURCED]` |
+| Child Tax Credit amount / phase-out | `md_facts` → `credits_and_ira_phaseouts_2026.child_tax_credit_max_per_child`, `.child_tax_credit_refundable_max_per_child`, `.child_tax_credit_phaseout_start_mfj` / `_other` (credit falls `.child_tax_credit_phaseout_per_1000_over` dollars per $1,000 of MAGI above the start) | `[IRS credits & IRA phase-outs 2026]` |
 | Annual gift exclusion (529 funding by relatives) | `md_facts` → `estate_and_gift_2026.annual_gift_exclusion_per_donee` | `[IRS Estate 2026]` |
 | Childcare cost | **Ask — no default** (local quotes) | — |
 

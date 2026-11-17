@@ -88,7 +88,7 @@ Names match the `md_tx_skill_withholding_check` intake schema; extra optional ke
 | Ordinary brackets — Single / MFS / HoH | Single / HoH / MFS: `md_facts` → `income_tax_brackets_mfj_2026.brackets_single` / `.brackets_hoh` / `.brackets_mfs` | `[UNSOURCED]` |
 | Additional Medicare Tax rate | `md_facts` → `social_security_2026.additional_medicare_rate_above_threshold_mfj_250k`; thresholds $250,000 MFJ / $125,000 MFS / $200,000 other (statutory, not indexed) | `[SSA 2026]` |
 | NIIT threshold | `md_facts` → `income_tax_brackets_mfj_2026.niit_threshold_mfj` / `niit_threshold_single`; rate 3.8% (statutory) | `[IRS 2026 brackets]` |
-| Child Tax Credit per child | Not in md_facts — look up via `md_sources`, else tag `[UNSOURCED]` and use $0 (overstates tax; conservative) | `[UNSOURCED]` |
+| Child Tax Credit per child | `md_facts` → `credits_and_ira_phaseouts_2026.child_tax_credit_max_per_child`, `.child_tax_credit_refundable_max_per_child`, `.child_tax_credit_phaseout_start_mfj` / `_other` (credit falls `.child_tax_credit_phaseout_per_1000_over` dollars per $1,000 of MAGI above the start) | `[IRS credits & IRA phase-outs 2026]` |
 | Spouse's remaining-year wages and withholding | Annualized with the user's elapsed-period ratio (step 2) | `[ASSUMPTION]` |
 | Character of `other_income` | Taxed as ordinary income (no preferential LTCG / qualified-dividend rate) — conservative | `[ASSUMPTION]` |
 | Prior-year total tax | If absent, the prior-year safe harbor is skipped and only the 90%-of-current-year test is used | `[ASSUMPTION]` |

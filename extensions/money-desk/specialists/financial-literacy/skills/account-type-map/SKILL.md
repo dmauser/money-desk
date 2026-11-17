@@ -102,7 +102,7 @@ Educational map only. The personalized order — especially the trade-offs betwe
 | 529 gift exclusion / 5-year front-load | `md_facts` → `estate_and_gift_2026.annual_gift_exclusion_per_donee` (front-load = 5 ×) | `[IRS Estate 2026]` |
 | Mega Backdoor Roth space | `md_facts` → `401k_total_415c_limit_employee_plus_employer` − `401k_employee_deferral` − employer contributions (**Ask** employer amount) | `[IRS 2026 limits]` |
 | I-Bond annual purchase limit | Not in md_facts — TreasuryDirect via `md_sources`, else `[UNSOURCED]` | `[UNSOURCED]` |
-| Roth IRA income phase-out | Not in md_facts — IRS Pub 590-A via `md_sources`, else `[UNSOURCED]` | `[UNSOURCED]` |
+| Roth IRA income phase-out | `md_facts` → `credits_and_ira_phaseouts_2026.roth_ira_contribution_phaseout_single_hoh` / `.roth_ira_contribution_phaseout_mfj` (MAGI `start`–`end`) | `[IRS credits & IRA phase-outs 2026]` |
 
 ### Calculation method
 

@@ -26,9 +26,13 @@
     "hsa_catchup_age_55_plus": 1000,
     "fsa_healthcare": 3400,
     "fsa_dependent_care_married_or_single": 7500,
-    "_notes": "Numbers above are illustrative projections for the 2026 plan year — confirm against the IRS notice for the year of use. Mark [UNSOURCED] if the official notice has not yet been released at the time of use. Dependent-care FSA raised to $7,500 by OBBBA (IRS Pub 15-B 2026).",
+    "_notes": "Numbers above are illustrative projections for the 2026 plan year — confirm against the IRS notice for the year of use. Mark [UNSOURCED] if the official notice has not yet been released at the time of use. Dependent-care FSA raised to $7,500 by OBBBA (IRS Pub 15-B 2026). HDHP thresholds from Rev. Proc. 2025-19; from 2026, Exchange bronze and catastrophic plans are also HSA-compatible (OBBBA; IRS Notice 2026-5).",
     "_label": "IRS 2026 limits",
-    "fsa_dependent_care_married_filing_separately": 3750
+    "fsa_dependent_care_married_filing_separately": 3750,
+    "hdhp_min_deductible_self_only": 1700,
+    "hdhp_min_deductible_family": 3400,
+    "hdhp_out_of_pocket_max_self_only": 8500,
+    "hdhp_out_of_pocket_max_family": 17000
   },
   "income_tax_brackets_mfj_2026": {
     "_source": "IRS Rev. Proc. 2025-32 (final 2026 inflation adjustments, incl. OBBBA P.L. 119-21 changes)",
@@ -265,12 +269,12 @@
     "_label": "SSA 2026"
   },
   "medicare_2026": {
-    "_source": "CMS fact sheet \"2026 Medicare Parts A & B Premiums and Deductibles\" (Nov 14, 2025).",
+    "_source": "CMS fact sheet \"2026 Medicare Parts A & B Premiums and Deductibles\" (Nov 14, 2025). Part D base beneficiary premium: CMS July 28, 2025 Parts C & D announcement.",
     "_url": "https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles",
     "part_b_base_premium_monthly": 202.9,
     "part_b_deductible_annual": 283,
     "part_a_deductible_per_benefit_period": 1736,
-    "part_d_base_beneficiary_premium_monthly": 36,
+    "part_d_base_beneficiary_premium_monthly": 38.99,
     "irmaa_lookback_years": 2,
     "irmaa_brackets_mfj_part_b_total_monthly": [
       {
@@ -333,7 +337,7 @@
       83.3,
       91
     ],
-    "_notes": "IRMAA tiers share the MAGI breakpoints above (MFJ / single). part_d_base_beneficiary_premium_monthly not re-verified in the 2026-11 refresh — confirm via CMS before citing."
+    "_notes": "IRMAA tiers share the MAGI breakpoints above (MFJ / single)."
   },
   "estate_and_gift_2026": {
     "_source": "IRS Rev. Proc. 2025-32 (final 2026 inflation adjustments, incl. OBBBA P.L. 119-21 changes); OBBBA §70106 made the higher exemption permanent and indexed after 2026.",
@@ -372,7 +376,8 @@
     "_url_hud": "https://entp.hud.gov/idapp/html/hicostlook.cfm",
     "conforming_loan_limit_one_unit_baseline": 832750,
     "conforming_loan_limit_one_unit_high_cost_ceiling": 1249125,
-    "fha_loan_limit_one_unit_low_cost_floor": 522000,
+    "fha_loan_limit_one_unit_low_cost_floor": 541287,
+    "fha_loan_limit_one_unit_high_cost_ceiling": 1249125,
     "section_121_exclusion_single": 250000,
     "section_121_exclusion_mfj": 500000,
     "mortgage_interest_deduction_cap_post_tcja": 750000,
@@ -387,7 +392,7 @@
     "salt_cap_married_filing_separately": 20200,
     "salt_cap_phase_down_magi_start": 505000,
     "salt_cap_floor": 10000,
-    "_notes": "SALT cap reduced by 30% of MAGI above the phase-down start, not below the floor. Bonus depreciation 100% for qualified property acquired after Jan 19, 2025 (OBBBA; see Notice 2026-11). fha_loan_limit_one_unit_low_cost_floor not re-verified in the 2026-11 refresh — confirm via HUD before citing.",
+    "_notes": "SALT cap reduced by 30% of MAGI above the phase-down start, not below the floor. Bonus depreciation 100% for qualified property acquired after Jan 19, 2025 (OBBBA; see Notice 2026-11).",
     "salt_cap_phase_down_magi_start_mfs": 252500,
     "salt_cap_floor_mfs": 5000,
     "salt_cap_phase_down_rate": 0.3
@@ -505,5 +510,39 @@
     },
     "_notes": "Use the Joint Life table (Pub 590-B Table II) instead when the sole beneficiary is a spouse more than 10 years younger. Age 120 row applies to 120 and over.",
     "_label": "IRS RMD & QCD 2026"
+  },
+  "credits_and_ira_phaseouts_2026": {
+    "_source": "IRS Rev. Proc. 2025-32 §4.05 (Child Tax Credit); IRC §24(b)(2), §24(h)(4) (statutory phase-out and other-dependent amounts); IRS Notice 2025-67 (IRA and Saver's Credit income ranges).",
+    "_url": "https://www.irs.gov/pub/irs-drop/n-25-67.pdf",
+    "child_tax_credit_max_per_child": 2200,
+    "child_tax_credit_refundable_max_per_child": 1700,
+    "child_tax_credit_phaseout_start_mfj": 400000,
+    "child_tax_credit_phaseout_start_other": 200000,
+    "child_tax_credit_phaseout_per_1000_over": 50,
+    "credit_for_other_dependents": 500,
+    "roth_ira_contribution_phaseout_single_hoh": {
+      "start": 153000,
+      "end": 168000
+    },
+    "roth_ira_contribution_phaseout_mfj": {
+      "start": 242000,
+      "end": 252000
+    },
+    "traditional_ira_deduction_phaseout_covered_single_hoh": {
+      "start": 81000,
+      "end": 91000
+    },
+    "traditional_ira_deduction_phaseout_covered_mfj": {
+      "start": 129000,
+      "end": 149000
+    },
+    "traditional_ira_deduction_phaseout_spouse_of_covered_mfj": {
+      "start": 242000,
+      "end": 252000
+    },
+    "savers_credit_agi_limit_mfj": 80500,
+    "savers_credit_agi_limit_hoh": 60375,
+    "_notes": "Phase-out ranges are modified AGI. The Child Tax Credit phase-out thresholds and the $500 other-dependent credit are fixed by statute, not indexed. Married-filing-separately IRA ranges ($0–$10,000) are statutory. The single-filer Saver's Credit limit is not stored — look it up via md_sources.",
+    "_label": "IRS credits & IRA phase-outs 2026"
   }
 }
