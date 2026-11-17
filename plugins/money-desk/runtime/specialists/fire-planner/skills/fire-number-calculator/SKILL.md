@@ -101,6 +101,8 @@ Names match the `md_fi_skill_fire_number_calculator` intake schema; extra keys f
 
 ### Calculation method
 
+> **Calculator:** run steps 1–8 and both Decision-rule tables with `md_calc` → `fire_number` (params = the Input keys above). Use its numbers verbatim, tagged `[CALCULATED]`; the steps below define what it computes — work them by hand only if `md_calc` is unavailable.
+
 Real dollars, annual compounding, `r = expected_real_return_pct / 100`, savings added at end of year.
 
 1. **Multipliers:** `M(WR) = 100 / WR` → 25.0, 28.571…, 33.333… (use full precision; display one decimal).

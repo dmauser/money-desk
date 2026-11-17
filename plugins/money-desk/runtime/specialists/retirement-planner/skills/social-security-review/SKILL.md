@@ -94,6 +94,8 @@ Names match the `md_rp_skill_social_security_review` intake schema; extra keys f
 
 ### Calculation method
 
+> **Calculator:** run steps 1–7 and the Decision rules with `md_calc` → `social_security` (`pia_estimate`, `fra`, `longevity_outlook`, `marital_status`, `spouse_pia`, `spouse_fra`, `still_working`, `expected_earnings_annual_usd`; add `spouse_longevity_outlook` if known). Run it once per spouse. Rule 4 (widowed switch strategy) and step 8 are done by hand. Use its numbers verbatim, tagged `[CALCULATED]`; the steps below define what it computes — work them by hand only if `md_calc` is unavailable.
+
 1. **Benefit factor** for claim at age-in-months `c`: `m = fra_months − c`. If `m > 0`: `factor = 1 − (min(m, 36) × 5/9 + max(0, m − 36) × 5/12) / 100`. If `m < 0`: `factor = 1 + (−m) × (2/3) / 100`, with `c` capped at 70 × 12. `benefit = round(pia × factor, 2)` per month, real dollars.
 2. **Claim ages evaluated:** 62 (62 × 12 months), FRA, 70. Optionally every whole age 62–70 in an appendix.
 3. **Cumulative benefits** to age `L` = `benefit × (L × 12 − c)` (0 if `L × 12 ≤ c`), for `L` = 85, 90, 95 and the longevity age.

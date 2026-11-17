@@ -305,7 +305,20 @@ function refinance(p) {
     const upfrontC = closingC - creditsC + penaltyC; // step 4
     const breakEven = savingC > 0 ? Math.ceil(upfrontC / savingC) : null; // step 5
 
-    const oldRows = amortize(balC, curRate, curPiC, remaining);
+    // ARM (step 6): the current loan re-amortizes at `reset_rate_pct` over its
+    // remaining term once `arm_reset_in_months` payments have been made.
+    const resetIn = int(cur, "arm_reset_in_months", { required: false, min: 0, max: 600 });
+    const resetRate = num(cur, "reset_rate_pct", { required: resetIn !== undefined, min: 0, max: 100 });
+    const isArm = resetIn !== undefined && resetIn < remaining;
+    let oldRows = amortize(balC, curRate, curPiC, remaining);
+    let resetPiC = null;
+    if (isArm) {
+        const head = oldRows.slice(0, resetIn);
+        const balAtReset = resetIn === 0 ? balC : head[head.length - 1].bal;
+        resetPiC = levelPayment(balAtReset, resetRate, remaining - resetIn);
+        const tail = amortize(balAtReset, resetRate, resetPiC, remaining - resetIn).map((r) => ({ ...r, m: r.m + resetIn }));
+        oldRows = [...head, ...tail];
+    }
     const newRows = amortize(newPrincipalC, newRate, newPiC, n);
     const sumPaid = (rows, k) => rows.slice(0, k).reduce((a, r) => a + r.paid, 0);
     const balAt = (rows, k, start) => (k === 0 ? start : (rows[Math.min(k, rows.length) - 1]?.bal ?? 0));
@@ -315,15 +328,40 @@ function refinance(p) {
     const newCost = upfrontC + sumPaid(newRows, kn) + newPmiC * kn + balAt(newRows, kn, newPrincipalC) - cashOutC + cashInC;
     const interest = (rows) => rows.reduce((a, r) => a + r.interest, 0); // step 7
     let npv = -upfrontC; // step 8
-    for (let t = 1; t <= Math.min(hold, n); t++) npv += savingC / Math.pow(1 + d / 12, t);
+    let armBreakEven = null;
+    if (isArm) {
+        // Savings change at the reset, so use each month's actual payments.
+        let cum = 0;
+        for (let t = 1; t <= Math.min(hold, n); t++) {
+            const oldPay = (oldRows[t - 1]?.paid ?? 0) + (t <= oldRows.length ? curPmiC : 0);
+            const newPay = (newRows[t - 1]?.paid ?? 0) + (t <= newRows.length ? newPmiC : 0);
+            npv += (oldPay - newPay) / Math.pow(1 + d / 12, t);
+        }
+        for (let t = 1; t <= Math.max(remaining, n) && armBreakEven === null; t++) {
+            cum += (oldRows[t - 1]?.paid ?? 0) + (t <= oldRows.length ? curPmiC : 0) - (newRows[t - 1]?.paid ?? 0) - (t <= newRows.length ? newPmiC : 0);
+            if (cum >= upfrontC) armBreakEven = t;
+        }
+    } else {
+        for (let t = 1; t <= Math.min(hold, n); t++) npv += savingC / Math.pow(1 + d / 12, t);
+    }
 
     return {
         new_principal_usd: Math.round(usd(newPrincipalC)),
         current_monthly_pi_usd: usd(curPiC),
         new_monthly_pi_usd: usd(newPiC),
         monthly_saving_usd: usd(savingC),
+        ...(isArm
+            ? {
+                  arm: {
+                      reset_in_months: resetIn,
+                      reset_rate_pct: resetRate,
+                      current_monthly_pi_after_reset_usd: usd(resetPiC),
+                      monthly_saving_after_reset_usd: usd(resetPiC + curPmiC - (newPiC + newPmiC)),
+                  },
+              }
+            : {}),
         net_upfront_cost_usd: Math.round(usd(upfrontC)),
-        break_even_months: breakEven,
+        break_even_months: isArm ? armBreakEven : breakEven,
         hold_months: hold,
         hold_period: { old_cost_usd: Math.round(usd(oldCost)), new_cost_usd: Math.round(usd(newCost)), saving_usd: Math.round(usd(oldCost - newCost)) },
         lifetime_interest: {
@@ -334,7 +372,7 @@ function refinance(p) {
         npv_usd: Math.round(usd(npv)),
         discount_rate_pct: +(d * 100).toFixed(4),
         notes: [
-            "Fixed-rate loans only: ARM resets (step 6) are not modelled — compute those by hand per the skill.",
+            "ARM: pass `arm_reset_in_months` and `reset_rate_pct` under `current`; the current loan then re-amortizes at the reset rate over its remaining term, and break-even / NPV use each month's actual payments. One reset is modelled.",
             "PMI is treated as constant and included in hold-period payments.",
             "Steps 9–10 (term-match, sensitivity): call this calculator again with the changed inputs.",
         ],
@@ -838,9 +876,367 @@ function rentVsBuy(p, facts) {
     };
 }
 
+// ── social_security (Retirement Planner → Social Security Review) ──────
+
+function parseFraMonths(v, key) {
+    if (typeof v === "number" && Number.isFinite(v)) return v > 100 ? Math.round(v) : Math.round(v * 12);
+    const m = /(\d{2})(?:\D+(\d{1,2}))?/.exec(String(v ?? ""));
+    if (!m) throw new CalcError(`\`${key}\` must look like "67" or "66 + 10 mo" (got ${JSON.stringify(v)})`);
+    const months = +m[1] * 12 + (m[2] ? +m[2] : 0);
+    if (months < 65 * 12 || months > 67 * 12) throw new CalcError(`\`${key}\` must be between 65 and 67 years.`);
+    return months;
+}
+
+const LONGEVITY_AGE = { "below average": 80, average: 85, "above average": 90, "family history of long life": 95 };
+
+function socialSecurity(p, facts) {
+    const ss = facts?.social_security_2026 ?? {};
+    const pia = num(p, "pia_estimate", { min: 0.01 });
+    const fra = parseFraMonths(p.fra ?? p.fra_months, "fra");
+    const outlook = String(p.longevity_outlook ?? "").toLowerCase();
+    const L = LONGEVITY_AGE[outlook];
+    if (!L) throw new CalcError("`longevity_outlook` must be one of: Below average, Average, Above average, Family history of long life.");
+    const marital = String(p.marital_status ?? "single").toLowerCase();
+    const spousePia = num(p, "spouse_pia", { required: false, min: 0, dflt: 0 });
+    const spouseFra = p.spouse_fra !== undefined && p.spouse_fra !== null ? parseFraMonths(p.spouse_fra, "spouse_fra") : fra;
+    const spouseL = p.spouse_longevity_outlook ? LONGEVITY_AGE[String(p.spouse_longevity_outlook).toLowerCase()] : undefined;
+    const working = p.still_working === true;
+    const earnings = num(p, "expected_earnings_annual_usd", { required: false, min: 0 });
+
+    // Step 1 — own-benefit factor for a claim at age-in-months c.
+    const factor = (c, fraM) => {
+        const cc = Math.min(c, 70 * 12);
+        const m = fraM - cc;
+        if (m > 0) return 1 - (Math.min(m, 36) * (5 / 9) + Math.max(0, m - 36) * (5 / 12)) / 100;
+        return 1 + (-m * (2 / 3)) / 100;
+    };
+    const monthly = (base, c, fraM) => Math.round(base * factor(c, fraM) * 100) / 100;
+    const cumulative = (benefit, c, age) => benefit * Math.max(0, age * 12 - c); // step 3
+    const fmtAge = (months) => `${Math.floor(months / 12)}y ${months % 12}m`;
+    const claimAges = [62 * 12, fra, 70 * 12];
+    const horizons = [...new Set([85, 90, 95, L])].sort((a, b) => a - b);
+    const options = claimAges.map((c) => {
+        const b = monthly(pia, c, fra);
+        return {
+            claim_age: c === fra ? `FRA (${fmtAge(fra)})` : `${c / 12}`,
+            claim_months: c,
+            factor_pct: +(factor(c, fra) * 100).toFixed(2),
+            monthly_usd: Math.round(b),
+            cumulative_usd: Object.fromEntries(horizons.map((h) => [`to_${h}`, Math.round(cumulative(b, c, h))])),
+            _b: b,
+        };
+    });
+    const breakeven = (i, j) => {
+        const [a, b] = [options[i], options[j]];
+        if (b._b <= a._b) return null;
+        const t = Math.ceil((b._b * b.claim_months - a._b * a.claim_months) / (b._b - a._b)); // step 4
+        return { earlier: a.claim_age, later: b.claim_age, breakeven_age: fmtAge(t) };
+    };
+    const best = (age, cands = options) => cands.reduce((w, o) => (cumulative(o._b, o.claim_months, age) >= cumulative(w._b, w.claim_months, age) ? o : w));
+
+    // Step 7 — earnings test for a claim at 62.
+    let earningsTest = "Not applicable — not working before FRA, or no earnings given";
+    let withheldShare = 0;
+    if (working && earnings !== undefined) {
+        const annual = options[0]._b * 12;
+        const withheld = Math.min(annual, Math.max(0, (earnings - ss.earnings_test_limit_under_fra) / 2));
+        const fraYear = Math.min(annual, Math.max(0, (earnings - ss.earnings_test_limit_year_of_fra) / 3));
+        withheldShare = annual > 0 ? withheld / annual : 0;
+        earningsTest = {
+            claim_at_62_annual_benefit_usd: Math.round(annual),
+            withheld_per_year_before_fra_year_usd: Math.round(withheld),
+            withheld_in_fra_year_usd: Math.round(fraYear),
+            withheld_share_pct: +(withheldShare * 100).toFixed(1),
+            source: "[SSA 2026 via md_facts social_security_2026]",
+        };
+    }
+
+    // Steps 5–6 — spousal excess and survivor amounts.
+    const hasSpouse = spousePia > 0 && /^(married|divorced|widowed)/.test(marital);
+    const userIsHigher = pia >= spousePia;
+    let spousal = "Not applicable — no spouse PIA";
+    let survivor = "Not applicable — no spouse PIA";
+    let excess = 0;
+    if (hasSpouse) {
+        const [hiPia, loPia, hiFra, loFra] = userIsHigher ? [pia, spousePia, fra, spouseFra] : [spousePia, pia, spouseFra, fra];
+        excess = Math.max(0, 0.5 * hiPia - loPia);
+        const early = loFra - 62 * 12;
+        const reduction = (Math.min(early, 36) * (25 / 36) + Math.max(0, early - 36) * (5 / 12)) / 100;
+        spousal = {
+            lower_earner: userIsHigher ? "spouse" : "you",
+            spousal_excess_at_fra_usd: Math.round(excess),
+            spousal_excess_at_62_usd: Math.round(excess * (1 - reduction)),
+            lower_earner_total_at_fra_usd: Math.round(loPia + excess),
+            note: "Available only once the higher earner has filed; divorced: marriage of 10+ years and not remarried.",
+        };
+        survivor = [62 * 12, hiFra, 70 * 12].map((c) => {
+            const hiBenefit = monthly(hiPia, c, hiFra);
+            const floor = c < hiFra ? 0.825 * hiPia : 0;
+            return { higher_earner_claims_at: c === hiFra ? "FRA" : `${c / 12}`, survivor_monthly_usd: Math.round(Math.max(loPia, hiBenefit, floor)) };
+        });
+    }
+
+    // Decision rules — first match wins.
+    const name = (o) => o.claim_age;
+    let rec;
+    if (working && withheldShare >= 0.5) rec = { rule: 1, claim_age: name(best(L, options.slice(1))), reason: `Earnings test would withhold ${(withheldShare * 100).toFixed(0)}% of a pre-FRA benefit; best of FRA / 70 through age ${L}.` };
+    else if (hasSpouse && userIsHigher) {
+        const horizon = Math.max(L, spouseL ?? L);
+        rec = { rule: 2, claim_age: name(best(horizon)), reason: `Higher earner: best through the survivor horizon, age ${horizon}${spouseL === undefined ? " (spouse's longevity outlook not given — own outlook used)" : ""}.` };
+    } else if (marital.startsWith("married") && hasSpouse && !userIsHigher && excess > 0) {
+        const own = best(L);
+        rec = { rule: 3, claim_age: own.claim_months === 70 * 12 ? "70" : name(options[1]), reason: "Lower earner with a spousal excess: FRA, unless own benefit alone is best at 70." };
+    } else if (marital.startsWith("widowed")) rec = { rule: 4, claim_age: null, reason: "Widowed: compare claiming survivor first vs own first by hand (switch strategy) — not computed here." };
+    else rec = { rule: 5, claim_age: name(best(L)), reason: `Best cumulative benefit through age ${L}.` };
+
+    const breakevens = [breakeven(0, 1), breakeven(1, 2), breakeven(0, 2)].filter(Boolean);
+    for (const o of options) {
+        delete o._b;
+        delete o.claim_months;
+    }
+    return {
+        pia_monthly_usd: Math.round(pia),
+        full_retirement_age: fmtAge(fra),
+        longevity_age_used: L,
+        claim_options: options,
+        breakevens,
+        earnings_test: earningsTest,
+        spousal,
+        survivor,
+        recommendation: rec,
+        notes: ["Real (today's) dollars, undiscounted; COLA affects every claim age equally and is left out.", "Reduction and delayed-credit formulas are statutory (20 CFR 404.410; born 1943 or later)."],
+    };
+}
+
+// ── fire_number (FIRE Planner → FIRE Number Calculator) ────────────────
+
+const annuityFactor = (r, n) => (n <= 0 ? 0 : r === 0 ? n : (1 - Math.pow(1 + r, -n)) / r);
+
+function yearsToTarget(P, S, r, target) {
+    for (let n = 0; n <= 60; n++) {
+        const g = Math.pow(1 + r, n);
+        if (P * g + (r === 0 ? S * n : (S * (g - 1)) / r) >= target) return n;
+    }
+    return "> 60 years";
+}
+
+function fireNumber(p) {
+    const cur = int(p, "current_age", { min: 16, max: 100 });
+    const fi = int(p, "target_fi_age", { min: cur, max: 100 });
+    const plan = int(p, "planning_to_age", { min: fi + 1, max: 125 });
+    const spend = num(p, "target_annual_spend", { min: 0.01 });
+    const hcPre = num(p, "annual_healthcare_pre65", { min: 0 });
+    const hcPost = num(p, "annual_healthcare_post65", { min: 0 });
+    const r = num(p, "expected_real_return_pct", { min: -20, max: 30 }) / 100;
+    if (typeof p.spend_includes_healthcare !== "boolean") throw new CalcError("`spend_includes_healthcare` (true / false) is required — it decides whether healthcare is added on top of the spend.");
+    const includes = p.spend_includes_healthcare;
+    const P = ["taxable_balance", "trad_balance", "roth_balance", "hsa_balance", "cash_balance"].reduce((a, k) => a + num(p, k, { required: false, min: 0, dflt: 0 }), 0);
+    const ssMonthly = num(p, "ss_monthly_estimate", { required: false, min: 0, dflt: 0 });
+    const ssAge = int(p, "ss_claim_age", { required: ssMonthly > 0, min: 62, max: 70 });
+    const partTime = num(p, "part_time_income_annual", { required: false, min: 0, dflt: 0 });
+    const partYears = int(p, "part_time_years", { required: partTime > 0, min: 1, max: 60 });
+    const lean = num(p, "lean_annual_spend", { required: false, min: 0.01 });
+    const savings = num(p, "annual_savings_usd", { required: false, min: 0 });
+    const coastAge = int(p, "coast_retirement_age", { required: false, min: cur, max: 100, dflt: 65 });
+
+    const H = plan - fi; // decision A
+    const headline = H <= 30 ? 4.0 : H <= 49 ? 3.5 : 3.0;
+    const preYears = Math.max(0, 65 - fi);
+    const layers = (coreSpend, WR) => {
+        const M = 100 / WR;
+        const core = coreSpend * M;
+        const post = hcPost * M;
+        const pre = Math.max(0, (hcPre - hcPost) * annuityFactor(r, preYears));
+        return { core, post, pre, total: core + post + pre };
+    };
+    const coreOf = (s) => (includes ? s - (fi < 65 ? hcPre : hcPost) : s); // step 2
+    if (coreOf(spend) < 0) throw new CalcError("Healthcare exceeds `target_annual_spend` although the spend is said to include it.");
+    const R = Math.round;
+    const grid = [4.0, 3.5, 3.0].map((WR) => {
+        const l = layers(coreOf(spend), WR);
+        const M = 100 / WR;
+        const leanTarget = lean === undefined ? null : layers(lean, WR).total;
+        const row = {
+            withdrawal_rate_pct: WR,
+            multiplier: +M.toFixed(1),
+            fire_number_usd: R(l.total),
+            core_layer_usd: R(l.core),
+            post65_healthcare_layer_usd: R(l.post),
+            pre65_healthcare_layer_usd: R(l.pre),
+            healthcare_share_pct: +(((l.post + l.pre) / l.total) * 100).toFixed(1),
+            gap_usd: R(l.total - P),
+            lean_usd: leanTarget === null ? "Not applicable — no lean spend provided" : R(leanTarget),
+            chubby_usd: leanTarget === null ? "Not applicable — no lean spend provided" : R(1.5 * leanTarget),
+            fat_usd: R(Math.max(spend, 200000) * M),
+            barista_usd: partTime > 0 ? R(l.total - partTime * annuityFactor(r, partYears)) : "Not applicable — no part-time income",
+            ss_adjusted_usd: ssMonthly > 0 ? R(l.total - (ssMonthly * 12 * M) / Math.pow(1 + r, Math.max(0, ssAge - fi))) : "Not applicable — planning without Social Security",
+            years_to_close: savings === undefined ? "Not applicable — no annual savings given" : yearsToTarget(P, savings, r, l.total),
+            _total: l.total,
+        };
+        return row;
+    });
+    const head = grid.find((g) => g.withdrawal_rate_pct === headline);
+    const coastNeeded = head._total / Math.pow(1 + r, coastAge - cur);
+    const isCoast = P >= coastNeeded;
+    const closeYears = head.years_to_close;
+    let status;
+    if (head._total - P <= 0) status = { status: "FI reached at the headline withdrawal rate", rule: 1 };
+    else if (isCoast) status = { status: `Coast FI — the portfolio compounds to the target by age ${coastAge} without new savings`, rule: 2 };
+    else if (typeof closeYears === "number" && closeYears <= fi - cur) status = { status: "On pace for the target FI age", rule: 3 };
+    else status = { status: "Behind pace — route to Savings-Rate Optimizer", rule: 4 };
+
+    const sensitivity = {
+        years_to_close_at_return_minus_1pp: savings === undefined ? "Not applicable — no annual savings given" : yearsToTarget(P, savings, r - 0.01, head._total),
+        fire_number_with_spend_plus_20pct_usd: R(layers(coreOf(spend * 1.2), headline).total),
+    };
+    for (const g of grid) delete g._total;
+    return {
+        portfolio_today_usd: R(P),
+        horizon_years: H,
+        headline_withdrawal_rate_pct: headline,
+        headline_fire_number_usd: head.fire_number_usd,
+        headline_gap_usd: head.gap_usd,
+        by_withdrawal_rate: grid,
+        coast: { coast_retirement_age: coastAge, needed_today_usd: R(coastNeeded), is_coast: isCoast },
+        sensitivity,
+        status,
+        notes: ["Real (today's) dollars, annual compounding, savings added at end of year.", "The headline number ignores Social Security; the SS-adjusted figure is shown separately."],
+    };
+}
+
+// ── swr_stress_test (FIRE Planner → SWR Stress Test) ───────────────────
+
+function swrStressTest(p, facts) {
+    const d = facts?.behavioral_assumptions_safe_defaults ?? {};
+    const horizon = int(p, "horizon_years", { min: 1, max: 80 });
+    const spend = num(p, "target_annual_spend", { min: 0.01 });
+    const P = num(p, "portfolio_total", { min: 0.01 });
+    const r = num(p, "expected_real_return_pct", { min: -20, max: 30 }) / 100;
+    const flex = String(p.spend_flexibility ?? "");
+    if (!flex) throw new CalcError("`spend_flexibility` is required (e.g. \"Could cut 5–15%\").");
+    const floor = num(p, "income_floor_annual", { required: false, min: 0, dflt: 0 });
+    const curAge = int(p, "current_age", { required: floor > 0, min: 16, max: 110 });
+    const floorAge = int(p, "income_floor_start_age", { required: floor > 0, min: 16, max: 110 });
+    const g = num(p, "spend_real_change_pct_per_year", { required: false, min: -20, max: 20, dflt: 0 }) / 100;
+    const lumpy = new Map();
+    for (const [i, x] of (Array.isArray(p.lumpy_expenses) ? p.lumpy_expenses : []).entries()) {
+        const y = int(x, "year", { min: 1, max: 80 });
+        lumpy.set(y, (lumpy.get(y) ?? 0) + num(x, "amount_usd", { min: 0 }));
+        void i;
+    }
+    const stressIn = num(p, "stress_real_return_pct", { required: false, min: -20, max: 30 });
+    if (stressIn === undefined && typeof d.long_term_bond_real_return_rate !== "number") throw new CalcError("`stress_real_return_pct` is required (md_facts default is missing).");
+    const stress = stressIn !== undefined ? stressIn / 100 : d.long_term_bond_real_return_rate;
+    const BAD = -0.01;
+
+    const paths = {
+        base: () => r,
+        stressed: () => stress,
+        bad_first_decade: (t) => (t <= 10 ? BAD : r),
+    };
+    const floorStartYear = floor > 0 ? Math.max(1, floorAge - curAge + 1) : null;
+    // Steps 2–3.
+    const simulate = (W1, path, floorMult = 1) => {
+        let B = P;
+        let depletion = null;
+        let balanceAtFloorStart = null;
+        for (let t = 1; t <= horizon; t++) {
+            if (floorStartYear !== null && t === floorStartYear) balanceAtFloorStart = B;
+            const fl = floorStartYear !== null && t >= floorStartYear ? floor * floorMult : 0;
+            const W = Math.max(0, W1 * Math.pow(1 + g, t - 1) + (lumpy.get(t) ?? 0) - fl);
+            B = B * (1 + paths[path](t)) - W;
+            if (B < 0 && depletion === null) depletion = t;
+        }
+        return { lasts: depletion === null, depletion_year: depletion, ending_balance: depletion === null ? B : 0, balanceAtFloorStart };
+    };
+    const R = Math.round;
+    const describe = (W1) => {
+        const out = {};
+        for (const k of Object.keys(paths)) {
+            const s = simulate(W1, k);
+            out[k] = s.lasts ? { lasts: true, ending_balance_usd: R(s.ending_balance) } : { lasts: false, depletion_year: s.depletion_year };
+        }
+        return out;
+    };
+    const passes = (W1, mult = 1) => simulate(W1, "stressed", mult).lasts && simulate(W1, "bad_first_decade", mult).lasts;
+
+    const GRID = [3.0, 3.5, 4.0, 4.5];
+    const grid = GRID.map((WR) => {
+        const W1 = (P * WR) / 100;
+        return { withdrawal_rate_pct: WR, first_year_withdrawal_usd: R(W1), ...describe(W1), passes_stress_and_bad_decade: passes(W1), required_portfolio_usd: R(spend / (WR / 100)), gap_usd: R(spend / (WR / 100) - P) };
+    });
+    const wrUser = (spend / P) * 100;
+    const user = { withdrawal_rate_pct: +wrUser.toFixed(2), ...describe(spend), passes_stress_and_bad_decade: passes(spend) };
+
+    // Step 4 — template cross-check (flat spend, no floor).
+    const nper = (rate, W) => (rate * P >= W ? "∞ (returns cover the withdrawal)" : rate === 0 ? +(P / W).toFixed(1) : +(Math.log(W / (W - rate * P)) / Math.log(1 + rate)).toFixed(1));
+    const afterBad = P * Math.pow(1 + BAD, 10) - (spend * (Math.pow(1 + BAD, 10) - 1)) / BAD;
+    const template = {
+        coverage_years_base: nper(r, spend),
+        coverage_years_stressed: nper(stress, spend),
+        balance_after_bad_decade_usd: R(afterBad),
+        implied_withdrawal_rate_after_bad_decade_pct: afterBad > 0 ? +((spend / afterBad) * 100).toFixed(2) : "Portfolio exhausted",
+    };
+
+    // Step 5 — income floor.
+    let floorView = "Not applicable — no income floor";
+    if (floor > 0) {
+        const b = simulate(spend, "base");
+        floorView = {
+            pre_floor_withdrawal_rate_pct: +wrUser.toFixed(2),
+            post_floor_withdrawal_rate_pct: b.balanceAtFloorStart > 0 ? +((Math.max(0, spend * Math.pow(1 + g, floorStartYear - 1) - floor) / b.balanceAtFloorStart) * 100).toFixed(2) : "Portfolio exhausted before the floor starts",
+            floor_starts_in_year: floorStartYear,
+            with_75pct_floor: { base_lasts: simulate(spend, "base", 0.75).lasts, bad_first_decade_lasts: simulate(spend, "bad_first_decade", 0.75).lasts },
+        };
+    }
+
+    // Decision rules.
+    const statusA = wrUser <= 3.5 ? { status: "OK", rule: 1 } : wrUser <= 4.0 ? { status: "WATCH (3.5–4%)", rule: 2 } : { status: "AGGRESSIVE", rule: 3 };
+    const passing = grid.filter((x) => x.passes_stress_and_bad_decade).map((x) => x.withdrawal_rate_pct);
+    const hi = passing.length ? Math.max(...passing) : null;
+    const baseLasting = grid.filter((x) => x.base.lasts).map((x) => x.withdrawal_rate_pct);
+    const flexible = /15\s*[–-]\s*25|25\s*%\s*\+/.test(flex);
+    let range;
+    if (hi === null) range = { rule: 1, range: "Below 3%", note: `Spend is too high for this portfolio; required portfolio at 3% = $${R(spend / 0.03)}` };
+    else if (flexible) range = { rule: 2, range: `${hi.toFixed(1)}%–${Math.max(hi, ...baseLasting).toFixed(1)}%`, note: "Upper end requires spending guardrails (a stated cut rule)." };
+    else if (floor > 0 && !passes((P * hi) / 100, 0.75)) range = { rule: 3, range: `${Math.max(3.0, hi - 0.5).toFixed(1)}%–${hi.toFixed(1)}%`, note: "The top rate passes only with the full income floor; it fails with a 75% floor." };
+    else range = { rule: 4, range: `${Math.max(3.0, hi - 0.5).toFixed(1)}%–${hi.toFixed(1)}%` };
+
+    return {
+        user_withdrawal_rate: { ...user, ...statusA },
+        grid,
+        template_cross_check: template,
+        income_floor: floorView,
+        defensible_range: range,
+        paths_used: { base_real_return_pct: +(r * 100).toFixed(2), stressed_real_return_pct: +(stress * 100).toFixed(2), bad_first_decade_real_return_pct: -1, stressed_source: stressIn !== undefined ? "[USER-PROVIDED]" : "[ASSUMPTION: md_facts long_term_bond_real_return_rate]" },
+        notes: ["Real dollars, annual compounding, end-of-year withdrawals. Three fixed paths — no random sampling, so no survival probability.", "The template cross-check assumes flat spending and no income floor, as the workbook does."],
+    };
+}
+
 // ── registry of calculators ────────────────────────────────────────────
 
 export const CALCULATORS = {
+    social_security: {
+        title: "Social Security claiming — benefits by claim age, breakevens, spousal, survivor",
+        skill: "md_rp_skill_social_security_review",
+        params:
+            "`pia_estimate`, `fra` (e.g. \"67\" or \"66 + 10 mo\"), `longevity_outlook`, `marital_status`?, `spouse_pia`?, `spouse_fra`?, `spouse_longevity_outlook`?, `still_working`?, `expected_earnings_annual_usd`?",
+        run: socialSecurity,
+    },
+    fire_number: {
+        title: "FIRE number — by withdrawal rate, with healthcare layers, flavors, gap, status",
+        skill: "md_fi_skill_fire_number_calculator",
+        params:
+            "the skill's Input keys: `current_age`, `target_fi_age`, `planning_to_age`, `target_annual_spend`, `spend_includes_healthcare` (bool), `annual_healthcare_pre65`, `annual_healthcare_post65`, `expected_real_return_pct`, balances (`taxable_balance`, `trad_balance`, `roth_balance`, `hsa_balance`, `cash_balance`), `ss_monthly_estimate`? + `ss_claim_age`, `part_time_income_annual`? + `part_time_years`, `lean_annual_spend`?, `annual_savings_usd`?, `coast_retirement_age`?",
+        run: fireNumber,
+    },
+    swr_stress_test: {
+        title: "Withdrawal-rate stress test — three fixed return paths, defensible range",
+        skill: "md_fi_skill_swr_stress_test",
+        params:
+            "`horizon_years`, `target_annual_spend`, `portfolio_total`, `expected_real_return_pct`, `spend_flexibility`, `income_floor_annual`? + `income_floor_start_age` + `current_age`, `spend_real_change_pct_per_year`?, `lumpy_expenses`? [{ year, amount_usd }], `stress_real_return_pct`? (md_facts bond real return otherwise)",
+        run: swrStressTest,
+    },
     debt_payoff: {
         title: "Debt payoff — avalanche vs snowball",
         skill: "md_ds_skill_payoff_plan",
@@ -855,10 +1251,10 @@ export const CALCULATORS = {
         run: loanAmortization,
     },
     refinance: {
-        title: "Refinance — break-even, hold-period cost, NPV (fixed-rate)",
+        title: "Refinance — break-even, hold-period cost, NPV (fixed-rate or ARM reset)",
         skill: "md_ds_skill_refinance_analysis",
         params:
-            "`current` { balance_usd, rate_pct, months_remaining, monthly_pi_usd?, pmi_monthly_usd?, prepayment_penalty_usd? }, `proposed` { rate_pct, term_months, closing_costs_usd, lender_credits_usd?, pmi_monthly_usd?, cash_out_usd?, cash_in_usd? }, `hold_months`, `discount_rate_pct`? (default: current rate)",
+            "`current` { balance_usd, rate_pct, months_remaining, monthly_pi_usd?, pmi_monthly_usd?, prepayment_penalty_usd?, arm_reset_in_months?, reset_rate_pct? }, `proposed` { rate_pct, term_months, closing_costs_usd, lender_credits_usd?, pmi_monthly_usd?, cash_out_usd?, cash_in_usd? }, `hold_months`, `discount_rate_pct`? (default: current rate)",
         run: refinance,
     },
     rmd: {

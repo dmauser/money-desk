@@ -224,3 +224,96 @@ test("rent_vs_buy: zero-rate cases reduce to simple arithmetic", async () => {
     assert.equal(dflt.at_horizon.difference_usd, dflt.at_horizon.buy_net_worth_usd - dflt.at_horizon.rent_net_worth_usd);
     assert.equal((await mdCalc.handler({ calculator: "rent_vs_buy", params: { ...common, home_price_usd: 240000, down_payment_pct: 10, mortgage_rate_pct: 5, mortgage_term_years: 30 } })).resultType, "failure", "PMI rate is required under 20% down");
 });
+
+test("social_security: statutory factors, breakevens, spousal and survivor amounts", async () => {
+    const r = await calc("social_security", { pia_estimate: 2000, fra: "67", longevity_outlook: "Average", marital_status: "Married", spouse_pia: 600 });
+    assert.deepEqual(r.claim_options.map((o) => [o.factor_pct, o.monthly_usd]), [[70, 1400], [100, 2000], [124, 2480]]);
+    assert.equal(r.claim_options[1].cumulative_usd.to_85, 2000 * (85 - 67) * 12);
+    // 1400 (t − 744) = 2000 (t − 804)  →  t = 944 months = 78y 8m
+    assert.equal(r.breakevens[0].breakeven_age, "78y 8m");
+    assert.equal(r.breakevens[1].breakeven_age, "82y 6m");
+    assert.equal(r.spousal.spousal_excess_at_fra_usd, 400);
+    assert.equal(r.spousal.spousal_excess_at_62_usd, 260, "35% spousal reduction at 62 with FRA 67");
+    assert.deepEqual(r.survivor.map((x) => x.survivor_monthly_usd), [1650, 2000, 2480], "82.5% PIA floor when the higher earner claims early");
+    assert.equal(r.recommendation.rule, 2);
+
+    // FRA 66y 10m: 58 months early → 36 × 5/9 + 22 × 5/12 = 29.17% reduction.
+    const odd = await calc("social_security", { pia_estimate: 1000, fra: "66 + 10 mo", longevity_outlook: "Below average" });
+    assert.equal(odd.full_retirement_age, "66y 10m");
+    assert.equal(odd.claim_options[0].factor_pct, 70.83);
+    assert.equal(odd.recommendation.rule, 5);
+
+    const working = await calc("social_security", { pia_estimate: 2000, fra: 67, longevity_outlook: "Average", still_working: true, expected_earnings_annual_usd: 60000 });
+    const limit = facts.social_security_2026.earnings_test_limit_under_fra;
+    assert.equal(working.earnings_test.withheld_per_year_before_fra_year_usd, Math.min(16800, Math.round((60000 - limit) / 2)));
+    assert.equal(working.recommendation.rule, 1);
+    assert.notEqual(working.recommendation.claim_age, "62");
+});
+
+test("fire_number: layers, flavors, coast and status", async () => {
+    const base = { current_age: 40, target_fi_age: 50, planning_to_age: 95, target_annual_spend: 60000, spend_includes_healthcare: false, annual_healthcare_pre65: 12000, annual_healthcare_post65: 6000, expected_real_return_pct: 5, taxable_balance: 300000, trad_balance: 400000, annual_savings_usd: 50000, lean_annual_spend: 40000 };
+    const r = await calc("fire_number", base);
+    assert.equal(r.headline_withdrawal_rate_pct, 3.5, "45-year horizon → 3.5%");
+    const four = r.by_withdrawal_rate.find((x) => x.withdrawal_rate_pct === 4);
+    const pre = Math.round(6000 * ((1 - Math.pow(1.05, -15)) / 0.05));
+    assert.equal(four.core_layer_usd, 1500000);
+    assert.equal(four.post65_healthcare_layer_usd, 150000);
+    assert.equal(four.pre65_healthcare_layer_usd, pre);
+    assert.equal(four.fire_number_usd, 1650000 + pre);
+    assert.equal(four.gap_usd, four.fire_number_usd - 700000);
+    assert.equal(four.fat_usd, 5000000);
+    assert.equal(r.portfolio_today_usd, 700000);
+
+    // Spend already includes healthcare → core excludes the pre-65 amount.
+    const incl = await calc("fire_number", { ...base, spend_includes_healthcare: true });
+    assert.equal(incl.by_withdrawal_rate.find((x) => x.withdrawal_rate_pct === 4).core_layer_usd, (60000 - 12000) * 25);
+
+    // Zero return, no healthcare: FIRE = spend × multiplier; years to close is plain division.
+    const flat = await calc("fire_number", { current_age: 30, target_fi_age: 65, planning_to_age: 95, target_annual_spend: 40000, spend_includes_healthcare: false, annual_healthcare_pre65: 0, annual_healthcare_post65: 0, expected_real_return_pct: 0, cash_balance: 100000, annual_savings_usd: 30000 });
+    assert.equal(flat.headline_withdrawal_rate_pct, 4);
+    assert.equal(flat.headline_fire_number_usd, 1000000);
+    assert.equal(flat.by_withdrawal_rate[0].years_to_close, 30);
+    assert.equal(flat.status.rule, 3);
+    assert.equal((await calc("fire_number", { ...flat && { current_age: 30, target_fi_age: 65, planning_to_age: 95, target_annual_spend: 40000, spend_includes_healthcare: false, annual_healthcare_pre65: 0, annual_healthcare_post65: 0, expected_real_return_pct: 0, cash_balance: 1000000 } })).status.rule, 1);
+    assert.equal((await mdCalc.handler({ calculator: "fire_number", params: { ...base, spend_includes_healthcare: undefined } })).resultType, "failure");
+});
+
+test("swr_stress_test: fixed paths, cross-check and decision rules", async () => {
+    const p = { horizon_years: 30, target_annual_spend: 40000, portfolio_total: 1000000, expected_real_return_pct: 4, spend_flexibility: "Could cut 5–15%" };
+    const r = await calc("swr_stress_test", p);
+    assert.equal(r.user_withdrawal_rate.withdrawal_rate_pct, 4);
+    assert.equal(r.user_withdrawal_rate.status, "WATCH (3.5–4%)");
+    // 4% withdrawals on a 4% return leave the balance unchanged.
+    assert.deepEqual(r.user_withdrawal_rate.base, { lasts: true, ending_balance_usd: 1000000 });
+    assert.match(r.template_cross_check.coverage_years_base, /∞/);
+    // Stressed path (2% real): closed-form balance after 30 end-of-year withdrawals.
+    const g = Math.pow(1.02, 30);
+    assert.equal(r.user_withdrawal_rate.stressed.ending_balance_usd, Math.round(1000000 * g - (40000 * (g - 1)) / 0.02));
+    const bd = Math.pow(0.99, 10);
+    assert.equal(r.template_cross_check.balance_after_bad_decade_usd, Math.round(1000000 * bd - (40000 * (bd - 1)) / -0.01));
+    assert.deepEqual(r.grid.map((x) => x.passes_stress_and_bad_decade), [true, true, false, false]);
+    assert.equal(r.defensible_range.rule, 4);
+    assert.equal(r.defensible_range.range, "3.0%–3.5%");
+    assert.equal(r.paths_used.stressed_real_return_pct, facts.behavioral_assumptions_safe_defaults.long_term_bond_real_return_rate * 100);
+
+    assert.equal((await calc("swr_stress_test", { ...p, spend_flexibility: "Could cut 15–25%" })).defensible_range.rule, 2);
+    assert.equal((await calc("swr_stress_test", { ...p, portfolio_total: 400000, target_annual_spend: 40000, expected_real_return_pct: 1, stress_real_return_pct: -3 })).defensible_range.rule, 1);
+    // An income floor that covers all spending from year 1 means nothing is withdrawn.
+    const floored = await calc("swr_stress_test", { ...p, income_floor_annual: 40000, income_floor_start_age: 65, current_age: 65 });
+    assert.equal(floored.user_withdrawal_rate.bad_first_decade.lasts, true);
+    assert.equal(floored.income_floor.post_floor_withdrawal_rate_pct, 0);
+});
+
+test("refinance: ARM reset re-amortizes the current loan", async () => {
+    const r = await calc("refinance", { current: { balance_usd: 300000, rate_pct: 5, months_remaining: 300, arm_reset_in_months: 24, reset_rate_pct: 7.5 }, proposed: { rate_pct: 6.25, term_months: 300, closing_costs_usd: 5000 }, hold_months: 84 });
+    const before = await calc("loan_amortization", { principal_usd: 300000, rate_pct: 5, term_months: 300, balance_at_months: [24] });
+    assert.equal(r.current_monthly_pi_usd, before.monthly_payment_usd);
+    const after = await calc("loan_amortization", { principal_usd: before.balance_at_months[24], rate_pct: 7.5, term_months: 276 });
+    assert.ok(Math.abs(r.arm.current_monthly_pi_after_reset_usd - after.monthly_payment_usd) < 0.02);
+    assert.ok(r.monthly_saving_usd < 0 && r.arm.monthly_saving_after_reset_usd > 0);
+    assert.ok(r.break_even_months > 24, "no break-even before the reset when the new payment is higher");
+    // Without the reset fields the result is the plain fixed-rate one.
+    const fixed = await calc("refinance", { current: { balance_usd: 300000, rate_pct: 5, months_remaining: 300 }, proposed: { rate_pct: 6.25, term_months: 300, closing_costs_usd: 5000 }, hold_months: 84 });
+    assert.equal(fixed.arm, undefined);
+    assert.equal(fixed.break_even_months, null);
+});

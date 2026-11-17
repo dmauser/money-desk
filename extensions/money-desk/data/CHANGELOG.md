@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.26.0] — 2026-11-17
+
+### Added
+
+- **`md_calc` → `social_security`** — benefit at 62 / FRA / 70 from the
+  statutory reduction and delayed-credit formulas, cumulative benefits,
+  breakeven ages, spousal excess, survivor amounts, earnings-test
+  withholding (2026 limits from `md_facts`), and the claim-age
+  recommendation.
+- **`md_calc` → `fire_number`** — FIRE number at 4 / 3.5 / 3% with the
+  healthcare layers, lean / chubby / fat / barista / coast figures, gap,
+  years to close, sensitivity, and status.
+- **`md_calc` → `swr_stress_test`** — base, stressed and bad-first-decade
+  paths for the withdrawal-rate grid and the user's own rate, the
+  workbook cross-check figures, income-floor variants, and the defensible
+  range. Fixed paths only; no random sampling.
+- **`refinance` handles an ARM reset** — pass `arm_reset_in_months` and
+  `reset_rate_pct` under `current`; the current loan re-amortizes at the
+  reset rate and break-even / NPV use each month's actual payments.
+- The three skills name their calculator; Refinance Analysis no longer
+  says ARM resets are done by hand. `md_calc` now has twelve calculators.
+
+### Not done
+
+- **Joint-life RMD table.** IRS Pub 590-B Table II is a two-dimensional
+  table of several thousand cells; it is not transcribed into `md_facts`,
+  so `rmd` still flags the "spouse more than 10 years younger" case for a
+  manual lookup.
+
 ## [0.25.0] — 2026-11-17
 
 ### Added

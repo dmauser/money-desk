@@ -16,7 +16,7 @@
 
 | | Section | Description |
 |---|---------|-------------|
-| 🆕 | [What's New](#-whats-new) | v0.25.0 two more calculators; v0.24.0 fixed input names; v0.23.0 calculators; v0.22.0 compact mode; v0.21.0 deterministic skills + verified 2026 facts; v0.20.0 Claude support |
+| 🆕 | [What's New](#-whats-new) | v0.26.0 twelve calculators; v0.25.0 rental + rent-vs-buy calculators; v0.24.0 fixed input names; v0.23.0 calculators; v0.22.0 compact mode; v0.21.0 deterministic skills + verified 2026 facts; v0.20.0 Claude support |
 | 🚀 | [Quick Start](#quick-start) | One-command install |
 | 💡 | [What is Money Desk?](#what-is-money-desk) | Overview and key concepts |
 | 👥 | [The Team](#the-team) | All 20 specialists at a glance |
@@ -34,6 +34,10 @@
 > 📋 **Full machine-readable capability map:** [docs/CAPABILITIES.md](./docs/CAPABILITIES.md) — auto-generated from the registry, lists every specialist, skill, and tool.
 
 ## 🆕 What's New
+
+### v0.26.0 — Social Security, FIRE number and stress-test calculators
+
+`md_calc` now has twelve calculators. New: `social_security` (benefit by claim age, breakevens, spousal and survivor amounts, claim-age recommendation), `fire_number` (FIRE number by withdrawal rate with healthcare layers, gap and status), and `swr_stress_test` (three fixed return paths and a defensible withdrawal range). `refinance` now handles an adjustable-rate reset.
 
 ### v0.25.0 — Calculators for rental property and rent vs buy
 

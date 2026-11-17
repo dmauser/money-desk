@@ -104,6 +104,8 @@ Names match the `md_fi_skill_swr_stress_test` intake schema (template named rang
 
 ### Calculation method
 
+> **Calculator:** run steps 1–6 and both Decision-rule tables with `md_calc` → `swr_stress_test` (params = the Input keys above; the stressed return defaults to the `md_facts` bond real return). Use its numbers verbatim, tagged `[CALCULATED]`; the steps below define what it computes — work them by hand only if `md_calc` is unavailable.
+
 Real dollars, annual compounding, **end-of-year withdrawals** (matches the template's `NPER` / annuity formulas). No random sampling — only the three fixed paths below.
 
 1. **Grid:** `WR ∈ {3.0, 3.5, 4.0, 4.5}`; `W₁(WR) = portfolio_total × WR / 100`. The user's own rate `WR_user = target_annual_spend / portfolio_total × 100`.
