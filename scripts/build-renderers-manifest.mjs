@@ -76,13 +76,26 @@ async function main() {
     const sorted = {};
     for (const k of Object.keys(files).sort()) sorted[k] = files[k];
 
+    const out = join(RENDERERS, "RENDERERS_MANIFEST.json");
+
+    // Leave the manifest untouched when nothing changed, so running the
+    // tests doesn't dirty the working tree with a new timestamp.
+    try {
+        const prev = JSON.parse(await readFile(out, "utf8"));
+        if (prev.extension_version === version && JSON.stringify(prev.files) === JSON.stringify(sorted)) {
+            console.log(`build-renderers-manifest: up to date (v${version})`);
+            return;
+        }
+    } catch {
+        /* missing or unreadable manifest — regenerate */
+    }
+
     const manifest = {
         extension_version: version,
         generated_at: new Date().toISOString(),
         files: sorted,
     };
 
-    const out = join(RENDERERS, "RENDERERS_MANIFEST.json");
     // Trailing newline so editors don't fight us.
     await writeFile(out, JSON.stringify(manifest, null, 2) + "\n", "utf8");
 

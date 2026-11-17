@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.2] — 2026-11-17
+
+### Fixed
+
+- **Renderer manifest hashes depended on the machine that built them.**
+  `RENDERERS_MANIFEST.json` was generated on Windows from CRLF working
+  copies, while git stores the renderers with LF, so
+  `test_renderers_manifest.py` failed on any LF checkout (Linux CI
+  included) and after switching branches on Windows. A new
+  `.gitattributes` pins LF in every checkout and the manifest is
+  regenerated from LF bytes.
+
+### Changed
+
+- `scripts/build-renderers-manifest.mjs` leaves the manifest untouched when
+  the version and file hashes are unchanged, so `npm test` no longer
+  dirties the working tree with a new timestamp.
+
 ## [0.23.1] — 2026-11-17
 
 ### Fixed

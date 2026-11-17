@@ -1,0 +1,6 @@
+# Keep LF line endings in every checkout (Windows included). File hashes in
+# RENDERERS_MANIFEST.json and the generated plugin are computed from the bytes
+# on disk, so CRLF conversion on checkout makes tests fail.
+* text=auto eol=lf
+*.png binary
+*.mcpb binary
