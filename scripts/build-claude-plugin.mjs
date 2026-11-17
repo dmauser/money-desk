@@ -92,14 +92,36 @@ function diff(files) {
 
 const files = expected();
 
+// package.json is the single source of the version: keep the MCPB manifest
+// and the marketplace entry in step with it.
+function syncVersions(write) {
+    const stale = [];
+    for (const [rel, get, set] of [
+        ["manifest.json", (j) => j.version, (j) => (j.version = pkg.version)],
+        [".claude-plugin/marketplace.json", (j) => j.plugins[0].version, (j) => (j.plugins[0].version = pkg.version)],
+        ["claude-plugin/plugin.json", (j) => j.version, (j) => (j.version = pkg.version)],
+    ]) {
+        const p = join(REPO, rel);
+        const j = JSON.parse(readFileSync(p, "utf8"));
+        if (get(j) === pkg.version) continue;
+        stale.push(`version: ${rel}`);
+        if (write) {
+            set(j);
+            writeFileSync(p, JSON.stringify(j, null, 2) + "\n");
+        }
+    }
+    return stale;
+}
+
 if (process.argv.includes("--check")) {
-    const problems = diff(files);
+    const problems = [...syncVersions(false), ...diff(files)];
     if (problems.length) {
         console.error(`plugins/money-desk is out of date — run \`npm run build:plugin\`:\n  ${problems.join("\n  ")}`);
         process.exit(1);
     }
     console.log("plugins/money-desk is up to date.");
 } else {
+    syncVersions(true);
     rmSync(OUT, { recursive: true, force: true });
     for (const [rel, buf] of files) {
         const p = join(OUT, rel);

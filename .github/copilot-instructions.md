@@ -45,6 +45,13 @@ definitions into it; add tools in `registry.mjs` and both hosts get them.
 Keep the plugin / marketplace / manifest versions equal to `package.json`
 (`tests/claude-plugin.test.mjs` enforces this).
 
+**Version:** bump only `package.json` + `CHANGELOG.md`; `npm run build:plugin`
+(part of `npm pretest`) copies the version into `manifest.json`,
+`.claude-plugin/marketplace.json`, `claude-plugin/plugin.json` and the
+generated plugin. **Compact mode:** `MONEY_DESK_TOOLS=compact` makes the MCP
+server list only discovery tools + `md_call` (dispatcher by tool id); keep
+skill/role prompts referring to tools by their full id so both modes work.
+
 ## Conventions you must preserve
 
 1. **`registry.mjs` is pure** — no `@github/copilot-sdk` import. Tests load

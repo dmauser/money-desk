@@ -16,7 +16,7 @@
 
 | | Section | Description |
 |---|---------|-------------|
-| 🆕 | [What's New](#-whats-new) | v0.21.0 deterministic skills + verified 2026 facts; v0.20.0 Claude support |
+| 🆕 | [What's New](#-whats-new) | v0.22.0 compact mode; v0.21.0 deterministic skills + verified 2026 facts; v0.20.0 Claude support |
 | 🚀 | [Quick Start](#quick-start) | One-command install |
 | 💡 | [What is Money Desk?](#what-is-money-desk) | Overview and key concepts |
 | 👥 | [The Team](#the-team) | All 20 specialists at a glance |
@@ -34,6 +34,10 @@
 > 📋 **Full machine-readable capability map:** [docs/CAPABILITIES.md](./docs/CAPABILITIES.md) — auto-generated from the registry, lists every specialist, skill, and tool.
 
 ## 🆕 What's New
+
+### v0.22.0 — Lighter tool list for Claude Desktop chat
+
+The Desktop Extension now runs the server in **compact mode**: 12 tools (about 2k tokens) instead of 146 (about 36k), with every specialist still reachable through one `md_call` tool. Set `MONEY_DESK_TOOLS=compact` to use it with a manual MCP config. The npm package is also about 40% smaller.
 
 ### v0.21.0 — Deterministic skills and verified 2026 facts
 
@@ -275,6 +279,8 @@ In Claude Desktop you can also add the marketplace from **Customize → Plugins 
   }
 }
 ```
+
+Add `"MONEY_DESK_TOOLS": "compact"` to `env` to list 12 tools instead of 146 (recommended for the chat tab, which loads every tool description up front; the Desktop Extension sets it for you). Specialists are then run through a single `md_call` tool.
 
 `MONEY_DESK_WORKDIR` is optional — it pins where exported reports (`./money-desk/<specialist>/`) and the renderer cache are written. Without it, deliverables are rendered inline in chat (the default).
 

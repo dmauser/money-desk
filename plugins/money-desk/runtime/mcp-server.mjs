@@ -43,6 +43,14 @@ const VERSION = (() => {
     return "0.0.0";
 })();
 
+// Compact mode (MONEY_DESK_TOOLS=compact): hosts that load every tool
+// description up front (e.g. the Claude Desktop chat tab) pay ~31k tokens for
+// the full 146-tool list. Compact mode lists only the discovery tools plus one
+// dispatcher, `md_call`, which runs any specialist tool by id.
+// Hosts with tool search (Claude Code, Cowork) should keep the default.
+const COMPACT = process.env.MONEY_DESK_TOOLS === "compact";
+const SPECIALIST_TOOL = /^md_[a-z]{2}_(?:role|orchestrate|skill_[a-z0-9_]+)$/;
+
 const SUPPORTED_PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
 
 // Server-level instructions: the MCP equivalent of the Copilot extension's
@@ -70,16 +78,43 @@ export const INSTRUCTIONS = [
         "(3) Only write files (reports, renderer cache) if you have filesystem tools and the user accepted an export " +
         "offer; otherwise deliver markdown inline. " +
         "(4) Show users friendly skill / specialist names, never raw tool ids.",
+    ...(COMPACT
+        ? [
+              "Compact mode: specialist tools (`<prefix>_role`, `<prefix>_orchestrate`, `<prefix>_skill_<id>`) are not " +
+                  "listed individually. Wherever a prompt names one, run it with `md_call`: " +
+                  '`{ "tool": "<tool id>" }` first, then for gated skills `{ "tool": "<tool id>", "inputs": { … } }` ' +
+                  "after the user answers the intake questions.",
+          ]
+        : []),
 ].join("\n\n");
 
 const byName = new Map(tools.map((t) => [t.name, t]));
 
-const toolList = tools.map((t) => ({
+const MD_CALL = {
+    name: "md_call",
+    description:
+        "Run any Money Desk specialist tool by id: a role (`md_<prefix>_role`), orchestrator (`md_<prefix>_orchestrate`) " +
+        "or skill (`md_<prefix>_skill_<id>`). Get ids from `md_route` or `md_capabilities`. Skills are intake-gated: " +
+        "call once without `inputs` to get the questions, ask the user, then call again with `inputs`.",
+    inputSchema: {
+        type: "object",
+        properties: {
+            tool: { type: "string", description: "Tool id, e.g. `md_ds_skill_payoff_plan` or `md_tx_role`" },
+            inputs: { type: "object", description: "Intake answers for a gated skill (second call only)" },
+        },
+        required: ["tool"],
+    },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+};
+
+const fullToolList = tools.map((t) => ({
     name: t.name,
     description: t.description,
     inputSchema: t.parameters && t.parameters.type === "object" ? t.parameters : { type: "object", properties: {} },
     annotations: { readOnlyHint: !/renderers_(sync|ensure)$/.test(t.name), openWorldHint: false },
 }));
+
+const toolList = COMPACT ? [...fullToolList.filter((t) => !SPECIALIST_TOOL.test(t.name)), MD_CALL] : fullToolList;
 
 // Normalize a registry handler result into an MCP CallToolResult.
 export function toCallToolResult(result) {
@@ -118,10 +153,22 @@ export async function handleMessage(msg) {
         case "tools/list":
             return reply({ tools: toolList });
         case "tools/call": {
-            const t = byName.get(params?.name);
+            let name = params?.name;
+            let args = params?.arguments ?? {};
+            if (name === "md_call") {
+                name = args.tool;
+                if (typeof name !== "string" || !SPECIALIST_TOOL.test(name) || !byName.has(name)) {
+                    return reply({
+                        content: [{ type: "text", text: `Unknown specialist tool id: ${name}. Call md_route or md_capabilities for valid ids.` }],
+                        isError: true,
+                    });
+                }
+                args = args.inputs && typeof args.inputs === "object" ? { inputs: args.inputs } : {};
+            }
+            const t = byName.get(name);
             if (!t) return fail(-32602, `Unknown tool: ${params?.name}`);
             try {
-                return reply(toCallToolResult(await t.handler(params?.arguments ?? {})));
+                return reply(toCallToolResult(await t.handler(args)));
             } catch (err) {
                 return reply({ content: [{ type: "text", text: `money-desk tool error: ${err?.message ?? err}` }], isError: true });
             }

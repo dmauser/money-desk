@@ -51,9 +51,9 @@ test("MCP configs point at the bundled server", () => {
     assert.ok(existsSync(resolve(REPO, PLUGIN_DIR, "skills/money-desk/SKILL.md")), "router skill exists");
 });
 
-function rpc(messages) {
+function rpc(messages, env = {}) {
     return new Promise((resolvePromise, reject) => {
-        const child = spawn(process.execPath, [SERVER], { stdio: ["pipe", "pipe", "pipe"] });
+        const child = spawn(process.execPath, [SERVER], { stdio: ["pipe", "pipe", "pipe"], env: { ...process.env, ...env } });
         let out = "";
         child.stdout.on("data", (c) => (out += c));
         child.on("error", reject);
@@ -97,4 +97,28 @@ test("MCP server handshake, tools/list and a gated skill call", async () => {
     assert.match(gated.content[0].text, /intake required/);
 
     assert.equal(res.get(4).error.code, -32602);
+});
+
+test("compact mode lists discovery tools + md_call and dispatches by id", async () => {
+    const { tools } = await import("../extensions/money-desk/registry.mjs");
+    const call = (id, args) => ({ jsonrpc: "2.0", id, method: "tools/call", params: { name: "md_call", arguments: args } });
+    const res = await rpc(
+        [
+            { jsonrpc: "2.0", id: 1, method: "tools/list" },
+            call(2, { tool: "md_ds_skill_payoff_plan" }),
+            call(3, { tool: "md_ds_skill_payoff_plan", inputs: { monthly_budget_usd: 900 } }),
+            call(4, { tool: "md_tx_role" }),
+            call(5, { tool: "md_facts" }),
+            call(6, { tool: "../etc/passwd" }),
+        ],
+        { MONEY_DESK_TOOLS: "compact" },
+    );
+    const listed = res.get(1).result.tools.map((t) => t.name);
+    const discovery = tools.map((t) => t.name).filter((n) => !/^md_[a-z]{2}_(role|orchestrate|skill_)/.test(n));
+    assert.deepEqual(listed.sort(), [...discovery, "md_call"].sort());
+    assert.match(res.get(2).result.content[0].text, /intake required/);
+    assert.match(res.get(3).result.content[0].text, /Inputs received/);
+    assert.notEqual(res.get(4).result.isError, true);
+    assert.equal(res.get(5).result.isError, true, "md_call only dispatches specialist tools");
+    assert.equal(res.get(6).result.isError, true);
 });

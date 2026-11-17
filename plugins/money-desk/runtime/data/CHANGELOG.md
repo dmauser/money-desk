@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.0] — 2026-11-17
+
+### Added
+
+- **Compact tool mode for the MCP server** (`MONEY_DESK_TOOLS=compact`).
+  Lists only the 11 discovery tools plus one dispatcher, `md_call`, which
+  runs any role / orchestrator / skill by tool id. Cuts the up-front tool
+  list from 146 tools (~36k tokens) to 12 (~2k tokens) for hosts that load
+  every tool description at start-up. The Desktop Extension
+  (`manifest.json`, Claude Desktop chat tab) now uses it by default; the
+  plugin keeps the full list because Claude Code / Cowork defer tools.
+- **`tests/facts-references.test.mjs`** — every `md_facts` `topic.key`
+  written in a specialist markdown file must exist in `facts-2026.json`.
+
+### Changed
+
+- **One version to bump.** `npm run build:plugin` (run by `pretest`) now
+  copies the `package.json` version into `manifest.json`,
+  `.claude-plugin/marketplace.json` and `claude-plugin/plugin.json`, so a
+  release only edits `package.json` and `CHANGELOG.md`.
+- **Smaller npm package.** The generated `plugins/` copy and the Claude
+  manifests are no longer published to npm (the Claude plugin installs
+  from git): 312 files / 3.9 MB → 178 files / 2.3 MB.
+
 ## [0.21.1] — 2026-11-17
 
 ### Fixed
