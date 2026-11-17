@@ -836,11 +836,10 @@ All 146 tools are derived from a single declarative `SPECIALISTS` table in [`ext
 ```
 money-desk/
 ├── .claude-plugin/
-│   ├── plugin.json                            # Claude plugin manifest
-│   └── marketplace.json                       # one-plugin marketplace (source: ./)
-├── .mcp.json                                  # starts the MCP server for the Claude plugin
+│   └── marketplace.json                       # one-plugin marketplace → ./plugins/money-desk
+├── claude-plugin/                             # Claude plugin sources: plugin.json + skills/ (router skill)
+├── plugins/money-desk/                        # GENERATED Claude plugin (npm run build:plugin) — don't edit
 ├── manifest.json                              # MCPB Desktop Extension manifest (Claude Desktop chat)
-├── skills/money-desk/SKILL.md                 # Claude router skill
 ├── bin/
 │   └── cli.mjs                                # zero-dep Copilot installer
 ├── extensions/money-desk/
@@ -898,6 +897,10 @@ npx github:dmauser/money-desk --version
 - Start a new session (or restart Claude Desktop) after installing.
 - In Claude Code, run `/mcp` and check that `money-desk` is connected; `claude plugin validate <path-to-repo>` checks the manifests.
 - To test the server alone: `npm run mcp`. It should print `MCP server … ready` on stderr and wait for input.
+
+**Claude Desktop says "Marketplace sync failed. Check the repository URL and try again."**
+- Update to v0.21.1 or later. Earlier versions kept the plugin at the repository root, which Claude Desktop's marketplace sync rejects (the CLI accepted it). Remove the marketplace in **Customize → Plugins → Manage marketplaces** and add `dmauser/money-desk` again.
+- If it still fails, the real reason is in the Desktop app's `claude.ai-web.log` (look for `MARKETPLACE_ERROR`).
 
 **Exported reports land in an unexpected folder (Claude Desktop).**
 - Set `MONEY_DESK_WORKDIR` (or the "Reports folder" option in the Desktop Extension) to the folder you want. Without it, deliverables stay inline in chat.

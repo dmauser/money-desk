@@ -1,0 +1,207 @@
+{
+  "title": "SWR Stress Test",
+  "specialist": "FIRE Planner",
+  "named_ranges": [
+    {
+      "name": "portfolio_start",
+      "ref": "Inputs!$B$2"
+    },
+    {
+      "name": "withdrawal_rate",
+      "ref": "Inputs!$B$3"
+    },
+    {
+      "name": "horizon_yrs",
+      "ref": "Inputs!$B$4"
+    },
+    {
+      "name": "expected_real_return",
+      "ref": "Inputs!$B$5"
+    },
+    {
+      "name": "stress_real_return",
+      "ref": "Inputs!$B$6"
+    },
+    {
+      "name": "bad_first_decade_return",
+      "ref": "Inputs!$B$7"
+    },
+    {
+      "name": "initial_withdrawal",
+      "ref": "Inputs!$B$9"
+    },
+    {
+      "name": "fire_number_25x",
+      "ref": "Inputs!$B$10"
+    },
+    {
+      "name": "fire_number_30x",
+      "ref": "Inputs!$B$11"
+    }
+  ],
+  "sheets": [
+    {
+      "name": "Inputs",
+      "cells": [
+        {
+          "ref": "A1",
+          "value": "SWR Stress Test - Inputs",
+          "style": "h1"
+        },
+        {
+          "ref": "A2",
+          "value": "Portfolio balance"
+        },
+        {
+          "ref": "B2",
+          "value": 1500000,
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A3",
+          "value": "Initial withdrawal rate"
+        },
+        {
+          "ref": "B3",
+          "value": 0.04,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A4",
+          "value": "Horizon (years)"
+        },
+        {
+          "ref": "B4",
+          "value": 35,
+          "number_format": "0"
+        },
+        {
+          "ref": "A5",
+          "value": "Expected real return (base)"
+        },
+        {
+          "ref": "B5",
+          "value": 0.045,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A6",
+          "value": "Stressed real return (downside)"
+        },
+        {
+          "ref": "B6",
+          "value": 0.02,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A7",
+          "value": "First-decade return (sequence risk)"
+        },
+        {
+          "ref": "B7",
+          "value": -0.01,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A8",
+          "value": "-- derived (do not edit) --"
+        },
+        {
+          "ref": "A9",
+          "value": "Year-1 withdrawal (real)"
+        },
+        {
+          "ref": "B9",
+          "formula": "=portfolio_start*withdrawal_rate",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A10",
+          "value": "FIRE number (25x spending)"
+        },
+        {
+          "ref": "B10",
+          "formula": "=initial_withdrawal*25",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A11",
+          "value": "FIRE number (30x spending)"
+        },
+        {
+          "ref": "B11",
+          "formula": "=initial_withdrawal*30",
+          "number_format": "$#,##0"
+        }
+      ]
+    },
+    {
+      "name": "Summary",
+      "column_widths": {"A": 38, "B": 16, "C": 14, "D": 28},
+      "row_heights": {"1": 26, "2": 18, "4": 22, "16": 22, "17": 38},
+      "merges": ["A1:D1", "A2:D2", "A16:D16", "A17:D17"],
+      "cells": [
+        {"ref": "A1", "value": "SWR Stress Test  -  Summary Dashboard", "style": "banner"},
+        {"ref": "A2", "value": "All figures driven by the Inputs sheet.", "style": "subtitle"},
+
+        {"ref": "A4", "value": "Metric", "style": "header"},
+        {"ref": "B4", "value": "Value", "style": "header"},
+        {"ref": "C4", "value": "Threshold", "style": "header"},
+        {"ref": "D4", "value": "Status / Note", "style": "header"},
+
+        {"ref": "A5", "value": "Horizon (years)", "style": "metric"},
+        {"ref": "B5", "formula": "=horizon_yrs", "style": "value_highlight", "number_format": "0"},
+        {"ref": "C5", "value": "30 / 40 / 50", "style": "threshold"},
+        {"ref": "D5", "formula": "=IF(horizon_yrs>=40,\"40+ argues for <=3.5% WR\",IF(horizon_yrs>=30,\"30y horizon\",\"Short horizon\"))", "style": "status"},
+
+        {"ref": "A6", "value": "Total portfolio", "style": "metric"},
+        {"ref": "B6", "formula": "=portfolio_start", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C6", "value": "", "style": "threshold"},
+        {"ref": "D6", "value": "Sequence-risk window", "style": "status"},
+
+        {"ref": "A7", "value": "Target spend (Year-1)", "style": "metric"},
+        {"ref": "B7", "formula": "=initial_withdrawal", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C7", "value": "", "style": "threshold"},
+        {"ref": "D7", "value": "", "style": "status"},
+
+        {"ref": "A8", "value": "Headline WR (spend / portfolio)", "style": "metric"},
+        {"ref": "B8", "formula": "=initial_withdrawal/portfolio_start", "style": "value_highlight", "number_format": "0.00%"},
+        {"ref": "C8", "value": "<= 3.5%", "style": "threshold"},
+        {"ref": "D8", "formula": "=IF(initial_withdrawal/portfolio_start<=0.035,\"OK\",IF(initial_withdrawal/portfolio_start<=0.04,\"WATCH (3.5-4%)\",\"AGGRESSIVE\"))", "style": "status"},
+
+        {"ref": "A9", "value": "Coverage years @ base return", "style": "metric"},
+        {"ref": "B9", "formula": "=IFERROR(NPER(expected_real_return,-initial_withdrawal,portfolio_start),9999)", "style": "value_highlight", "number_format": "0.0"},
+        {"ref": "C9", "formula": "=horizon_yrs", "style": "threshold", "number_format": "0"},
+        {"ref": "D9", "formula": "=IF(B9>=horizon_yrs,\"OK\",\"Shortfall\")", "style": "status"},
+
+        {"ref": "A10", "value": "Coverage years @ stressed return", "style": "metric"},
+        {"ref": "B10", "formula": "=NPER(stress_real_return,-initial_withdrawal,portfolio_start)", "style": "value_highlight", "number_format": "0.0"},
+        {"ref": "C10", "formula": "=horizon_yrs", "style": "threshold", "number_format": "0"},
+        {"ref": "D10", "formula": "=IF(B10>=horizon_yrs,\"OK\",\"Stress shortfall\")", "style": "status"},
+
+        {"ref": "A11", "value": "Portfolio after bad first decade", "style": "metric"},
+        {"ref": "B11", "formula": "=portfolio_start*(1+bad_first_decade_return)^10 - initial_withdrawal*((1+bad_first_decade_return)^10-1)/bad_first_decade_return", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C11", "value": "", "style": "threshold"},
+        {"ref": "D11", "value": "Sequence-risk scenario", "style": "status"},
+
+        {"ref": "A12", "value": "Implied SWR after bad decade", "style": "metric"},
+        {"ref": "B12", "formula": "=IF(B11>0, initial_withdrawal/B11, 0)", "style": "value_highlight", "number_format": "0.00%"},
+        {"ref": "C12", "value": "<= 3.5%", "style": "threshold"},
+        {"ref": "D12", "formula": "=IF(B11<=0,\"DEPLETED\",IF(initial_withdrawal/B11<=0.035,\"DEFENSIBLE\",\"AGGRESSIVE\"))", "style": "status"},
+
+        {"ref": "A13", "value": "FIRE shortfall vs 25x", "style": "metric"},
+        {"ref": "B13", "formula": "=fire_number_25x-portfolio_start", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C13", "value": "<= 0", "style": "threshold"},
+        {"ref": "D13", "formula": "=IF(fire_number_25x-portfolio_start<=0,\"At/above 25x\",\"Below 25x\")", "style": "status"},
+
+        {"ref": "A14", "value": "FIRE shortfall vs 30x", "style": "metric"},
+        {"ref": "B14", "formula": "=fire_number_30x-portfolio_start", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C14", "value": "<= 0", "style": "threshold"},
+        {"ref": "D14", "formula": "=IF(fire_number_30x-portfolio_start<=0,\"At/above 30x\",\"Below 30x\")", "style": "status"},
+
+        {"ref": "A16", "value": "Headline verdict", "style": "section_banner"},
+        {"ref": "A17", "formula": "=\"Headline WR is \"&TEXT(initial_withdrawal/portfolio_start,\"0.00%\")&\"; coverage years @ base = \"&TEXT(B9,\"0.0\")&\"y vs horizon \"&horizon_yrs&\"y. Sequence-risk window \"&TEXT(B11,\"$#,##0\")&\" after bad first decade.\"", "style": "callout"}
+      ]
+    }
+  ]
+}

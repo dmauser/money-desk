@@ -1,0 +1,231 @@
+{
+  "title": "College Cost Projection",
+  "specialist": "Education Planner",
+  "named_ranges": [
+    {
+      "name": "current_age",
+      "ref": "Inputs!$B$2"
+    },
+    {
+      "name": "college_start_age",
+      "ref": "Inputs!$B$3"
+    },
+    {
+      "name": "years_in_college",
+      "ref": "Inputs!$B$4"
+    },
+    {
+      "name": "current_annual_cost",
+      "ref": "Inputs!$B$5"
+    },
+    {
+      "name": "cost_inflation",
+      "ref": "Inputs!$B$6"
+    },
+    {
+      "name": "current_529_balance",
+      "ref": "Inputs!$B$7"
+    },
+    {
+      "name": "monthly_contribution",
+      "ref": "Inputs!$B$8"
+    },
+    {
+      "name": "expected_return",
+      "ref": "Inputs!$B$9"
+    },
+    {
+      "name": "years_to_start",
+      "ref": "Inputs!$B$11"
+    },
+    {
+      "name": "cost_at_start",
+      "ref": "Inputs!$B$12"
+    },
+    {
+      "name": "total_future_cost",
+      "ref": "Inputs!$B$13"
+    },
+    {
+      "name": "projected_balance",
+      "ref": "Inputs!$B$14"
+    }
+  ],
+  "sheets": [
+    {
+      "name": "Inputs",
+      "cells": [
+        {
+          "ref": "A1",
+          "value": "College Cost Projection - Inputs",
+          "style": "h1"
+        },
+        {
+          "ref": "A2",
+          "value": "Child current age"
+        },
+        {
+          "ref": "B2",
+          "value": 8,
+          "number_format": "0"
+        },
+        {
+          "ref": "A3",
+          "value": "College start age"
+        },
+        {
+          "ref": "B3",
+          "value": 18,
+          "number_format": "0"
+        },
+        {
+          "ref": "A4",
+          "value": "Years in college"
+        },
+        {
+          "ref": "B4",
+          "value": 4,
+          "number_format": "0"
+        },
+        {
+          "ref": "A5",
+          "value": "Today's annual all-in cost"
+        },
+        {
+          "ref": "B5",
+          "value": 35000,
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A6",
+          "value": "Education cost inflation"
+        },
+        {
+          "ref": "B6",
+          "value": 0.05,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A7",
+          "value": "Current 529 balance"
+        },
+        {
+          "ref": "B7",
+          "value": 20000,
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A8",
+          "value": "Monthly contribution"
+        },
+        {
+          "ref": "B8",
+          "value": 400,
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A9",
+          "value": "Expected return (annual)"
+        },
+        {
+          "ref": "B9",
+          "value": 0.06,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A10",
+          "value": "-- derived (do not edit) --"
+        },
+        {
+          "ref": "A11",
+          "value": "Years until college start"
+        },
+        {
+          "ref": "B11",
+          "formula": "=college_start_age-current_age",
+          "number_format": "0"
+        },
+        {
+          "ref": "A12",
+          "value": "First-year cost (inflated)"
+        },
+        {
+          "ref": "B12",
+          "formula": "=current_annual_cost*(1+cost_inflation)^years_to_start",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A13",
+          "value": "Total projected cost (4 yrs)"
+        },
+        {
+          "ref": "B13",
+          "formula": "=cost_at_start*(1-(1+cost_inflation)^years_in_college)/(1-(1+cost_inflation))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A14",
+          "value": "Projected balance at start"
+        },
+        {
+          "ref": "B14",
+          "formula": "=current_529_balance*(1+expected_return)^years_to_start + FV(expected_return/12, years_to_start*12, -monthly_contribution, 0, 0)",
+          "number_format": "$#,##0"
+        }
+      ]
+    },
+    {
+      "name": "Summary",
+      "column_widths": {"A": 40, "B": 16, "C": 14, "D": 28},
+      "row_heights": {"1": 26, "2": 18, "4": 22, "12": 22, "13": 38},
+      "merges": ["A1:D1", "A2:D2", "A12:D12", "A13:D13"],
+      "cells": [
+        {"ref": "A1", "value": "College Cost Projection  -  Summary Dashboard", "style": "banner"},
+        {"ref": "A2", "value": "All figures driven by the Inputs sheet.", "style": "subtitle"},
+
+        {"ref": "A4", "value": "Metric", "style": "header"},
+        {"ref": "B4", "value": "Value", "style": "header"},
+        {"ref": "C4", "value": "Threshold", "style": "header"},
+        {"ref": "D4", "value": "Status / Note", "style": "header"},
+
+        {"ref": "A5", "value": "Total cost in today's dollars", "style": "metric"},
+        {"ref": "B5", "formula": "=current_annual_cost*years_in_college", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C5", "value": "", "style": "threshold"},
+        {"ref": "D5", "value": "Sticker price baseline", "style": "status"},
+
+        {"ref": "A6", "value": "Total cost at matriculation (future)", "style": "metric"},
+        {"ref": "B6", "formula": "=total_future_cost", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C6", "value": "", "style": "threshold"},
+        {"ref": "D6", "value": "Inflated to start year", "style": "status"},
+
+        {"ref": "A7", "value": "Projected 529 balance at start", "style": "metric"},
+        {"ref": "B7", "formula": "=projected_balance", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C7", "value": "", "style": "threshold"},
+        {"ref": "D7", "value": "Current plan trajectory", "style": "status"},
+
+        {"ref": "A8", "value": "Funding gap (shortfall positive)", "style": "metric"},
+        {"ref": "B8", "formula": "=total_future_cost-projected_balance", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C8", "value": "<= 0", "style": "threshold"},
+        {"ref": "D8", "formula": "=IF(total_future_cost-projected_balance<=0,\"Fully funded\",\"Shortfall\")", "style": "status"},
+
+        {"ref": "A9", "value": "Funded %", "style": "metric"},
+        {"ref": "B9", "formula": "=projected_balance/total_future_cost", "style": "value_highlight", "number_format": "0.0%"},
+        {"ref": "C9", "value": ">= 100%", "style": "threshold"},
+        {"ref": "D9", "formula": "=IF(projected_balance/total_future_cost>=1,\"OK\",IF(projected_balance/total_future_cost>=0.7,\"On track\",\"Underfunded\"))", "style": "status"},
+
+        {"ref": "A10", "value": "Required monthly contribution to fully fund", "style": "metric"},
+        {"ref": "B10", "formula": "=IF(years_to_start<=0,0,-PMT(expected_return/12, years_to_start*12, current_529_balance, -total_future_cost))", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C10", "value": "", "style": "threshold"},
+        {"ref": "D10", "value": "Solves for full coverage", "style": "status"},
+
+        {"ref": "A11", "value": "Additional monthly contribution needed", "style": "metric"},
+        {"ref": "B11", "formula": "=B10-monthly_contribution", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C11", "value": "<= 0", "style": "threshold"},
+        {"ref": "D11", "formula": "=IF(B10-monthly_contribution<=0,\"On track\",\"Increase contributions\")", "style": "status"},
+
+        {"ref": "A12", "value": "Headline verdict", "style": "section_banner"},
+        {"ref": "A13", "formula": "=\"Funded \"&TEXT(projected_balance/total_future_cost,\"0%\")&\" of \"&TEXT(total_future_cost,\"$#,##0\")&\". Gap = \"&TEXT(total_future_cost-projected_balance,\"$#,##0\")&\". Required monthly = \"&TEXT(B10,\"$#,##0\")&\".\"", "style": "callout"}
+      ]
+    }
+  ]
+}

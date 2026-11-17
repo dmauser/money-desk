@@ -1,0 +1,2004 @@
+{
+  "title": "Rent vs Buy",
+  "specialist": "Purchase Advisor",
+  "named_ranges": [
+    {
+      "name": "home_price",
+      "ref": "Inputs!$B$2"
+    },
+    {
+      "name": "down_payment_pct",
+      "ref": "Inputs!$B$3"
+    },
+    {
+      "name": "mortgage_term_years",
+      "ref": "Inputs!$B$4"
+    },
+    {
+      "name": "mortgage_rate",
+      "ref": "Inputs!$B$5"
+    },
+    {
+      "name": "holding_horizon_yrs",
+      "ref": "Inputs!$B$6"
+    },
+    {
+      "name": "home_appreciation",
+      "ref": "Inputs!$B$7"
+    },
+    {
+      "name": "investment_return",
+      "ref": "Inputs!$B$8"
+    },
+    {
+      "name": "rent_inflation",
+      "ref": "Inputs!$B$9"
+    },
+    {
+      "name": "starting_rent_monthly",
+      "ref": "Inputs!$B$10"
+    },
+    {
+      "name": "property_tax_annual",
+      "ref": "Inputs!$B$11"
+    },
+    {
+      "name": "hoa_monthly",
+      "ref": "Inputs!$B$12"
+    },
+    {
+      "name": "maintenance_pct",
+      "ref": "Inputs!$B$13"
+    },
+    {
+      "name": "insurance_annual",
+      "ref": "Inputs!$B$14"
+    },
+    {
+      "name": "selling_costs_pct",
+      "ref": "Inputs!$B$15"
+    },
+    {
+      "name": "loan_amount",
+      "ref": "Inputs!$B$17"
+    },
+    {
+      "name": "down_payment_amount",
+      "ref": "Inputs!$B$18"
+    },
+    {
+      "name": "monthly_pi",
+      "ref": "Inputs!$B$19"
+    },
+    {
+      "name": "analysis_buy_nw_series",
+      "ref": "Analysis!$J$2:$J$31"
+    },
+    {
+      "name": "analysis_rent_nw_series",
+      "ref": "Analysis!$K$2:$K$31"
+    }
+  ],
+  "sheets": [
+    {
+      "name": "Inputs",
+      "cells": [
+        {
+          "ref": "A1",
+          "value": "Rent vs Buy - Inputs (agent edits VALUES only; never touch named-range cells or formulas)",
+          "style": "h1"
+        },
+        {
+          "ref": "A2",
+          "value": "Home price"
+        },
+        {
+          "ref": "B2",
+          "value": 700000,
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A3",
+          "value": "Down payment %"
+        },
+        {
+          "ref": "B3",
+          "value": 0.2,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A4",
+          "value": "Mortgage term (years)"
+        },
+        {
+          "ref": "B4",
+          "value": 30,
+          "number_format": "0"
+        },
+        {
+          "ref": "A5",
+          "value": "Mortgage rate (annual)"
+        },
+        {
+          "ref": "B5",
+          "value": 0.07,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A6",
+          "value": "Holding horizon (years)"
+        },
+        {
+          "ref": "B6",
+          "value": 10,
+          "number_format": "0"
+        },
+        {
+          "ref": "A7",
+          "value": "Home appreciation (annual)"
+        },
+        {
+          "ref": "B7",
+          "value": 0.03,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A8",
+          "value": "Investment return (annual, post-tax)"
+        },
+        {
+          "ref": "B8",
+          "value": 0.06,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A9",
+          "value": "Rent inflation (annual)"
+        },
+        {
+          "ref": "B9",
+          "value": 0.04,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A10",
+          "value": "Starting rent (monthly)"
+        },
+        {
+          "ref": "B10",
+          "value": 2875,
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A11",
+          "value": "Property tax (annual, year 1)"
+        },
+        {
+          "ref": "B11",
+          "value": 8750,
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A12",
+          "value": "HOA (monthly)"
+        },
+        {
+          "ref": "B12",
+          "value": 0,
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A13",
+          "value": "Maintenance (% of home price/yr)"
+        },
+        {
+          "ref": "B13",
+          "value": 0.01,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A14",
+          "value": "Insurance (annual)"
+        },
+        {
+          "ref": "B14",
+          "value": 2000,
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A15",
+          "value": "Selling costs (% of sale price)"
+        },
+        {
+          "ref": "B15",
+          "value": 0.07,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A16",
+          "value": "-- derived (do not edit) --"
+        },
+        {
+          "ref": "A17",
+          "value": "Loan amount"
+        },
+        {
+          "ref": "B17",
+          "formula": "=home_price*(1-down_payment_pct)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A18",
+          "value": "Down payment $"
+        },
+        {
+          "ref": "B18",
+          "formula": "=home_price*down_payment_pct",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A19",
+          "value": "Monthly P&I"
+        },
+        {
+          "ref": "B19",
+          "formula": "=PMT(mortgage_rate/12, mortgage_term_years*12, -loan_amount)",
+          "number_format": "$#,##0.00"
+        }
+      ]
+    },
+    {
+      "name": "Analysis",
+      "cells": [
+        {
+          "ref": "A1",
+          "value": "Year",
+          "style": "header"
+        },
+        {
+          "ref": "B1",
+          "value": "Home value",
+          "style": "header"
+        },
+        {
+          "ref": "C1",
+          "value": "Mortgage balance",
+          "style": "header"
+        },
+        {
+          "ref": "D1",
+          "value": "Equity",
+          "style": "header"
+        },
+        {
+          "ref": "E1",
+          "value": "BUY annual cost",
+          "style": "header"
+        },
+        {
+          "ref": "F1",
+          "value": "RENT annual cost",
+          "style": "header"
+        },
+        {
+          "ref": "G1",
+          "value": "Differential (BUY-RENT)",
+          "style": "header"
+        },
+        {
+          "ref": "H1",
+          "value": "DP invested",
+          "style": "header"
+        },
+        {
+          "ref": "I1",
+          "value": "Differential invested (cum.)",
+          "style": "header"
+        },
+        {
+          "ref": "J1",
+          "value": "BUY NW if sold",
+          "style": "header"
+        },
+        {
+          "ref": "K1",
+          "value": "RENT NW",
+          "style": "header"
+        },
+        {
+          "ref": "A2",
+          "value": 1,
+          "number_format": "0"
+        },
+        {
+          "ref": "B2",
+          "formula": "=home_price*(1+home_appreciation)^A2",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C2",
+          "formula": "=IF(A2>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A2*12)-monthly_pi*(((1+mortgage_rate/12)^(A2*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D2",
+          "formula": "=B2-C2",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E2",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A2-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A2-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F2",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A2-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G2",
+          "formula": "=E2-F2",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H2",
+          "formula": "=down_payment_amount*(1+investment_return)^A2",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I2",
+          "formula": "=MAX(0,G2)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J2",
+          "formula": "=D2-selling_costs_pct*B2",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K2",
+          "formula": "=H2+I2",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A3",
+          "value": 2,
+          "number_format": "0"
+        },
+        {
+          "ref": "B3",
+          "formula": "=home_price*(1+home_appreciation)^A3",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C3",
+          "formula": "=IF(A3>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A3*12)-monthly_pi*(((1+mortgage_rate/12)^(A3*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D3",
+          "formula": "=B3-C3",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E3",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A3-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A3-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F3",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A3-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G3",
+          "formula": "=E3-F3",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H3",
+          "formula": "=down_payment_amount*(1+investment_return)^A3",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I3",
+          "formula": "=I2*(1+investment_return)+MAX(0,G3)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J3",
+          "formula": "=D3-selling_costs_pct*B3",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K3",
+          "formula": "=H3+I3",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A4",
+          "value": 3,
+          "number_format": "0"
+        },
+        {
+          "ref": "B4",
+          "formula": "=home_price*(1+home_appreciation)^A4",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C4",
+          "formula": "=IF(A4>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A4*12)-monthly_pi*(((1+mortgage_rate/12)^(A4*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D4",
+          "formula": "=B4-C4",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E4",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A4-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A4-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F4",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A4-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G4",
+          "formula": "=E4-F4",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H4",
+          "formula": "=down_payment_amount*(1+investment_return)^A4",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I4",
+          "formula": "=I3*(1+investment_return)+MAX(0,G4)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J4",
+          "formula": "=D4-selling_costs_pct*B4",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K4",
+          "formula": "=H4+I4",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A5",
+          "value": 4,
+          "number_format": "0"
+        },
+        {
+          "ref": "B5",
+          "formula": "=home_price*(1+home_appreciation)^A5",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C5",
+          "formula": "=IF(A5>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A5*12)-monthly_pi*(((1+mortgage_rate/12)^(A5*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D5",
+          "formula": "=B5-C5",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E5",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A5-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A5-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F5",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A5-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G5",
+          "formula": "=E5-F5",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H5",
+          "formula": "=down_payment_amount*(1+investment_return)^A5",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I5",
+          "formula": "=I4*(1+investment_return)+MAX(0,G5)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J5",
+          "formula": "=D5-selling_costs_pct*B5",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K5",
+          "formula": "=H5+I5",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A6",
+          "value": 5,
+          "number_format": "0"
+        },
+        {
+          "ref": "B6",
+          "formula": "=home_price*(1+home_appreciation)^A6",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C6",
+          "formula": "=IF(A6>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A6*12)-monthly_pi*(((1+mortgage_rate/12)^(A6*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D6",
+          "formula": "=B6-C6",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E6",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A6-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A6-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F6",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A6-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G6",
+          "formula": "=E6-F6",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H6",
+          "formula": "=down_payment_amount*(1+investment_return)^A6",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I6",
+          "formula": "=I5*(1+investment_return)+MAX(0,G6)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J6",
+          "formula": "=D6-selling_costs_pct*B6",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K6",
+          "formula": "=H6+I6",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A7",
+          "value": 6,
+          "number_format": "0"
+        },
+        {
+          "ref": "B7",
+          "formula": "=home_price*(1+home_appreciation)^A7",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C7",
+          "formula": "=IF(A7>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A7*12)-monthly_pi*(((1+mortgage_rate/12)^(A7*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D7",
+          "formula": "=B7-C7",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E7",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A7-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A7-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F7",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A7-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G7",
+          "formula": "=E7-F7",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H7",
+          "formula": "=down_payment_amount*(1+investment_return)^A7",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I7",
+          "formula": "=I6*(1+investment_return)+MAX(0,G7)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J7",
+          "formula": "=D7-selling_costs_pct*B7",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K7",
+          "formula": "=H7+I7",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A8",
+          "value": 7,
+          "number_format": "0"
+        },
+        {
+          "ref": "B8",
+          "formula": "=home_price*(1+home_appreciation)^A8",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C8",
+          "formula": "=IF(A8>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A8*12)-monthly_pi*(((1+mortgage_rate/12)^(A8*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D8",
+          "formula": "=B8-C8",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E8",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A8-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A8-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F8",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A8-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G8",
+          "formula": "=E8-F8",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H8",
+          "formula": "=down_payment_amount*(1+investment_return)^A8",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I8",
+          "formula": "=I7*(1+investment_return)+MAX(0,G8)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J8",
+          "formula": "=D8-selling_costs_pct*B8",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K8",
+          "formula": "=H8+I8",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A9",
+          "value": 8,
+          "number_format": "0"
+        },
+        {
+          "ref": "B9",
+          "formula": "=home_price*(1+home_appreciation)^A9",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C9",
+          "formula": "=IF(A9>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A9*12)-monthly_pi*(((1+mortgage_rate/12)^(A9*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D9",
+          "formula": "=B9-C9",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E9",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A9-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A9-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F9",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A9-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G9",
+          "formula": "=E9-F9",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H9",
+          "formula": "=down_payment_amount*(1+investment_return)^A9",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I9",
+          "formula": "=I8*(1+investment_return)+MAX(0,G9)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J9",
+          "formula": "=D9-selling_costs_pct*B9",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K9",
+          "formula": "=H9+I9",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A10",
+          "value": 9,
+          "number_format": "0"
+        },
+        {
+          "ref": "B10",
+          "formula": "=home_price*(1+home_appreciation)^A10",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C10",
+          "formula": "=IF(A10>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A10*12)-monthly_pi*(((1+mortgage_rate/12)^(A10*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D10",
+          "formula": "=B10-C10",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E10",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A10-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A10-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F10",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A10-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G10",
+          "formula": "=E10-F10",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H10",
+          "formula": "=down_payment_amount*(1+investment_return)^A10",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I10",
+          "formula": "=I9*(1+investment_return)+MAX(0,G10)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J10",
+          "formula": "=D10-selling_costs_pct*B10",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K10",
+          "formula": "=H10+I10",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A11",
+          "value": 10,
+          "number_format": "0"
+        },
+        {
+          "ref": "B11",
+          "formula": "=home_price*(1+home_appreciation)^A11",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C11",
+          "formula": "=IF(A11>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A11*12)-monthly_pi*(((1+mortgage_rate/12)^(A11*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D11",
+          "formula": "=B11-C11",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E11",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A11-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A11-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F11",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A11-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G11",
+          "formula": "=E11-F11",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H11",
+          "formula": "=down_payment_amount*(1+investment_return)^A11",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I11",
+          "formula": "=I10*(1+investment_return)+MAX(0,G11)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J11",
+          "formula": "=D11-selling_costs_pct*B11",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K11",
+          "formula": "=H11+I11",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A12",
+          "value": 11,
+          "number_format": "0"
+        },
+        {
+          "ref": "B12",
+          "formula": "=home_price*(1+home_appreciation)^A12",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C12",
+          "formula": "=IF(A12>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A12*12)-monthly_pi*(((1+mortgage_rate/12)^(A12*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D12",
+          "formula": "=B12-C12",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E12",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A12-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A12-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F12",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A12-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G12",
+          "formula": "=E12-F12",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H12",
+          "formula": "=down_payment_amount*(1+investment_return)^A12",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I12",
+          "formula": "=I11*(1+investment_return)+MAX(0,G12)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J12",
+          "formula": "=D12-selling_costs_pct*B12",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K12",
+          "formula": "=H12+I12",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A13",
+          "value": 12,
+          "number_format": "0"
+        },
+        {
+          "ref": "B13",
+          "formula": "=home_price*(1+home_appreciation)^A13",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C13",
+          "formula": "=IF(A13>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A13*12)-monthly_pi*(((1+mortgage_rate/12)^(A13*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D13",
+          "formula": "=B13-C13",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E13",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A13-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A13-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F13",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A13-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G13",
+          "formula": "=E13-F13",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H13",
+          "formula": "=down_payment_amount*(1+investment_return)^A13",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I13",
+          "formula": "=I12*(1+investment_return)+MAX(0,G13)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J13",
+          "formula": "=D13-selling_costs_pct*B13",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K13",
+          "formula": "=H13+I13",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A14",
+          "value": 13,
+          "number_format": "0"
+        },
+        {
+          "ref": "B14",
+          "formula": "=home_price*(1+home_appreciation)^A14",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C14",
+          "formula": "=IF(A14>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A14*12)-monthly_pi*(((1+mortgage_rate/12)^(A14*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D14",
+          "formula": "=B14-C14",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E14",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A14-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A14-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F14",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A14-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G14",
+          "formula": "=E14-F14",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H14",
+          "formula": "=down_payment_amount*(1+investment_return)^A14",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I14",
+          "formula": "=I13*(1+investment_return)+MAX(0,G14)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J14",
+          "formula": "=D14-selling_costs_pct*B14",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K14",
+          "formula": "=H14+I14",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A15",
+          "value": 14,
+          "number_format": "0"
+        },
+        {
+          "ref": "B15",
+          "formula": "=home_price*(1+home_appreciation)^A15",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C15",
+          "formula": "=IF(A15>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A15*12)-monthly_pi*(((1+mortgage_rate/12)^(A15*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D15",
+          "formula": "=B15-C15",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E15",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A15-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A15-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F15",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A15-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G15",
+          "formula": "=E15-F15",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H15",
+          "formula": "=down_payment_amount*(1+investment_return)^A15",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I15",
+          "formula": "=I14*(1+investment_return)+MAX(0,G15)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J15",
+          "formula": "=D15-selling_costs_pct*B15",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K15",
+          "formula": "=H15+I15",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A16",
+          "value": 15,
+          "number_format": "0"
+        },
+        {
+          "ref": "B16",
+          "formula": "=home_price*(1+home_appreciation)^A16",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C16",
+          "formula": "=IF(A16>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A16*12)-monthly_pi*(((1+mortgage_rate/12)^(A16*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D16",
+          "formula": "=B16-C16",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E16",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A16-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A16-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F16",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A16-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G16",
+          "formula": "=E16-F16",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H16",
+          "formula": "=down_payment_amount*(1+investment_return)^A16",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I16",
+          "formula": "=I15*(1+investment_return)+MAX(0,G16)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J16",
+          "formula": "=D16-selling_costs_pct*B16",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K16",
+          "formula": "=H16+I16",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A17",
+          "value": 16,
+          "number_format": "0"
+        },
+        {
+          "ref": "B17",
+          "formula": "=home_price*(1+home_appreciation)^A17",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C17",
+          "formula": "=IF(A17>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A17*12)-monthly_pi*(((1+mortgage_rate/12)^(A17*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D17",
+          "formula": "=B17-C17",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E17",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A17-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A17-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F17",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A17-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G17",
+          "formula": "=E17-F17",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H17",
+          "formula": "=down_payment_amount*(1+investment_return)^A17",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I17",
+          "formula": "=I16*(1+investment_return)+MAX(0,G17)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J17",
+          "formula": "=D17-selling_costs_pct*B17",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K17",
+          "formula": "=H17+I17",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A18",
+          "value": 17,
+          "number_format": "0"
+        },
+        {
+          "ref": "B18",
+          "formula": "=home_price*(1+home_appreciation)^A18",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C18",
+          "formula": "=IF(A18>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A18*12)-monthly_pi*(((1+mortgage_rate/12)^(A18*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D18",
+          "formula": "=B18-C18",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E18",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A18-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A18-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F18",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A18-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G18",
+          "formula": "=E18-F18",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H18",
+          "formula": "=down_payment_amount*(1+investment_return)^A18",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I18",
+          "formula": "=I17*(1+investment_return)+MAX(0,G18)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J18",
+          "formula": "=D18-selling_costs_pct*B18",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K18",
+          "formula": "=H18+I18",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A19",
+          "value": 18,
+          "number_format": "0"
+        },
+        {
+          "ref": "B19",
+          "formula": "=home_price*(1+home_appreciation)^A19",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C19",
+          "formula": "=IF(A19>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A19*12)-monthly_pi*(((1+mortgage_rate/12)^(A19*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D19",
+          "formula": "=B19-C19",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E19",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A19-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A19-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F19",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A19-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G19",
+          "formula": "=E19-F19",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H19",
+          "formula": "=down_payment_amount*(1+investment_return)^A19",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I19",
+          "formula": "=I18*(1+investment_return)+MAX(0,G19)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J19",
+          "formula": "=D19-selling_costs_pct*B19",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K19",
+          "formula": "=H19+I19",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A20",
+          "value": 19,
+          "number_format": "0"
+        },
+        {
+          "ref": "B20",
+          "formula": "=home_price*(1+home_appreciation)^A20",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C20",
+          "formula": "=IF(A20>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A20*12)-monthly_pi*(((1+mortgage_rate/12)^(A20*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D20",
+          "formula": "=B20-C20",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E20",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A20-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A20-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F20",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A20-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G20",
+          "formula": "=E20-F20",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H20",
+          "formula": "=down_payment_amount*(1+investment_return)^A20",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I20",
+          "formula": "=I19*(1+investment_return)+MAX(0,G20)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J20",
+          "formula": "=D20-selling_costs_pct*B20",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K20",
+          "formula": "=H20+I20",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A21",
+          "value": 20,
+          "number_format": "0"
+        },
+        {
+          "ref": "B21",
+          "formula": "=home_price*(1+home_appreciation)^A21",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C21",
+          "formula": "=IF(A21>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A21*12)-monthly_pi*(((1+mortgage_rate/12)^(A21*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D21",
+          "formula": "=B21-C21",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E21",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A21-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A21-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F21",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A21-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G21",
+          "formula": "=E21-F21",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H21",
+          "formula": "=down_payment_amount*(1+investment_return)^A21",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I21",
+          "formula": "=I20*(1+investment_return)+MAX(0,G21)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J21",
+          "formula": "=D21-selling_costs_pct*B21",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K21",
+          "formula": "=H21+I21",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A22",
+          "value": 21,
+          "number_format": "0"
+        },
+        {
+          "ref": "B22",
+          "formula": "=home_price*(1+home_appreciation)^A22",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C22",
+          "formula": "=IF(A22>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A22*12)-monthly_pi*(((1+mortgage_rate/12)^(A22*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D22",
+          "formula": "=B22-C22",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E22",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A22-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A22-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F22",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A22-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G22",
+          "formula": "=E22-F22",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H22",
+          "formula": "=down_payment_amount*(1+investment_return)^A22",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I22",
+          "formula": "=I21*(1+investment_return)+MAX(0,G22)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J22",
+          "formula": "=D22-selling_costs_pct*B22",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K22",
+          "formula": "=H22+I22",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A23",
+          "value": 22,
+          "number_format": "0"
+        },
+        {
+          "ref": "B23",
+          "formula": "=home_price*(1+home_appreciation)^A23",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C23",
+          "formula": "=IF(A23>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A23*12)-monthly_pi*(((1+mortgage_rate/12)^(A23*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D23",
+          "formula": "=B23-C23",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E23",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A23-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A23-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F23",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A23-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G23",
+          "formula": "=E23-F23",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H23",
+          "formula": "=down_payment_amount*(1+investment_return)^A23",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I23",
+          "formula": "=I22*(1+investment_return)+MAX(0,G23)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J23",
+          "formula": "=D23-selling_costs_pct*B23",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K23",
+          "formula": "=H23+I23",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A24",
+          "value": 23,
+          "number_format": "0"
+        },
+        {
+          "ref": "B24",
+          "formula": "=home_price*(1+home_appreciation)^A24",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C24",
+          "formula": "=IF(A24>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A24*12)-monthly_pi*(((1+mortgage_rate/12)^(A24*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D24",
+          "formula": "=B24-C24",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E24",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A24-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A24-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F24",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A24-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G24",
+          "formula": "=E24-F24",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H24",
+          "formula": "=down_payment_amount*(1+investment_return)^A24",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I24",
+          "formula": "=I23*(1+investment_return)+MAX(0,G24)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J24",
+          "formula": "=D24-selling_costs_pct*B24",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K24",
+          "formula": "=H24+I24",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A25",
+          "value": 24,
+          "number_format": "0"
+        },
+        {
+          "ref": "B25",
+          "formula": "=home_price*(1+home_appreciation)^A25",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C25",
+          "formula": "=IF(A25>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A25*12)-monthly_pi*(((1+mortgage_rate/12)^(A25*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D25",
+          "formula": "=B25-C25",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E25",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A25-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A25-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F25",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A25-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G25",
+          "formula": "=E25-F25",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H25",
+          "formula": "=down_payment_amount*(1+investment_return)^A25",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I25",
+          "formula": "=I24*(1+investment_return)+MAX(0,G25)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J25",
+          "formula": "=D25-selling_costs_pct*B25",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K25",
+          "formula": "=H25+I25",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A26",
+          "value": 25,
+          "number_format": "0"
+        },
+        {
+          "ref": "B26",
+          "formula": "=home_price*(1+home_appreciation)^A26",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C26",
+          "formula": "=IF(A26>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A26*12)-monthly_pi*(((1+mortgage_rate/12)^(A26*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D26",
+          "formula": "=B26-C26",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E26",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A26-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A26-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F26",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A26-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G26",
+          "formula": "=E26-F26",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H26",
+          "formula": "=down_payment_amount*(1+investment_return)^A26",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I26",
+          "formula": "=I25*(1+investment_return)+MAX(0,G26)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J26",
+          "formula": "=D26-selling_costs_pct*B26",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K26",
+          "formula": "=H26+I26",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A27",
+          "value": 26,
+          "number_format": "0"
+        },
+        {
+          "ref": "B27",
+          "formula": "=home_price*(1+home_appreciation)^A27",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C27",
+          "formula": "=IF(A27>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A27*12)-monthly_pi*(((1+mortgage_rate/12)^(A27*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D27",
+          "formula": "=B27-C27",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E27",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A27-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A27-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F27",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A27-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G27",
+          "formula": "=E27-F27",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H27",
+          "formula": "=down_payment_amount*(1+investment_return)^A27",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I27",
+          "formula": "=I26*(1+investment_return)+MAX(0,G27)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J27",
+          "formula": "=D27-selling_costs_pct*B27",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K27",
+          "formula": "=H27+I27",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A28",
+          "value": 27,
+          "number_format": "0"
+        },
+        {
+          "ref": "B28",
+          "formula": "=home_price*(1+home_appreciation)^A28",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C28",
+          "formula": "=IF(A28>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A28*12)-monthly_pi*(((1+mortgage_rate/12)^(A28*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D28",
+          "formula": "=B28-C28",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E28",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A28-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A28-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F28",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A28-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G28",
+          "formula": "=E28-F28",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H28",
+          "formula": "=down_payment_amount*(1+investment_return)^A28",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I28",
+          "formula": "=I27*(1+investment_return)+MAX(0,G28)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J28",
+          "formula": "=D28-selling_costs_pct*B28",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K28",
+          "formula": "=H28+I28",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A29",
+          "value": 28,
+          "number_format": "0"
+        },
+        {
+          "ref": "B29",
+          "formula": "=home_price*(1+home_appreciation)^A29",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C29",
+          "formula": "=IF(A29>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A29*12)-monthly_pi*(((1+mortgage_rate/12)^(A29*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D29",
+          "formula": "=B29-C29",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E29",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A29-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A29-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F29",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A29-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G29",
+          "formula": "=E29-F29",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H29",
+          "formula": "=down_payment_amount*(1+investment_return)^A29",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I29",
+          "formula": "=I28*(1+investment_return)+MAX(0,G29)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J29",
+          "formula": "=D29-selling_costs_pct*B29",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K29",
+          "formula": "=H29+I29",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A30",
+          "value": 29,
+          "number_format": "0"
+        },
+        {
+          "ref": "B30",
+          "formula": "=home_price*(1+home_appreciation)^A30",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C30",
+          "formula": "=IF(A30>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A30*12)-monthly_pi*(((1+mortgage_rate/12)^(A30*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D30",
+          "formula": "=B30-C30",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E30",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A30-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A30-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F30",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A30-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G30",
+          "formula": "=E30-F30",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H30",
+          "formula": "=down_payment_amount*(1+investment_return)^A30",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I30",
+          "formula": "=I29*(1+investment_return)+MAX(0,G30)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J30",
+          "formula": "=D30-selling_costs_pct*B30",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K30",
+          "formula": "=H30+I30",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A31",
+          "value": 30,
+          "number_format": "0"
+        },
+        {
+          "ref": "B31",
+          "formula": "=home_price*(1+home_appreciation)^A31",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "C31",
+          "formula": "=IF(A31>=mortgage_term_years,0,loan_amount*(1+mortgage_rate/12)^(A31*12)-monthly_pi*(((1+mortgage_rate/12)^(A31*12)-1)/(mortgage_rate/12)))",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "D31",
+          "formula": "=B31-C31",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "E31",
+          "formula": "=monthly_pi*12+property_tax_annual*(1+home_appreciation)^(A31-1)+hoa_monthly*12+insurance_annual+home_price*maintenance_pct*(1+home_appreciation)^(A31-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "F31",
+          "formula": "=starting_rent_monthly*12*(1+rent_inflation)^(A31-1)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "G31",
+          "formula": "=E31-F31",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "H31",
+          "formula": "=down_payment_amount*(1+investment_return)^A31",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "I31",
+          "formula": "=I30*(1+investment_return)+MAX(0,G31)",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "J31",
+          "formula": "=D31-selling_costs_pct*B31",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "K31",
+          "formula": "=H31+I31",
+          "number_format": "$#,##0"
+        }
+      ]
+    },
+    {
+      "name": "Summary",
+      "column_widths": {"A": 36, "B": 18, "C": 16, "D": 30},
+      "row_heights": {"1": 26, "2": 18, "11": 22, "12": 38},
+      "merges": ["A1:D1", "A2:D2", "A11:D11", "A12:D12"],
+      "cells": [
+        {"ref": "A1", "value": "Rent vs Buy  -  Summary Dashboard", "style": "banner"},
+        {"ref": "A2", "value": "All figures driven by the Inputs sheet.", "style": "subtitle"},
+
+        {"ref": "A3", "value": "Monthly P&I", "style": "metric"},
+        {"ref": "B3", "formula": "=monthly_pi", "style": "value_highlight", "number_format": "$#,##0.00"},
+        {"ref": "C3", "value": "", "style": "threshold"},
+        {"ref": "D3", "value": "Principal + interest only", "style": "status"},
+
+        {"ref": "A4", "value": "Loan amount", "style": "metric"},
+        {"ref": "B4", "formula": "=loan_amount", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C4", "value": "", "style": "threshold"},
+        {"ref": "D4", "value": "After down payment", "style": "status"},
+
+        {"ref": "A5", "value": "Down payment", "style": "metric"},
+        {"ref": "B5", "formula": "=down_payment_amount", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C5", "value": "", "style": "threshold"},
+        {"ref": "D5", "value": "Cash at close", "style": "status"},
+
+        {"ref": "A7", "value": "BUY net worth at horizon", "style": "metric"},
+        {"ref": "B7", "formula": "=INDEX(analysis_buy_nw_series, holding_horizon_yrs)", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C7", "value": "", "style": "threshold"},
+        {"ref": "D7", "value": "Equity + appreciation - costs", "style": "status"},
+
+        {"ref": "A8", "value": "RENT net worth at horizon", "style": "metric"},
+        {"ref": "B8", "formula": "=INDEX(analysis_rent_nw_series, holding_horizon_yrs)", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C8", "value": "", "style": "threshold"},
+        {"ref": "D8", "value": "Down payment invested + savings", "style": "status"},
+
+        {"ref": "A9", "value": "Difference (RENT - BUY)", "style": "metric"},
+        {"ref": "B9", "formula": "=B8-B7", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C9", "value": "> 0 favors rent", "style": "threshold"},
+        {"ref": "D9", "formula": "=IF(B9>0,\"RENT favored\",\"BUY favored\")", "style": "status"},
+
+        {"ref": "A11", "value": "Verdict", "style": "section_banner"},
+        {"ref": "A12", "formula": "=IF(B9>0, \"RENT favored at \"&holding_horizon_yrs&\"y horizon by \"&TEXT(B9,\"$#,##0\")&\". Informational only - personal preferences and stability matter.\", \"BUY favored at \"&holding_horizon_yrs&\"y horizon by \"&TEXT(-B9,\"$#,##0\")&\". Informational only - personal preferences and stability matter.\")", "style": "callout"}
+      ]
+    }
+  ]
+}

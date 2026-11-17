@@ -1,6 +1,6 @@
 {
   "name": "money-desk",
-  "version": "0.21.0",
+  "version": "0.21.1",
   "description": "Your personal-finance AI team for GitHub Copilot CLI and Claude (Desktop, Code, Cowork) — 20 specialist agents (budget, tax, investing, retirement, debt, credit, health & Medicare, property & casualty, life & disability, estate, purchase decisions, education / 529, net worth & goals, self-employed / 1099, life events, real-estate investing, behavioral coaching, international / expat, financial literacy, FIRE), one install.",
   "type": "module",
   "bin": {
@@ -15,10 +15,10 @@
     "README.md",
     "CONTRIBUTING.md",
     "PRIVACY.md",
-    ".claude-plugin/",
-    ".mcp.json",
     "manifest.json",
-    "skills/"
+    ".claude-plugin/",
+    "claude-plugin/",
+    "plugins/"
   ],
   "keywords": [
     "copilot",
@@ -40,7 +40,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "pretest": "node scripts/sync-changelog.mjs && node scripts/build-renderers-manifest.mjs",
+    "pretest": "node scripts/sync-changelog.mjs && node scripts/build-renderers-manifest.mjs && node scripts/build-claude-plugin.mjs",
     "test": "node --test tests/installer.test.mjs tests/manifest-consistency.test.mjs tests/routes.test.mjs tests/md-route.test.mjs tests/guardrails.test.mjs tests/docs-sync.test.mjs tests/report-quality.test.mjs tests/sources.test.mjs tests/renderer-regression.test.mjs tests/version-sync.test.mjs tests/changelog-sync.test.mjs tests/intake-gate.test.mjs tests/renderers-sync.test.mjs tests/claude-plugin.test.mjs tests/skill-determinism.test.mjs tests/tool-references.test.mjs",
     "test:watch": "node --test --watch tests/installer.test.mjs tests/manifest-consistency.test.mjs tests/routes.test.mjs tests/md-route.test.mjs tests/guardrails.test.mjs tests/docs-sync.test.mjs tests/sources.test.mjs tests/renderer-regression.test.mjs tests/version-sync.test.mjs",
     "start": "node bin/cli.mjs help",
@@ -52,6 +52,7 @@
     "docs:check": "node scripts/generate-capabilities.mjs --check",
     "prepublishOnly": "npm test",
     "mcp": "node extensions/money-desk/mcp-server.mjs",
-    "build:mcpb": "npx -y @anthropic-ai/mcpb pack . money-desk.mcpb"
+    "build:mcpb": "npx -y @anthropic-ai/mcpb pack . money-desk.mcpb",
+    "build:plugin": "node scripts/build-claude-plugin.mjs"
   }
 }

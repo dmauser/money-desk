@@ -25,7 +25,7 @@ function walk(dir, out = []) {
 
 const FILES = [
     ...walk(join(REPO, "extensions", "money-desk")),
-    ...walk(join(REPO, "skills")),
+    ...walk(join(REPO, "claude-plugin")),
     join(REPO, "README.md"),
     ...walk(join(REPO, "docs")),
 ];

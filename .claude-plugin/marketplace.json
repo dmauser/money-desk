@@ -9,9 +9,9 @@
   "plugins": [
     {
       "name": "money-desk",
-      "source": "./",
+      "source": "./plugins/money-desk",
       "description": "20 personal-finance specialists (budget, tax, investing, retirement, debt, credit, insurance, estate, FIRE, and more). Analysis only; not professional advice.",
-      "version": "0.21.0"
+      "version": "0.21.1"
     }
   ]
 }

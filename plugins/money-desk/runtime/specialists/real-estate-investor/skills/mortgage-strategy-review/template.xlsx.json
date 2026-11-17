@@ -1,0 +1,244 @@
+{
+  "title": "Mortgage Strategy Review",
+  "specialist": "Real Estate Investor",
+  "named_ranges": [
+    {
+      "name": "current_balance",
+      "ref": "Inputs!$B$2"
+    },
+    {
+      "name": "current_rate",
+      "ref": "Inputs!$B$3"
+    },
+    {
+      "name": "current_remaining_yrs",
+      "ref": "Inputs!$B$4"
+    },
+    {
+      "name": "refi_rate",
+      "ref": "Inputs!$B$5"
+    },
+    {
+      "name": "refi_term_yrs",
+      "ref": "Inputs!$B$6"
+    },
+    {
+      "name": "refi_costs",
+      "ref": "Inputs!$B$7"
+    },
+    {
+      "name": "extra_monthly_principal",
+      "ref": "Inputs!$B$8"
+    },
+    {
+      "name": "alt_invest_return",
+      "ref": "Inputs!$B$9"
+    },
+    {
+      "name": "marginal_tax_rate",
+      "ref": "Inputs!$B$10"
+    },
+    {
+      "name": "current_monthly_pi",
+      "ref": "Inputs!$B$12"
+    },
+    {
+      "name": "refi_monthly_pi",
+      "ref": "Inputs!$B$13"
+    },
+    {
+      "name": "current_total_interest",
+      "ref": "Inputs!$B$14"
+    },
+    {
+      "name": "refi_total_interest",
+      "ref": "Inputs!$B$15"
+    }
+  ],
+  "sheets": [
+    {
+      "name": "Inputs",
+      "cells": [
+        {
+          "ref": "A1",
+          "value": "Mortgage Strategy - Inputs",
+          "style": "h1"
+        },
+        {
+          "ref": "A2",
+          "value": "Current balance"
+        },
+        {
+          "ref": "B2",
+          "value": 380000,
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A3",
+          "value": "Current rate (annual)"
+        },
+        {
+          "ref": "B3",
+          "value": 0.0675,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A4",
+          "value": "Current remaining term (years)"
+        },
+        {
+          "ref": "B4",
+          "value": 27,
+          "number_format": "0"
+        },
+        {
+          "ref": "A5",
+          "value": "Refi rate (annual)"
+        },
+        {
+          "ref": "B5",
+          "value": 0.055,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A6",
+          "value": "Refi new term (years)"
+        },
+        {
+          "ref": "B6",
+          "value": 30,
+          "number_format": "0"
+        },
+        {
+          "ref": "A7",
+          "value": "Refi closing costs"
+        },
+        {
+          "ref": "B7",
+          "value": 6500,
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A8",
+          "value": "Extra principal (monthly)"
+        },
+        {
+          "ref": "B8",
+          "value": 300,
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A9",
+          "value": "Alt. invested return (annual)"
+        },
+        {
+          "ref": "B9",
+          "value": 0.07,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A10",
+          "value": "Marginal tax rate"
+        },
+        {
+          "ref": "B10",
+          "value": 0.24,
+          "number_format": "0.00%"
+        },
+        {
+          "ref": "A11",
+          "value": "-- derived (do not edit) --"
+        },
+        {
+          "ref": "A12",
+          "value": "Current monthly P&I"
+        },
+        {
+          "ref": "B12",
+          "formula": "=PMT(current_rate/12, current_remaining_yrs*12, -current_balance)",
+          "number_format": "$#,##0.00"
+        },
+        {
+          "ref": "A13",
+          "value": "Refi monthly P&I"
+        },
+        {
+          "ref": "B13",
+          "formula": "=PMT(refi_rate/12, refi_term_yrs*12, -current_balance)",
+          "number_format": "$#,##0.00"
+        },
+        {
+          "ref": "A14",
+          "value": "Current total interest (no refi)"
+        },
+        {
+          "ref": "B14",
+          "formula": "=current_monthly_pi*current_remaining_yrs*12 - current_balance",
+          "number_format": "$#,##0"
+        },
+        {
+          "ref": "A15",
+          "value": "Refi total interest"
+        },
+        {
+          "ref": "B15",
+          "formula": "=refi_monthly_pi*refi_term_yrs*12 - current_balance",
+          "number_format": "$#,##0"
+        }
+      ]
+    },
+    {
+      "name": "Summary",
+      "column_widths": {"A": 40, "B": 16, "C": 14, "D": 30},
+      "row_heights": {"1": 26, "2": 18, "4": 22, "12": 22, "13": 38},
+      "merges": ["A1:D1", "A2:D2", "A12:D12", "A13:D13"],
+      "cells": [
+        {"ref": "A1", "value": "Mortgage Strategy Review  -  Summary Dashboard", "style": "banner"},
+        {"ref": "A2", "value": "All figures driven by the Inputs sheet.", "style": "subtitle"},
+
+        {"ref": "A4", "value": "Metric", "style": "header"},
+        {"ref": "B4", "value": "Value", "style": "header"},
+        {"ref": "C4", "value": "Threshold", "style": "header"},
+        {"ref": "D4", "value": "Status / Note", "style": "header"},
+
+        {"ref": "A5", "value": "Monthly P&I savings (refi)", "style": "metric"},
+        {"ref": "B5", "formula": "=current_monthly_pi-refi_monthly_pi", "style": "value_highlight", "number_format": "$#,##0.00"},
+        {"ref": "C5", "value": "> 0", "style": "threshold"},
+        {"ref": "D5", "formula": "=IF(current_monthly_pi-refi_monthly_pi>0,\"Lower payment\",\"Higher payment\")", "style": "status"},
+
+        {"ref": "A6", "value": "Refi breakeven (months)", "style": "metric"},
+        {"ref": "B6", "formula": "=IFERROR(refi_costs/(current_monthly_pi-refi_monthly_pi),0)", "style": "value_highlight", "number_format": "0"},
+        {"ref": "C6", "value": "< 36", "style": "threshold"},
+        {"ref": "D6", "formula": "=IF(current_monthly_pi-refi_monthly_pi<=0,\"N/A: payment higher\",IF(refi_costs/(current_monthly_pi-refi_monthly_pi)<=36,\"OK\",\"Long payback\"))", "style": "status"},
+
+        {"ref": "A7", "value": "Lifetime interest delta (refi - current)", "style": "metric"},
+        {"ref": "B7", "formula": "=refi_total_interest-current_total_interest", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C7", "value": "<= 0", "style": "threshold"},
+        {"ref": "D7", "formula": "=IF(refi_total_interest-current_total_interest<=0,\"Less interest\",\"More interest\")", "style": "status"},
+
+        {"ref": "A8", "value": "Net refi benefit over remaining term", "style": "metric"},
+        {"ref": "B8", "formula": "=current_total_interest-refi_total_interest-refi_costs", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "C8", "value": "> 0", "style": "threshold"},
+        {"ref": "D8", "formula": "=IF(current_total_interest-refi_total_interest-refi_costs>0,\"Refi favored\",\"Stay in current\")", "style": "status"},
+
+        {"ref": "A9", "value": "Extra-principal effective after-tax return", "style": "metric"},
+        {"ref": "B9", "formula": "=current_rate*(1-marginal_tax_rate)", "style": "value_highlight", "number_format": "0.00%"},
+        {"ref": "C9", "value": "vs alt", "style": "threshold"},
+        {"ref": "D9", "value": "Equivalent to risk-free yield", "style": "status"},
+
+        {"ref": "A10", "value": "Alt. investment after-tax return", "style": "metric"},
+        {"ref": "B10", "formula": "=alt_invest_return*(1-marginal_tax_rate)", "style": "value_highlight", "number_format": "0.00%"},
+        {"ref": "C10", "value": "vs extra", "style": "threshold"},
+        {"ref": "D10", "value": "Risk-adjusted estimate", "style": "status"},
+
+        {"ref": "A11", "value": "Mathematical winner (extra vs invest)", "style": "metric"},
+        {"ref": "B11", "formula": "=IF(alt_invest_return*(1-marginal_tax_rate) > current_rate*(1-marginal_tax_rate), \"Invest\", \"Pay down\")", "style": "value_highlight"},
+        {"ref": "C11", "value": "", "style": "threshold"},
+        {"ref": "D11", "value": "Ignores liquidity / behavior", "style": "status"},
+
+        {"ref": "A12", "value": "Headline verdict", "style": "section_banner"},
+        {"ref": "A13", "formula": "=IF(current_total_interest-refi_total_interest-refi_costs>0, \"Refi nets \"&TEXT(current_total_interest-refi_total_interest-refi_costs,\"$#,##0\")&\" over remaining term; breakeven \"&TEXT(IFERROR(refi_costs/(current_monthly_pi-refi_monthly_pi),0),\"0\")&\" months. Math favors \"&IF(alt_invest_return>current_rate,\"investing\",\"paying down\")&\".\", \"Refi does NOT pay back over the remaining term. Math favors \"&IF(alt_invest_return>current_rate,\"investing\",\"paying down\")&\" any extra cash flow.\")", "style": "callout"}
+      ]
+    }
+  ]
+}

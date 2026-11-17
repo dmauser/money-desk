@@ -1,15 +1,18 @@
 // Claude plugin / Claude Desktop packaging checks.
 //
-//   1. .claude-plugin/plugin.json, marketplace.json and the MCPB manifest.json
-//      versions all equal package.json "version".
-//   2. .mcp.json and manifest.json point at the MCP server that actually exists.
-//   3. The stdio MCP server completes an initialize handshake, lists exactly
-//      the tools registry.mjs exports, and serves a gated skill call.
+//   1. The generated plugin (plugins/money-desk/), marketplace.json and the
+//      MCPB manifest.json versions all equal package.json "version".
+//   2. The marketplace points at the plugin subfolder (claude.ai's sync
+//      rejects repo-root plugins), and the generated plugin is up to date.
+//   3. The plugin's .mcp.json and manifest.json point at servers that exist.
+//   4. The generated plugin's stdio MCP server completes an initialize
+//      handshake, lists exactly the tools registry.mjs exports, and serves
+//      a gated skill call.
 
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
@@ -18,27 +21,34 @@ const REPO = resolve(HERE, "..");
 const readJson = (p) => JSON.parse(readFileSync(resolve(REPO, p), "utf8"));
 
 const pkg = readJson("package.json");
-const plugin = readJson(".claude-plugin/plugin.json");
+const PLUGIN_DIR = "plugins/money-desk";
+const plugin = readJson(`${PLUGIN_DIR}/.claude-plugin/plugin.json`);
 const marketplace = readJson(".claude-plugin/marketplace.json");
 const mcpb = readJson("manifest.json");
-const mcpJson = readJson(".mcp.json");
-const SERVER = resolve(REPO, "extensions/money-desk/mcp-server.mjs");
+const mcpJson = readJson(`${PLUGIN_DIR}/.mcp.json`);
+const SERVER = resolve(REPO, PLUGIN_DIR, "runtime/mcp-server.mjs");
 
 test("plugin / marketplace / MCPB versions match package.json", () => {
-    assert.equal(plugin.version, pkg.version, ".claude-plugin/plugin.json version");
+    assert.equal(plugin.version, pkg.version, "plugins/money-desk/.claude-plugin/plugin.json version");
     assert.equal(mcpb.version, pkg.version, "manifest.json version");
     const entry = marketplace.plugins.find((p) => p.name === plugin.name);
     assert.ok(entry, "marketplace.json lists the plugin");
     assert.equal(entry.version, pkg.version, "marketplace.json plugin version");
-    assert.equal(entry.source, "./");
+    assert.equal(entry.source, `./${PLUGIN_DIR}`, "plugin must live in a subfolder, not the repo root");
+    assert.ok(!existsSync(resolve(REPO, ".claude-plugin/plugin.json")), "no root-level plugin.json (breaks claude.ai sync)");
+});
+
+test("generated plugin is up to date with its sources", () => {
+    const r = spawnSync(process.execPath, [resolve(REPO, "scripts/build-claude-plugin.mjs"), "--check"], { encoding: "utf8" });
+    assert.equal(r.status, 0, r.stderr);
 });
 
 test("MCP configs point at the bundled server", () => {
-    assert.ok(existsSync(SERVER), "mcp-server.mjs exists");
+    assert.ok(existsSync(SERVER), "plugin runtime/mcp-server.mjs exists");
     const args = mcpJson.mcpServers["money-desk"].args;
-    assert.deepEqual(args, ["${CLAUDE_PLUGIN_ROOT}/extensions/money-desk/mcp-server.mjs"]);
+    assert.deepEqual(args, ["${CLAUDE_PLUGIN_ROOT}/runtime/mcp-server.mjs"]);
     assert.ok(existsSync(resolve(REPO, mcpb.server.entry_point)), "manifest.json entry_point exists");
-    assert.ok(existsSync(resolve(REPO, "skills/money-desk/SKILL.md")), "router skill exists");
+    assert.ok(existsSync(resolve(REPO, PLUGIN_DIR, "skills/money-desk/SKILL.md")), "router skill exists");
 });
 
 function rpc(messages) {

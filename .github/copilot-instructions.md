@@ -30,9 +30,15 @@ into `~/.copilot/extensions/money-desk/` (user) or
 
 ## Claude plugin (Claude Desktop / Claude Code / Cowork)
 
-The repo root is also a Claude plugin + one-plugin marketplace
-(`.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.mcp.json`,
-`skills/money-desk/SKILL.md`, MCPB `manifest.json`).
+The repo is also a one-plugin Claude marketplace
+(`.claude-plugin/marketplace.json` → `./plugins/money-desk`) plus an MCPB
+`manifest.json`. **`plugins/money-desk/` is generated** by
+`npm run build:plugin` (also run by `npm pretest`) from
+`extensions/money-desk/` (→ `runtime/`) and `claude-plugin/` (plugin.json,
+skills/). Never edit `plugins/` by hand, and never put a plugin back at the
+repo root: claude.ai's marketplace sync (Claude Desktop → Customize →
+Plugins) rejects `"source": "./"` plugins even though the CLI accepts them
+(anthropics/claude-code#106574, #91933).
 `extensions/money-desk/mcp-server.mjs` is a zero-dep stdio MCP adapter over
 `registry.mjs` — the MCP counterpart of `extension.mjs`. Never fork tool
 definitions into it; add tools in `registry.mjs` and both hosts get them.

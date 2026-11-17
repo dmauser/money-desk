@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "money-desk": {
-      "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/extensions/money-desk/mcp-server.mjs"]
-    }
-  }
-}

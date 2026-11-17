@@ -1,0 +1,30 @@
+{
+  "extension_version": "0.21.1",
+  "generated_at": "2026-11-17T18:14:33.061Z",
+  "files": {
+    "README.md": {
+      "sha256": "9eac7b493f1d69ee4bfcd3d0f06d065d8cef89c5292bdaacf490dcfe292f29fc",
+      "bytes": 14082
+    },
+    "_branded.py": {
+      "sha256": "b5bfb7cff543d2e305c1ae39bc5402d46949861765eb7b70626c63c6eb849684",
+      "bytes": 5679
+    },
+    "make_docx.py": {
+      "sha256": "a816bbb38544ec5eb8467c0f3376b7ba4ceb28ba405b5dff01a5a9f21e82b9d8",
+      "bytes": 10491
+    },
+    "make_html.py": {
+      "sha256": "a1ab8ed59a08b959ee4e12d5fd6004e9e152cb6b8f25864313c106bc1bd3460d",
+      "bytes": 8132
+    },
+    "make_pdf.py": {
+      "sha256": "8a7d213b195776448fe225e0fa827cf204041ddca4c77acf047c005ce57619ad",
+      "bytes": 9551
+    },
+    "make_xlsx.py": {
+      "sha256": "3d44fa35e2ca100d5b3b643d6b5d51c0bd6cf72085ab40e6e91505115c0459f2",
+      "bytes": 31335
+    }
+  }
+}

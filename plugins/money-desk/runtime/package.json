@@ -1,0 +1,6 @@
+{
+  "name": "money-desk-runtime",
+  "private": true,
+  "type": "module",
+  "version": "0.21.1"
+}

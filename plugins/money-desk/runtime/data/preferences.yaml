@@ -1,0 +1,311 @@
+# Money Desk — user preferences (persisted across all sessions)
+#
+# This file is the single source of truth for source-selection preferences.
+# It is read by the `md_preferences` tool and is referenced from the role
+# markdown of every specialist that quotes deposit-product / cash-yield rates
+# (Investing Advisor, Budget Coach, Net Worth & Goals, Retirement Planner,
+# Life Events).
+#
+# Override syntax for a single turn:
+#   "use Bankrate instead this time"  →  honored for that turn only; the
+#                                         default below is restored on the
+#                                         next deposit-rate question.
+#
+# Permanent override: edit the relevant value below.
+# After editing, run `npm test` from the repo root to confirm the manifest
+# still loads cleanly.
+
+preferred_sources:
+  deposit_rates: https://www.depositaccounts.com/   # HYSA, MMA, CD (incl. no-penalty + bump-up), reward-checking, credit-union specials
+  mmf_yields:    issuer pages (Vanguard / Fidelity / Schwab)   # VMFXX, SPAXX, SWVXX, SPRXX, VUSXX, FZDXX, etc.
+  treasuries:    https://www.treasurydirect.gov/   # T-bills, T-notes; SGOV / BIL → ETF issuer page
+
+# Per-domain fetch strategy (avoids known scraping blocks).
+# Apply in order; stop at the first method that returns usable data.
+fetch_strategy:
+  depositaccounts.com:
+    # KNOWN: web_fetch returns HTTP 403 — the site blocks automated user-agents.
+    # Do NOT attempt web_fetch on this domain; it wastes a turn.
+    - method: web_search
+      query_template: "site:depositaccounts.com {product} rates"
+      examples:
+        - "site:depositaccounts.com best HYSA rates"
+        - "site:depositaccounts.com 6 month CD rates"
+        - "site:depositaccounts.com money market account rates"
+        - "site:depositaccounts.com reward checking accounts"
+        - "site:depositaccounts.com no penalty CD"
+      notes: "Snippets contain APYs and as-of dates; cite the DepositAccounts URL from the result."
+    - method: web_fetch
+      target: issuer_product_page
+      notes: "Individual bank / credit-union product pages generally do not block. Use these to cross-check the headline APY per rule 3 of the source policy."
+    - method: web_search
+      query_template: "site:bankrate.com OR site:nerdwallet.com OR site:doctorofcredit.com {product} rates"
+      notes: "LAST RESORT only — explicitly note the fallback in the report's source footer."
+    - method: stop
+      notes: "If web_search is also unavailable in this runtime, STOP and tell the user. Never fabricate APYs from memory."
+  issuer_mmf_pages:
+    - method: web_fetch
+      target: "fund issuer's 7-day-yield page (Vanguard / Fidelity / Schwab)"
+      notes: "Usually unblocked. Required source for MMF yields + net expense ratio + year-end USGO%."
+  treasurydirect.gov:
+    - method: web_fetch
+      target: "https://www.treasurydirect.gov/auctions/auction-query/"
+      notes: "Usually unblocked. Required source for T-bill auction results / current yields."
+    - method: web_fetch
+      target: "brokerage T-bill auction page (Fidelity / Schwab / Vanguard fixed-income center)"
+      notes: "Fallback for users who prefer brokerage auction over TreasuryDirect."
+
+# How specialists must apply these defaults (enforcement rules):
+#
+#   1. For any "best / top / highest" rate on HYSA, MMA, CDs (incl. no-penalty
+#      and bump-up), reward-checking, or credit-union specials → query
+#      `preferred_sources.deposit_rates` FIRST, before Bankrate, NerdWallet,
+#      DoctorOfCredit, Investopedia, or any other aggregator. ⚠️ DO NOT use
+#      `web_fetch` on depositaccounts.com — it returns HTTP 403 (the site
+#      blocks scrapers). Use `web_search` with `site:depositaccounts.com
+#      <product> rates` instead (see `fetch_strategy.depositaccounts.com`
+#      above for the full fallback chain).
+#   2. Cite the DepositAccounts.com URL (category page or product page) in the
+#      OUTPUT REPORT, with the as-of timestamp shown on that page, and tag the
+#      figure `[UNSOURCED — verify on issuer page]`. Deposit rates change daily.
+#   3. Cross-check the headline APY on the bank or credit-union's OWN product
+#      page before recommending action. If the issuer page disagrees, quote the
+#      issuer figure as live and note the DepositAccounts figure as indexed.
+#   4. Money-market mutual funds are out of scope for DepositAccounts. Use
+#      `preferred_sources.mmf_yields` (the fund issuer's 7-day-yield page) and
+#      cite that URL. Make the FDIC-vs-SIPC distinction explicit when
+#      contrasting MMFs with deposit accounts.
+#   5. Treasury bills are out of scope for DepositAccounts. Use
+#      `preferred_sources.treasuries` or the brokerage's T-bill auction page.
+#   6. One-off override ("use Bankrate instead this time" or any other named
+#      aggregator) is turn-scoped: honor it for that single response, then
+#      revert to the default on the next deposit-rate question.
+
+# Required columns when displaying rates in any output report
+# (applies to Cash Yield Check, Emergency Fund Assessment, Sinking Funds Setup,
+# Retirement Planner cash sleeve, Life Events emergency-fund sizing):
+output_requirements:
+per_option_columns:
+  - apy_with_as_of_and_url   # the rate + as-of timestamp + DepositAccounts URL + issuer URL
+  - expense_ratio            # n/a for deposits; prospectus net-expense for MMFs (SPAXX 0.42%, VMFXX 0.11%, SWVXX 0.34%, VUSXX 0.09%); ETF net-expense for T-bill ETFs (SGOV 0.09%, BIL 0.135%)
+  - fed_tax_treatment        # always ordinary income; 1099-INT (deposits/T-bills) or 1099-DIV (MMFs)
+  - state_tax_treatment      # HYSA/MMA/CD → fully state-taxable; Treasury MMFs / T-bill ETFs / direct T-bills → state-tax-free (IRC §103); prime MMFs → partial via USGO% (issuer publishes year-end breakdown; CA/NY/CT require ≥50% USGO for pass-through)
+  - after_tax_apy            # APY × (1 − fed_marginal − state_marginal × (1 − usgo_pct_if_applicable))
+  - insurance                # FDIC / NCUA / SIPC / "US govt full faith & credit"
+  - min_to_earn_apy
+  - monthly_fee_and_waiver
+  - tier_cap_and_blended_apy
+  - access_mechanics         # ACH only / debit / ATM network / checks / mobile deposit / T+1 settlement
+  - eligibility_friction     # credit-union field-of-membership / state / employer
+  - notes_and_gotchas        # teaser-rate cliff / post-promo APY / tier traps / early-withdrawal penalty / account-closing fees
+required_sections:
+  - source_footer            # "Primary source: DepositAccounts.com (<URL>), as-of <timestamp>"; name any one-off override here
+  - after_tax_comparison     # side-by-side table so the user sees the after-tax winner (often differs from headline-APY winner in CA / NY / OR / HI / NJ / MN brackets)
+  - considerations           # tax treatment by state, liquidity vs yield, insurance type, $250k FDIC cap, reinvestment risk, 1099 reporting
+  - notes                    # specialist notes on this user's specific shortlist
+  - what_this_is_not         # "rate survey, not a recommendation; verify on issuer site"
+  - next_step                # friendly-named follow-up skill
+
+# Saved: 2026-05-27
+
+# ─────────────────────────────────────────────────────────────────────────
+# REPORT QUALITY RULES — served by the `md_report_quality` tool
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Every user-facing deliverable produced by any Money Desk specialist
+# (rebalance plan, portfolio review, tax analysis, retirement readiness,
+# budget, debt plan, insurance review, estate summary, real-estate
+# underwrite, etc.) MUST follow these defaults unless the user explicitly
+# overrides on the current turn.
+#
+# DEFAULT behavior: render the deliverable as Markdown **inline in chat**.
+# Do NOT write any file by default. At the END of the deliverable, OFFER
+# additional formats (PDF / DOCX / XLSX / HTML) and only produce them if
+# the user accepts. The 4 renderer scripts shipped with the extension
+# (extensions/money-desk/renderers/) are copied to ./reports/_renderers/
+# on first use in the CWD.
+report_quality:
+
+  # 0. AUTHORITATIVE OUTPUT DESTINATION (added 0.18.0)
+  #
+  # This block is the single source of truth for *where* deliverables go and
+  # *whether* the agent may write them at all. md_report_quality returns
+  # this block as a JSON object at the very top of its response; the agent
+  # must obey the JSON object, NOT free-text path conventions that may
+  # appear in older SKILL.md prose.
+  #
+  # The hard rule: NEVER write a file before md_report_quality has been
+  # called in the current turn AND the user has confirmed an explicit
+  # OFFER to export. Writing into the cwd root or any path outside
+  # `output_root` is a bug.
+  output_destination:
+    default_format: markdown_inline
+    offer_export: true
+    auto_write: false
+    pre_write_required_tool: md_report_quality
+    output_root: "./money-desk/"
+    specialist_subfolder_convention: "<specialist-slug>/"
+    filename_convention: "<specialist-slug>_<skill-slug>_<YYYYMMDD>_<HHMM>.<ext>"
+    legacy_root: "./reports/"   # files saved under the prior convention may still exist; new writes use output_root
+    notes:
+      - "<specialist-slug> is the kebab-case folder name under specialists/, e.g. purchase-advisor, real-estate-investor, retirement-planner."
+      - "<skill-slug> is the kebab-case skill folder name, e.g. rent-vs-buy, mortgage-strategy-review, withdrawal-strategy."
+      - "<YYYYMMDD>_<HHMM> uses the user's local clock (24h)."
+      - "Always save the source markdown alongside any rendered format, with the same stem."
+      - "For what-if scenarios append _scenario_<label> before the extension so prior runs are preserved."
+
+  # 1. Output formats — pick the right one for the deliverable
+  output_formats:
+    default: markdown_inline_only
+    auto_write_files: false
+    offer_at_end: [pdf, docx, xlsx, html]
+    triggers:
+      pdf:   ["save it as pdf", "pdf please", "polished pdf", "export pdf"]
+      xlsx:  ["spreadsheet", "excel", "model it", "what-if grid", "xlsx"]
+      docx:  ["word doc", "draft for my cpa", "share with spouse", "docx"]
+      html:  ["dashboard", "interactive", "publish", "send link", "html"]
+    multi_format: "If the user asks for several formats, produce all of them from the SAME source markdown."
+
+  # File naming (only used when a file IS being saved)
+  file_naming:
+    pattern: "./money-desk/<specialist-slug>/<specialist-slug>_<skill-slug>_<YYYYMMDD>_<HHMM>[_scenario_<label>].<ext>"
+    legacy_pattern: "./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>"
+    always_save_source_markdown: true
+    never_overwrite_scenarios: "Append _scenario_<label> rather than overwriting a prior file."
+
+  # 2. Rendering engines — use these exact stacks, no improvising
+  renderers:
+    install_location: "./money-desk/_renderers/"
+    install_note: "Copy the four scripts from extensions/money-desk/renderers/ into ./money-desk/_renderers/ on first use in this CWD; do not rewrite them per task."
+    pdf:
+      stack: "Playwright + Chromium (NEVER xhtml2pdf, reportlab, pdfkit, weasyprint)"
+      install: "pip install playwright markdown2 && python -m playwright install chromium"
+      script: "./money-desk/_renderers/make_pdf.py"
+    html:
+      stack: "Same Chromium pipeline; standalone self-contained .html (inline CSS, no external links); printable AND viewable"
+      install: "pip install markdown2"
+      script: "./money-desk/_renderers/make_html.py"
+    xlsx:
+      stack: "openpyxl"
+      install: "pip install openpyxl"
+      script: "./money-desk/_renderers/make_xlsx.py"
+      sheets: [Summary, Inputs, Analysis, Scenarios, Assumptions]
+      formula_rule: "Use real formulas (=SUM, =IF, =NPV, =FV, =PMT) — not pre-computed values — so the user can adjust inputs and see results update."
+    docx:
+      stack: "python-docx"
+      install: "pip install python-docx"
+      script: "./money-desk/_renderers/make_docx.py"
+      style_rule: "Use real Word styles (Heading 1/2/3, Title, Quote, List Bullet) — never hand-roll bold runs to fake structure. Include a TOC field for docs > 3 pages."
+
+  # 3. Visual styling — consistent brand across all formats
+  brand:
+    colors:
+      primary:        "#1a4d8f"  # H1/H2, table headers, banners
+      accent_green:   "#2e7d32"  # gains, "on track"
+      warning_amber:  "#d4a017"  # caveats, open items
+      risk_red:       "#c0392b"  # concentration risk, urgent action
+      row_stripe:     "#f5f7fb"
+      value_green:    "#e2efda"  # XLSX dashboard "Value" cell highlight
+      callout_peach:  "#fcefe1"  # PDF/HTML callout / verdict box (XLSX uses #FCE4D6)
+      subtitle_gray:  "#595959"  # italic subtitle beneath banners
+      border_gray:    "#bfbfbf"  # XLSX dashboard cell borders
+    fonts:
+      body:  "Segoe UI / Helvetica, 10.5pt (PDF/HTML), 11pt (DOCX)"
+      table: "9.5pt"
+    layout:
+      paper:   "Letter"
+      margins: "0.55in all sides"
+    footer: "Money Desk — <Specialist> · Page X of Y · <YYYY-MM-DD>"
+    callouts:
+      caveat:      "amber blockquote, ⚠️ icon"
+      opportunity: "green blockquote, 🟢 / 💡 icon"
+      risk:        "red blockquote, 🔴 icon"
+    # Dashboard layout primitives (PDF/HTML CSS classes + XLSX cell styles).
+    # PDF/HTML — wrap content in <div class="..."> for branded rendering:
+    #   - executive-summary: light-blue panel for the TL;DR section
+    #   - kpi-grid + kpi (with .label / .value / .note): KPI card row
+    #   - callout (or callout.green / callout.amber): peach/green/amber emphasis box
+    #   - verdict: prominent peach verdict box at the end of a report
+    #   - note: italic gray inline note
+    # XLSX (cell_spec.style values, see renderers/README.md):
+    #   - banner / section_banner: full-width primary-blue title row (merge across columns)
+    #   - subtitle: italic gray caption beneath a banner
+    #   - header: column header with primary-blue fill and thin border
+    #   - metric / value_highlight / threshold / status: bordered dashboard row cells
+    #     (value_highlight uses the light-green fill for "current value" emphasis)
+    #   - callout: peach-filled bold-red verdict cell (merge across columns)
+    # XLSX dashboard sheets also support: column_widths, row_heights, merges,
+    # per-cell merge: "A1:D1", and border: true for ad-hoc cells.
+
+  # 4. Content structure — every report, every format, in this order
+  standard_sections:
+    - "1. Title + prepared date + specialist + total scope ($, accounts, period)"
+    - "2. Client profile / intake echo (so the user verifies inputs)"
+    - "3. Headline findings — top 3–5 in a severity-ranked table"
+    - "4. Detailed analysis (H2 per theme)"
+    - "5. Before / After comparison table"
+    - "6. Prioritized recommendations (🔴 / 🟠 / 🟡 severity)"
+    - "7. Action checklist with empty `[ ]` boxes the user can tick"
+    - "8. Open items / assumptions / what to verify"
+    - "9. Disclaimer footer (Money Desk standard wording)"
+
+  # 5. Table & data hygiene
+  table_rules:
+    first_column_header_required: "Every table's column-1 header MUST have a non-empty label. WRONG: `| | A | B |`. RIGHT: `| Dimension | A | B |`."
+    max_columns: 7
+    long_prose: "Cell content ≤ ~40 chars; put long prose in bullets BELOW the table."
+    numeric_alignment: "Right-align numeric columns (`|---:|`)."
+    currency: "$1,234,567 (no decimals for amounts > $1k unless precision matters)"
+    percentages: "one decimal (12.3%); use pp for changes (+5pp)"
+    xlsx_number_formats: "Apply real cell number formats ($#,##0 / 0.0%) — never strings."
+    docx_tables: "Real Word tables, not text grids."
+    html_tables: "Semantic <table><thead><tbody>; ARIA labels for accessibility."
+
+  # 6. Citations — every figure traceable
+  citation_tags:
+    user_provided:  "[USER-PROVIDED]"
+    fact:           "[<Friendly Source Label>]  (from md_facts; e.g. [IRS 2026 limits])"
+    assumption:     "[ASSUMPTION: <value>]"
+    unsourced:      "[UNSOURCED]  (only after calling md_facts first)"
+    pdf_docx: "Tags appear inline in the prose."
+    xlsx:     "Add a 'Source' column to every table."
+    html:     "Tags render as hover tooltips."
+
+  # 7. What-if scenarios
+  scenarios:
+    reuse_prior_intake: true
+    file_naming_suffix: "_scenario_<label>"
+    overwrite_prior_scenario: false
+    include_change_table: "Top-of-document 'Scenario Change' table comparing prior vs new inputs."
+    xlsx_layout: "Scenarios live on separate sheets, sharing the Inputs sheet via formulas, so editing one cell updates all scenarios."
+
+  # 8. Self-verification — REQUIRED before declaring done.
+  # Bug class prevented (May 2026): a shipped Rent vs Buy workbook had a
+  # Summary cell pointing at the Notes free-text column. openpyxl never
+  # evaluates formulas, so the broken file passed the agent's self-checks
+  # and the user opened it to a #VALUE!. The two new REQUIRED gates below
+  # — pre-save formula linter + post-save headless recalculation — close
+  # that gap. They are the default-on behavior of make_xlsx.py and are
+  # bypassed only when the agent is explicitly debugging with --no-validate.
+  self_verification:
+    - "Report full file path + size for each format produced."
+    - "For PDF/HTML: confirm no table cell wraps to < 3 chars/line; if it does, re-flow and re-render BEFORE telling the user."
+    - "For XLSX: for every cell listed in the deliverable's headline_findings, independently recompute the value in Python and assert agreement within 1%. Bug class prevented: a shipped Rent vs Buy workbook had Monthly P&I pointing at the wrong Inputs cell (B6 holding-horizon instead of B4 mortgage-term) — off by 75% — and BUY/RENT cells pointing at the same source. 'At least one formula evaluates' did not catch either."
+    - "REQUIRED for XLSX (a): post-render headless recalculation pass. After saving, re-open the workbook through a real calc engine — LibreOffice headless on Linux/Mac (`soffice --headless --calc --convert-to xlsx`), Excel COM on Windows (`win32com.client.DispatchEx('Excel.Application')`), or the Python `formulas` package as last resort — then re-load with `data_only=True` and FAIL the build if any cell evaluates to #VALUE!, #REF!, #DIV/0!, #NAME?, #NUM!, or #N/A. openpyxl alone does NOT evaluate formulas, so this gate is mandatory; `make_xlsx.py` calls `validate_workbook(out)` by default."
+    - "REQUIRED for XLSX (b): pre-save formula linter. Before the workbook is written, scan every numeric formula (anything containing PMT/FV/PV/NPV/IRR/SUM/AVERAGE/MIN/MAX/PRODUCT/COUNT/SUMIF/ROUND/ABS/MOD/POWER/SQRT/XIRR/XNPV or arithmetic operators +-*/^%) and REJECT if any operand or named-range target lands in a column whose `style: \"header\"` cell value is Notes / Source / Citation / Comment / empty. This is the lint that would have blocked the original Notes-column #VALUE! bug. `make_xlsx.py` calls `lint_formulas(spec)` by default."
+    - "When both markdown and XLSX/DOCX are produced, diff every headline figure across formats; abort and re-render if any pair differs by more than 1%."
+    - "Flag any case where two differently-labeled cells in the same table evaluate to identical values — this is almost always a reference-pointing bug (as in the Rent vs Buy Summary B5/B6 case where BUY and RENT net worth both displayed $1,327,980)."
+    - "REQUIRED: use the canonical XLSX templates shipped under specialists/<name>/skills/<skill>/template.xlsx.json whenever one exists for the skill. Templates declare named ranges and pre-wire formulas; the agent fills values and narrative cells, never raw A1 coordinates. If no template exists for a skill, author the new spec WITH named_ranges, run `lint_formulas` and `validate_workbook` locally, and ship the canonical template alongside the report. (Promoted from 'preferred' to REQUIRED in 0.17.0.)"
+    - "For DOCX: confirm the TOC (if used) was generated and styles are applied."
+    - "If any verification fails, fix silently and re-render before responding."
+
+  # 9. Analysis-only guardrail (unchanged)
+  guardrail: "Reports describe analysis and recommended actions only. They NEVER place trades, transfers, contributions, withdrawals; never file returns or submit forms; never sign or send documents. The user takes every final action. The disclaimer footer must appear on every deliverable in every format."
+
+  # How to override on a single turn (turn-scoped, not persisted)
+  override_examples:
+    - "save it as pdf and docx"
+    - "skip the offer, just give me markdown"
+    - "use Bankrate instead this time"  # source override (see preferred_sources)
+    - "model it in excel with real formulas"
+

@@ -1,0 +1,313 @@
+# Money Desk — Sources of truth (served by the `md_sources` tool)
+#
+# This file is a curated map from "what Money Desk specialists need" to
+# "which authoritative public sources answer it" — and which Model Context
+# Protocol (MCP) servers can supply those numbers in a Copilot CLI session.
+#
+# Money Desk itself has NO network code. Whether any of the MCP servers
+# named below are actually reachable depends on the user's Copilot CLI
+# `mcp` configuration. This file only documents WHICH servers Money Desk
+# RECOMMENDS the user wire up to improve answer accuracy.
+#
+# Privacy posture (non-negotiable — see PRIVACY.md for full text):
+#   - Tier 1 MCP queries are PUBLIC-DATA-ONLY. They never carry user
+#     balances, account numbers, names, addresses, or SSNs.
+#   - Tier 2 / 3 MCPs are OPT-IN per project; same no-PII rule applies.
+#   - If a number has a Tier-1 source and that source is unreachable,
+#     specialists must say `[UNSOURCED]` — never invent the value.
+
+# ─────────────────────────────────────────────────────────────────────────
+# Tier 1 — Public, free, government-grade. Recommended by default.
+# ─────────────────────────────────────────────────────────────────────────
+tier_1:
+  fred:
+    name: FRED — Federal Reserve Economic Data
+    publisher: Federal Reserve Bank of St. Louis
+    url: https://fred.stlouisfed.org/
+    api: https://fred.stlouisfed.org/docs/api/fred/
+    mcp:
+      - "Community FRED MCP servers (search the MCP Registry for `fred` / `economic data`)"
+    provides:
+      - 10-Year Treasury yield (DGS10), 2Y (DGS2), 3M (DGS3MO), 30Y (DGS30)
+      - Effective Fed Funds Rate (DFF), target range (DFEDTARU / DFEDTARL)
+      - 30-Year Fixed Mortgage Rate, US average (MORTGAGE30US, weekly)
+      - CPI All-Urban (CPIAUCSL), Core CPI (CPILFESL), PCE (PCEPI)
+      - Unemployment rate (UNRATE), GDP, real GDP
+      - S&P 500 closing levels, Shiller PE
+    cite_as: "[FRED:<series_id>@<as-of-date>]"
+    privacy: public-data-only — query by series id, no PII transmitted.
+    helps:
+      md_ds: current Fed funds, prevailing APRs context
+      md_pa: 30-Year Fixed Mortgage Rate for buy-vs-rent / refinance math
+      md_re: mortgage rates + Treasury benchmarks for cap-rate context
+      md_rp: long-horizon CPI for inflation modeling
+      md_fl: SWR backbone (DGS10 + CPIAUCSL + Shiller PE)
+      md_fi: same as md_fl
+      md_ci: Treasury yields as benchmark for HYSA / MMF / T-bill
+      md_ed: long-horizon CPI / college-cost CPI
+      md_iv: index returns + Treasury yields as risk-free anchor
+
+  sec_edgar:
+    name: SEC EDGAR
+    publisher: U.S. Securities and Exchange Commission
+    url: https://www.sec.gov/edgar
+    api: https://www.sec.gov/edgar/sec-api-documentation
+    mcp:
+      - "SEC EDGAR MCP (community; search MCP Registry for `sec-edgar`)"
+    provides:
+      - 10-K / 10-Q / 8-K / 20-F / Form 4 (insider trades) for any public co.
+      - Mutual-fund / ETF prospectuses (N-1A, N-CSR) → expense ratios, holdings, AUM
+      - Proxy statements (DEF 14A) → exec comp + governance
+    cite_as: "[SEC EDGAR:<filing-type> <filer> <accession-no>]"
+    privacy: public-data-only — query by ticker / CIK; no PII transmitted.
+    helps:
+      md_iv: ETF / mutual-fund expense ratios + holdings for Fund Expense Audit
+      md_in: same as md_iv
+      md_nw: confirm fund net-expense for net-worth-tracker fund-fee drag
+
+  treasurydirect:
+    name: TreasuryDirect
+    publisher: U.S. Department of the Treasury
+    url: https://www.treasurydirect.gov/
+    auctions: https://www.treasurydirect.gov/auctions/auction-query/
+    mcp:
+      - "TreasuryDirect / fiscal-data MCPs (community; search for `treasury` / `treasurydirect`)"
+    provides:
+      - Current I-bond composite rate + fixed-rate component (May & Nov resets)
+      - EE-bond fixed rate + 20-year doubling rule
+      - T-bill auction yields (4-week / 8-week / 13-week / 17-week / 26-week / 52-week)
+      - T-note + T-bond auction results
+    cite_as: "[TreasuryDirect:<bond-or-cusip>@<as-of-date>]"
+    privacy: public-data-only — auction queries take no PII.
+    helps:
+      md_ci: most-asked "current I-bond rate?" question; T-bill auctions for sweep alternatives
+      md_fl: I-bonds as inflation-linked sleeve in withdrawal strategy
+      md_iv: T-bills as risk-free reference
+
+  bls:
+    name: BLS — Bureau of Labor Statistics
+    publisher: U.S. Department of Labor
+    url: https://www.bls.gov/
+    api: https://www.bls.gov/developers/
+    mcp:
+      - "Community BLS MCPs (often subsumed by FRED — prefer FRED for the same series)"
+    provides:
+      - CPI, Core CPI, regional CPI
+      - College tuition CPI (CUUR0000SEEB01)
+      - Wage / earnings indices
+    cite_as: "[BLS:<series_id>@<as-of-date>]"
+    privacy: public-data-only.
+    helps:
+      md_ed: college-cost CPI for projection horizon
+      md_fl: backup CPI source if FRED is unreachable
+      md_rp: inflation modeling
+
+  govt_fetch:
+    name: Government-domain `fetch` / `playwright` MCP (allow-listed)
+    publisher: Various U.S. government agencies (irs.gov, ssa.gov, cms.gov, fafsa.ed.gov, state DORs)
+    mcp:
+      - "Anthropic `fetch` MCP server (https://github.com/modelcontextprotocol/servers)"
+      - "playwright-mcp (community)"
+    provides:
+      - IRS publications (current tax brackets, contribution limits, RMD tables, Pub 590-A/B/15-T)
+      - SSA pages (bend points, FRA chart, COLA, earnings test, Form SSA-7004)
+      - CMS Medicare premium / IRMAA bracket pages
+      - FAFSA / studentaid.gov rules + thresholds
+      - State DOR pages for state-level brackets / 529 deduction rules
+    cite_as: "[<agency>:<page-title>@<URL>] e.g. [IRS:Pub 590-A@irs.gov/pub/irs-pdf/p590a.pdf]"
+    privacy: |
+      public-data-only. Fetch by URL; never include user PII in the URL or
+      query string. Use an allow-list scoped to `*.gov` (and a small set of
+      pre-approved publishers) to avoid arbitrary-URL exfiltration.
+    helps:
+      md_tx: live IRS pubs (cross-check `md_facts` for the current tax year)
+      md_se: SSA bend points / FRA / COLA when `md_facts` lags
+      md_rp: RMD age + table updates
+      md_ed: 529 / FAFSA rule changes
+      md_le: state-specific legal / probate references
+      md_el: federal estate / gift exemption updates
+      md_re: federal real-estate-tax rule updates (§121, §1031, depreciation)
+
+# ─────────────────────────────────────────────────────────────────────────
+# Tier 2 — Public APIs / commercial free tier. Opt-in per project.
+# ─────────────────────────────────────────────────────────────────────────
+tier_2:
+  market_data:
+    name: Equity / ETF / index market data
+    candidates:
+      - "Yahoo Finance MCP (community)"
+      - "Polygon.io MCP"
+      - "Alpha Vantage MCP"
+      - "Tiingo MCP"
+      - "OpenBB Platform MCP"
+    provides:
+      - Real-time + historical equity / ETF / index quotes
+      - Fundamentals, dividends, splits
+    cite_as: "[<provider>:<ticker>@<as-of-timestamp>]"
+    privacy: |
+      Queries name tickers, not user holdings. Do NOT batch the user's full
+      portfolio in one query if it would meaningfully reveal holdings to
+      the provider; prefer per-ticker calls or hash the request.
+    helps:
+      md_iv: quotes + fundamentals for portfolio review and rebalance
+      md_in: same as md_iv
+      md_nw: live equity prices for net-worth snapshot
+      md_fl: long-run historical returns
+
+  crypto:
+    name: Crypto market data
+    candidates:
+      - "CoinGecko MCP"
+      - "CoinMarketCap MCP"
+    provides: crypto prices / market caps
+    privacy: same as market_data; tickers only.
+    helps:
+      md_iv: crypto sleeve in portfolio review (only if user holds crypto)
+      md_nw: crypto valuation in net-worth snapshot
+
+  web_search:
+    name: Authoritative web search (citation-grade)
+    candidates:
+      - "Brave Search MCP"
+      - "Tavily MCP"
+      - "Exa MCP"
+      - "Perplexity MCP"
+    provides: search results constrained to user-curated domains for citation backing
+    privacy: |
+      Queries should NEVER include user-identifiable data. Use this only
+      to find authoritative sources for general facts (e.g., "site:irs.gov
+      2026 401k limit"), not to ask questions about the user's situation.
+    helps_all: fallback citation tool for any specialist when Tier 1 doesn't cover a question
+
+# ─────────────────────────────────────────────────────────────────────────
+# Tier 3 — Useful but with caveats. Evaluate per project.
+# ─────────────────────────────────────────────────────────────────────────
+tier_3:
+  real_estate:
+    name: Residential real-estate comps / rents
+    candidates:
+      - "Zillow / Redfin / Realtor.com community MCPs (most are unofficial scrapers)"
+      - "RentCast / similar paid APIs"
+    caveat: |
+      Most are unofficial scrapers; ToS questions exist. Prefer the user's
+      own MLS / agent-provided comps for serious decisions. If used, scope
+      queries to ZIP / city, not a specific user-owned address.
+    helps:
+      md_pa: ballpark home prices for purchase advisor
+      md_re: ballpark rents and comps for rental analyzer
+
+  filesystem:
+    name: Local filesystem MCP (scoped)
+    candidates:
+      - "Anthropic `filesystem` MCP (https://github.com/modelcontextprotocol/servers)"
+    caveat: |
+      OK if scoped to a specific working directory (e.g. `./statements/`
+      and `./reports/`). NEVER configure the filesystem MCP at root or
+      home — that would let any prompt read sensitive files outside the
+      session's intent. Money Desk's prompts already treat statements as
+      untrusted input; the filesystem MCP just makes them readable.
+    helps_all: lets specialists ingest user-supplied PDFs / 1099s / brokerage statements without copy-paste.
+
+  plaid:
+    name: Plaid / bank-connection MCP
+    not_recommended: |
+      Plaid requires the user to share live bank credentials with a third
+      party. Money Desk's analysis-only posture is intentionally more
+      conservative — never wire Plaid into a default Money Desk install.
+      Acceptable only for users who have independently chosen Plaid and
+      understand the data flow.
+
+# ─────────────────────────────────────────────────────────────────────────
+# Per-specialist quick-reference (which Tier-1 sources to consult first)
+# ─────────────────────────────────────────────────────────────────────────
+specialists:
+  md_bc:  # Budget Coach
+    primary: [fred (CPIAUCSL for inflation context)]
+    notes: Mostly user-data driven; consult `md_preferences` first for deposit-rate sources.
+  md_tx:  # Tax Planner
+    primary: [govt_fetch (irs.gov), md_facts]
+    notes: Always call `md_facts` FIRST for current-year limits / brackets.
+  md_iv:  # Investing Advisor
+    primary: [sec_edgar, fred (DGS10/Shiller PE), market_data (opt-in)]
+    notes: SEC EDGAR for fund expense ratios; FRED for risk-free anchors.
+  md_rp:  # Retirement Planner
+    primary: [md_facts, fred (CPIAUCSL), govt_fetch (ssa.gov, irs.gov)]
+    notes: Use `md_facts` for current-year contribution + RMD rules.
+  md_ds:  # Debt Strategist
+    primary: [fred (DFF, MORTGAGE30US), govt_fetch (consumerfinance.gov)]
+    notes: Quote prevailing-rate context, not specific lender APRs.
+  md_ci:  # Credit & Identity
+    primary: [govt_fetch (consumerfinance.gov, ftc.gov, identitytheft.gov)]
+    notes: Mostly user-data driven; PII-masking takes precedence over data sourcing.
+  md_ih:  # Health & Medicare
+    primary: [md_facts, govt_fetch (cms.gov, medicare.gov, healthcare.gov)]
+    notes: IRMAA + Medicare premium tables move yearly — verify against CMS.
+  md_pc:  # Property & Casualty
+    primary: [govt_fetch (state DOI sites)]
+    notes: Largely product-specific; rely on user-provided declarations pages.
+  md_lp:  # Life & Disability
+    primary: [govt_fetch (ssa.gov for survivor / disability rules)]
+    notes: For policy specifics, rely on user-provided illustration / contract.
+  md_el:  # Estate & Legacy
+    primary: [md_facts, govt_fetch (irs.gov for estate / gift, state probate)]
+    notes: Federal exemptions yearly; state estate-tax thresholds vary.
+  md_pa:  # Purchase Advisor
+    primary: [fred (MORTGAGE30US), real_estate (Tier 3)]
+    notes: Use FRED for the macro mortgage rate; user-supplied quotes for the actual loan.
+  md_ed:  # Education Planner
+    primary: [bls (college CPI), md_facts (529 / FAFSA), govt_fetch (state 529 sites)]
+    notes: Rules vary by state — always re-verify state 529 deductibility.
+  md_nw:  # Net Worth & Goals
+    primary: [market_data (opt-in), sec_edgar]
+    notes: Equity / ETF prices via market-data MCP if wired; else user-supplied.
+  md_se:  # Self-Employed Planner
+    primary: [md_facts, govt_fetch (irs.gov for SE-tax + retirement-plan rules)]
+    notes: SEP / Solo-401k limits via `md_facts`; entity-specific rules per IRS.
+  md_le:  # Life Events
+    primary: [govt_fetch (ssa.gov, irs.gov, fafsa.ed.gov)]
+    notes: Cross-specialist; defer to the underlying specialist's primary source.
+  md_re:  # Real Estate Investor
+    primary: [fred (MORTGAGE30US, DGS10), govt_fetch (irs.gov §121/§1031), real_estate (Tier 3)]
+    notes: Cap-rate / DCR analysis uses live-rate inputs; tax rules from IRS.
+  md_bh:  # Behavioral Coach
+    primary: []
+    notes: Behavioral / framing skills — minimal numeric data; no MCP needs.
+  md_in:  # International / Expat
+    primary: [md_facts (FEIE / FBAR), govt_fetch (irs.gov, treasury.gov, state.gov)]
+    notes: Country-specific tax-treaty articles via govt_fetch.
+  md_fl:  # FIRE Planner
+    primary: [fred (DGS10, CPIAUCSL, S&P 500), bls (CPI), treasurydirect (I-bonds)]
+    notes: SWR / withdrawal-order skills are the biggest beneficiaries of FRED.
+  md_fi:  # Financial Literacy (note: prefix `md_fi` is Financial Literacy in this registry)
+    primary: []
+    notes: Glossary / explainer skills — no live-data MCP needed.
+
+# ─────────────────────────────────────────────────────────────────────────
+# Privacy contract (every MCP recommendation MUST honor this)
+# ─────────────────────────────────────────────────────────────────────────
+privacy_contract:
+  rule_1_no_pii_to_third_party: |
+    Never include user names, addresses, account numbers, balances, SSNs,
+    or specific dollar amounts that can identify the user in any query
+    sent to a Tier-2 or Tier-3 MCP server. Tier-1 government MCPs accept
+    only public-data identifiers (FRED series id, SEC ticker / CIK,
+    Treasury CUSIP, gov URL) and so do not have a PII-leak surface area
+    by construction.
+  rule_2_default_install_is_government_only: |
+    A fresh `md install` SHIPS NO MCP wiring. The recommended starter
+    config is FRED + SEC EDGAR + TreasuryDirect + BLS + a `.gov`-scoped
+    `fetch` MCP — all public, all free, none receive user data.
+  rule_3_user_opt_in_for_tier_2_and_3: |
+    Market-data, web-search, real-estate, and filesystem MCPs are opt-in.
+    The user wires them via their Copilot CLI `mcp` config; Money Desk
+    never auto-enables them.
+  rule_4_cite_or_refuse: |
+    If a number has a Tier-1 source and that source is unreachable in
+    the current session (because the user hasn't wired the MCP), the
+    specialist MUST mark the figure `[UNSOURCED]` and offer to retry once
+    the source is configured. NEVER fabricate a figure.
+  rule_5_existing_no_network_promise_unchanged: |
+    Money Desk's own runtime makes ZERO outbound network calls. Any
+    network traffic introduced by an MCP server is the MCP server's
+    responsibility, governed by Copilot CLI's MCP configuration, and
+    visible in the user's MCP logs. See PRIVACY.md for full data-flow.
