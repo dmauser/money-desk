@@ -22,9 +22,10 @@ description: For each named savings goal (home down payment, wedding, sabbatical
 ## Workflow
 
 1. **Time-horizon bucket each goal.**
-   - **< 2 years** — capital preservation. Assumed return: HYSA / T-bill rate (cite current).
-   - **2–5 years** — conservative blend. Assumed return: 3–4% real (state explicitly).
-   - **5+ years** — equity-heavy. Assumed return: 5–6% real.
+   - **< 2 years** — capital preservation. Assumed return: current HYSA / T-bill rate (cite it) minus `md_facts` inflation.
+   - **2–5 years** — conservative 40/60 blend. Assumed real return built from `md_facts` equity and bond real-return defaults (state explicitly).
+   - **5+ years** — equity-heavy 80/20. Assumed real return built from the same `md_facts` defaults.
+   - Exact formulas: Determinism rules step 3.
 2. **Compute required monthly contribution** for each goal.
    - PMT formula: PMT = (FV − PV × (1+r)^n) × r / ((1+r)^n − 1), where r = monthly rate, n = months.
    - Show the formula inputs in the report (FV, PV, r, n).
@@ -36,8 +37,8 @@ description: For each named savings goal (home down payment, wedding, sabbatical
    - Show the user the trade-offs explicitly; don't pick for them.
 5. **Account/allocation recommendation per goal:**
    - Short-horizon: HYSA, named sub-account ("Wedding 2026").
-   - Mid-horizon: brokerage with 40/60 or 60/40 allocation, low-cost index funds.
-   - Long-horizon: brokerage with ~80/20 allocation; if 10+ years, often eligible to share allocation with retirement assets via Investing Advisor.
+   - Mid-horizon: brokerage with 40/60 equity/bond allocation, low-cost index funds.
+   - Long-horizon: brokerage with 80/20 equity/bond allocation; if 10+ years, often eligible to share allocation with retirement assets via Investing Advisor.
 6. **Tax-account check.** Down payment can use up to $10k Roth IRA earnings penalty-free for first-time-buyer (lifetime); for other goals, taxable usually correct.
 
 ## Required citations
@@ -57,11 +58,94 @@ Markdown report `./money-desk/net-worth-goals/goal-plan-<YYYYMMDD>.md`:
 
 ## Notes
 
-- For a house down payment specifically, also include closing costs (~2–3% of price), inspection, moving, immediate-need repairs/furniture — most people under-budget the *total* cost of buying.
+- For a house down payment specifically, also include closing costs (size from the lender's Loan Estimate; ~2–3% of price is context only), inspection, moving, immediate-need repairs/furniture — most people under-budget the *total* cost of buying.
 - For a wedding, the savings goal is often only the "couple's contribution" piece; parents/in-laws may cover portions — get clarity before sizing.
 - Don't over-engineer. 3–5 active goals is realistic. Park "someday" goals on a list without a plan until the user wants to activate one.
 - For 5+ year goals that overlap with retirement-allocation needs, hand off to Investing Advisor (`md_iv_role`) — they should not be funded in a separate, redundant allocation.
 
+## Determinism rules
+
+### Input keys
+
+- `goals` — list of `{ name, target_usd, target_basis (today_dollars | future_dollars), target_yyyy_mm, saved_usd, priority (must_have | want | nice_to_have) }`
+- `monthly_capacity_usd` — number; total monthly savings capacity after taxes, essentials, EF, retirement, and debt payoff
+- `start_yyyy_mm` — first contribution month (default: next calendar month)
+- `cash_apy_pct` — number; current HYSA / T-bill yield (for goals < 24 months)
+- `first_time_homebuyer` — bool (optional; for the Roth IRA check)
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Goal amounts, dates, saved balances, priorities | **Ask — no default** | — |
+| Monthly capacity | **Ask — no default** (Budget Coach can supply it) | — |
+| Inflation | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_percent` (decimal) | `[ASSUMPTION]` |
+| Equity real return | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_percent` | `[ASSUMPTION]` |
+| Bond real return | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_bond_real_return_percent` | `[ASSUMPTION]` |
+| Cash yield (< 24-month goals) | Look up via `md_sources` / deposit-rate policy; if unavailable, 0% real (cash = inflation) | `[ASSUMPTION]` |
+| Down-payment closing costs, moving, furnishing | **Ask — no default** (size from a lender Loan Estimate; the 2–3% figure in Notes is context only) | — |
+
+### Calculation method
+
+All math is in **real (today's) dollars**.
+
+1. `n` = months from `start_yyyy_mm` to `target_yyyy_mm` inclusive. If `n` ≤ 0, the goal is "Past due — re-date".
+2. **Real target:** `today_dollars` → `FV = target_usd`; `future_dollars` → `FV = target_usd ÷ (1 + infl)^(n/12)`. `PV = saved_usd`.
+3. **Horizon bucket and annual real return `R`** (md_facts decimals):
+   - `n` < 24 → Cash: `R = cash_apy_pct/100 − infl` (0 if no cash yield is available).
+   - 24 ≤ `n` < 60 → Conservative 40/60: `R = 0.40 × equity_real + 0.60 × bond_real`.
+   - `n` ≥ 60 → Growth 80/20: `R = 0.80 × equity_real + 0.20 × bond_real`.
+4. **Monthly rate** `r = (1 + R)^(1/12) − 1`.
+5. **Required monthly** `PMT = (FV − PV × (1+r)^n) × r ÷ ((1+r)^n − 1)`; if `r` = 0, `PMT = (FV − PV) ÷ n`. If `PMT` ≤ 0 → $0 ("already funded"). Round **up** to the next whole dollar.
+6. **Aggregate:** `required_total = Σ PMT`; `surplus = monthly_capacity_usd − required_total`.
+7. **Deficit sequencing** (surplus < 0), applied in this order and shown as three separate scenarios: (a) **Extend** — push `target_yyyy_mm` of `nice_to_have`, then `want` goals (latest-dated first) one month at a time until surplus ≥ 0 or each is extended 24 months; (b) **Reduce** — scale `want` and `nice_to_have` targets pro-rata so surplus = 0; (c) **Increase capacity** — the shortfall amount to find via Budget Coach.
+8. **Account per bucket:** Cash → HYSA sub-account named for the goal; Conservative → brokerage, 40/60 equity/bond index funds; Growth → brokerage, 80/20; Growth with `n` ≥ 120 → flag for Investing Advisor to share the retirement allocation.
+9. **Roth IRA check:** only for a home down payment with `first_time_homebuyer` = true — note the $10,000 lifetime first-time-buyer exception to the 10% early-withdrawal penalty (IRC § 72(t)(2)(F); fixed by statute, not indexed); never used in the PMT math.
+10. **Rounding:** compute in cents; report whole dollars; show FV, PV, R, r, n per goal.
+
+### Decision rules
+
+Evaluate top to bottom; the first match is the plan verdict.
+
+| # | Condition | Verdict |
+|---|---|---|
+| 1 | `monthly_capacity_usd` not supplied | Sized only — required $/mo per goal; feasibility not assessed |
+| 2 | surplus ≥ 0 | Feasible — fund every goal at its PMT; surplus to the first `must_have` goal |
+| 3 | Σ PMT of `must_have` goals > `monthly_capacity_usd` | Not feasible even for must-haves — show scenarios (a)–(c) and route to Budget Coach |
+| 4 | Otherwise | Feasible with trade-offs — fund must-haves in full; present scenarios (a)–(c) for the rest; the user chooses |
+
+### Output template
+
+```markdown
+# Goal-Based Savings Plan — {YYYY-MM-DD}
+
+## Headline
+{G} goals, **${required_total}/mo** required, **${capacity}/mo** capacity. **{verdict}** (rule #{n}).
+
+## Goal table
+| Goal | Priority | Target (today $) | Target date | Months (n) | Saved | Bucket | Real return R | Required $/mo | Account |
+|---|---|---|---|---|---|---|---|---|---|
+
+## PMT inputs
+| Goal | FV | PV | R (annual real) | r (monthly) | n |
+|---|---|---|---|---|---|
+
+## Aggregate
+| Line | $/mo |
+|---|---|
+| Required total | |
+| Capacity | |
+| Surplus (deficit) | |
+
+## Scenarios
+{(a) Extend / (b) Reduce / (c) Increase capacity — or "Not applicable — plan is feasible"}
+
+## Account notes
+{Roth IRA first-time-buyer note, Investing Advisor hand-offs — or "None"}
+
+## Action checklist
+- [ ] {open sub-accounts, set auto-transfers, hand to Budget Coach}
+```
 
 ## Report Quality
 

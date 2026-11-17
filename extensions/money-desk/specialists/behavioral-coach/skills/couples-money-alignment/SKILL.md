@@ -68,8 +68,8 @@ This is the most-validated structural fix for spender / saver friction. It works
 
 ### Fight 3: "Why didn't you tell me about X?"
 - **Root**: transparency gap, often a status-script partner hiding spending from a vigilance-script partner.
-- **Fix**: monthly review automatically surfaces all transactions over a pre-committed threshold (e.g., $X). Removes the dynamic of "telling" — it just appears.
-- **Defusal**: "We have a transparency-threshold rule. Anything over $X shows up in our monthly review. That's the structure; let's stick to it."
+- **Fix**: monthly review automatically surfaces all transactions over a pre-committed dollar threshold the couple sets (no default). Removes the dynamic of "telling" — it just appears.
+- **Defusal**: "We have a transparency-threshold rule. Anything over our agreed threshold shows up in our monthly review. That's the structure; let's stick to it."
 
 ### Fight 4: "We have different priorities."
 - **Root**: actual misalignment about life goals (which is real, not just communication).
@@ -92,6 +92,81 @@ This is the most-validated structural fix for spender / saver friction. It works
 
 Structural / educational only. Not couples therapy. If conflict involves: coercive control, hidden debt being weaponized, inability of one partner to access accounts, threats — this is financial abuse and requires a licensed therapist or domestic-violence financial-empowerment counselor (in the US, National Domestic Violence Hotline 1-800-799-7233 or Allstate Foundation Moving Ahead curriculum). Do not coach through abuse.
 
+## Determinism rules
+
+### Input keys
+
+- `both_present` — boolean (false → async version)
+- `partner_a`, `partner_b` — each `{ name, net_income_monthly_usd, debt_usd, credit_score? }`
+- `shared_expenses_monthly_usd` — number (rent/mortgage, utilities, groceries, kids, insurance)
+- `personal_allowance_monthly_usd` — number, same for each partner (agreed by the couple)
+- `joint_goals` — list of `{ name, target_usd, target_yyyy_mm, monthly_usd? }`
+- `current_architecture` — `fully_joint` | `fully_separate` | `hybrid`
+- `transparency_threshold_usd` — number (agreed by the couple)
+- `recent_friction` — free text, or `none`
+- `prior_agreements` — list (prenup / postnup / written budget), or empty
+- `abuse_indicators` — boolean (any of: coercive control, blocked account access, weaponized hidden debt, threats)
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Incomes, shared expenses | **Ask — no default** | — |
+| Personal allowance amount | **Ask — no default** (couple chooses; skill does not suggest a number) | — |
+| Transparency threshold | **Ask — no default** | — |
+| Joint-goal monthly amounts | Computed from `target_usd` and months to `target_yyyy_mm` (no growth assumed) | `[ASSUMPTION: 0% growth]` |
+
+### Calculation method
+
+1. **Safety screen first.** If `abuse_indicators = true`, stop and output only the referral (Disclaimer section). Nothing else is produced.
+2. **Proportional shares**: `share_a = a.net_income / (a.net_income + b.net_income)`; `share_b = 1 − share_a`. Round to one decimal %.
+3. **Joint-goal monthly** = `monthly_usd` if given, else `ceil(target_usd / months_until_target)`.
+4. **Joint funding need** = `shared_expenses_monthly_usd + Σ joint-goal monthly`.
+5. **Contribution per partner** = `share × joint funding need`. **Leftover per partner** = `net_income − contribution − personal_allowance_monthly_usd`. If either leftover < 0, report the shortfall and route to Budget Coach — do not adjust the shares.
+6. **Fight classification** from `recent_friction` keywords, first match in this order: Fight 3 (hid / didn't tell / surprise purchase) → Fight 2 (earn / make more / provider / power) → Fight 4 (goals / priorities / values / future) → Fight 1 (spend / bought / too much on). No match → "None identified".
+7. **Money date**: fixed 60-minute agenda (5/10/20/15/5/5) and the five ground rules, verbatim; first date = the first Sunday after the next payday unless the couple names a date.
+
+### Decision rules
+
+Evaluate top to bottom; first match wins.
+
+| # | Condition | Recommendation |
+|---|---|---|
+| 1 | `abuse_indicators = true` | Stop — financial-abuse referral only |
+| 2 | Fight 2 or Fight 4 recurring (named in ≥ 2 recent conflicts) | Schedule a values date before any money date; refer to a Financial Therapy Association therapist if Fight 2 |
+| 3 | Any leftover < 0 | Budget Coach first; architecture on hold |
+| 4 | `current_architecture = hybrid` with proportional joint funding already | Keep; add only missing pieces (transparency threshold, goals account) |
+| 5 | Otherwise | Three-bucket architecture with proportional joint funding |
+
+### Output template
+
+```markdown
+# Couples Money Alignment — {partner_a.name} & {partner_b.name}, {date}
+
+## Safety check
+{"No indicators reported" — or referral text only, and nothing below}
+
+## Recommended architecture (rule #{n})
+| Bucket | Funded by | $ / month |
+|---|---|---|
+| Joint ("ours") | A {share_a}% / B {share_b}% | |
+| Personal — {A} | A | |
+| Personal — {B} | B | |
+| Joint goal: {name} | Joint | |
+
+## Monthly transfers
+| From | To | $ | Day of month |
+|---|---|---|---|
+
+## Recurring fight + defusal
+{Fight # and script — or "None identified"}
+
+## Money date
+- First date: {date}, 60 minutes
+- Agenda: 5 numbers / 10 last month's actions / 20 topics / 15 upcoming / 5 action items / 5 appreciation
+- Ground rules: {five rules verbatim}
+- Transparency threshold: ${transparency_threshold_usd}
+```
 
 ## Report Quality
 

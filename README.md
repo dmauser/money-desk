@@ -16,7 +16,7 @@
 
 | | Section | Description |
 |---|---------|-------------|
-| 🆕 | [What's New](#-whats-new) | v0.20.0: Money Desk now runs in Claude |
+| 🆕 | [What's New](#-whats-new) | v0.21.0 deterministic skills + verified 2026 facts; v0.20.0 Claude support |
 | 🚀 | [Quick Start](#quick-start) | One-command install |
 | 💡 | [What is Money Desk?](#what-is-money-desk) | Overview and key concepts |
 | 👥 | [The Team](#the-team) | All 20 specialists at a glance |
@@ -34,6 +34,17 @@
 > 📋 **Full machine-readable capability map:** [docs/CAPABILITIES.md](./docs/CAPABILITIES.md) — auto-generated from the registry, lists every specialist, skill, and tool.
 
 ## 🆕 What's New
+
+### v0.21.0 — Deterministic skills and verified 2026 facts
+
+Same inputs now give the same report, on any model.
+
+| What | Details |
+|---|---|
+| 🎯 **Determinism rules in every skill** | All 95 skills define their input keys, where each assumption comes from, the exact calculation (formulas, rounding, tie-breaks), numeric decision thresholds, and a fixed report template. See [docs/SKILL_DETERMINISM.md](./docs/SKILL_DETERMINISM.md). |
+| ✅ **2026 facts re-verified** | Tax brackets, capital-gains ceilings, AMT, QBI, estate exemption, SALT cap, Social Security, Medicare / IRMAA, FEIE, loan limits and poverty guidelines corrected against IRS, SSA, CMS, FHFA and HHS sources. |
+| 📐 **New reference data** | IRS RMD Uniform Lifetime Table, 2026 QCD limit, single-filer brackets, Part D IRMAA. |
+| 🔗 **No dead ends** | Every tool a skill points to now exists, enforced by a test. |
 
 ### v0.20.0 — Money Desk now runs in Claude
 
@@ -844,19 +855,18 @@ money-desk/
 │       │       ├── category-audit/SKILL.md
 │       │       ├── monthly-plan/SKILL.md
 │       │       └── subscription-audit/SKILL.md
-│       ├── tax-planner/                       # …same shape…
-│       ├── investing-advisor/
-│       ├── retirement-planner/
-│       ├── debt-strategist/
-│       ├── credit-identity/
-│       ├── insurance-reviewer/
-│       ├── estate-legacy/
-│       └── purchase-advisor/
+│       └── …                                  # 20 specialists, same shape (see The Team)
+│   └── data/facts-2026.json                   # md_facts: verified 2026 limits, brackets, tables
 ├── tests/
 │   ├── manifest-consistency.test.mjs          # every tool resolves to non-empty content
 │   ├── routes.test.mjs                        # every route regex matches a canonical phrase
 │   ├── installer.test.mjs                     # CLI smoke tests against a tmp repo
-│   └── claude-plugin.test.mjs                 # plugin version sync + MCP handshake
+│   ├── claude-plugin.test.mjs                 # plugin version sync + MCP handshake
+│   ├── skill-determinism.test.mjs             # every SKILL.md has the Determinism rules section
+│   └── tool-references.test.mjs               # every md_* tool id in markdown is a real tool
+├── docs/
+│   ├── SKILL_DETERMINISM.md                   # the skill determinism standard
+│   └── CAPABILITIES.md                        # auto-generated specialist / skill / tool map
 ├── .github/
 │   ├── copilot-instructions.md                # conventions for AI agents working on this repo
 │   └── workflows/ci.yml                       # Node 18/20/22 × ubuntu/windows + npm pack

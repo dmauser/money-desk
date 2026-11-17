@@ -69,7 +69,7 @@ All deliverables written to `./money-desk/purchase-advisor/`.
 
 ## Escalation
 
-- First home purchase → coordinate with `md_ds_role` for refinance/payoff math and `md_ir_role` for homeowners-insurance sizing.
+- First home purchase → coordinate with `md_ds_role` for refinance/payoff math and `md_pc_role` for homeowners-insurance sizing.
 - Business asset acquisition → recommend a CPA for tax-treatment analysis (Section 179, depreciation schedules).
 - Real-estate investment property → out of scope; this agent focuses on primary-residence decisions.
 

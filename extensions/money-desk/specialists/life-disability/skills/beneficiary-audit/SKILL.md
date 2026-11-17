@@ -111,6 +111,91 @@ After updates, request and retain a written confirmation from each custodian. Em
 
 Analysis only. Does not change beneficiaries — that requires the user to file the form with the custodian. Trust-as-beneficiary drafting MUST go to an estate attorney; getting the see-through language wrong can convert a 10-year inherited-IRA stretch into a 5-year forced distribution at higher tax cost.
 
+## Determinism rules
+
+### Input keys
+
+- `accounts` — list of `{ name, type (401k | 403b | 457b | tsp | ira | roth_ira | sep | simple | solo_401k | hsa | pension | life_group | life_individual | annuity | tod_brokerage | pod_bank | tod_deed | 529), erisa (bool), primary: [{ name, relationship, share_pct, living (bool), is_minor (bool) }], contingent: [same], per_stirpes (bool), last_updated_yyyy_mm, verified_from_custodian (bool), successor_owner? (529 only) }`
+- `marital_status` — `single` | `married` | `divorced` | `widowed`
+- `spouse_name`, `former_spouse_names` — strings
+- `spousal_consent_on_file` — map `{ account name: bool }`
+- `children_ages` — list of integers
+- `state` — two-letter code
+- `last_life_event_yyyy_mm` — string (marriage, divorce, birth, adoption, death, inheritance)
+- `will_date_yyyy`, `trusts` — list of `{ name, drafted_yyyy, see_through_reviewed (bool) }`
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| On-file designations | **Ask — no default**; must come from the custodian form / portal, not memory. Unverified accounts are a finding, not a guess | — |
+| Community-property states | AZ, CA, ID, LA, NV, NM, TX, WA, WI (fixed list) | statute |
+| Minor | Beneficiary age < 18 (age of majority varies by state; `[UNSOURCED]` for 19/21 states unless sourced) | `[ASSUMPTION]` |
+| Stale-review threshold | `last_updated_yyyy_mm` more than 5 years before the review date | `[ASSUMPTION]` |
+
+None of the checks needs a dollar figure from `md_facts`.
+
+### Calculation method
+
+Run these checks per account, in this order; each failing check produces one finding with the fixed severity shown.
+
+1. **Unverified** — `verified_from_custodian = false` → High ("confirm the on-file designation").
+2. **Ex-spouse named** — any primary/contingent name in `former_spouse_names` → Critical (ERISA plans: state revocation statutes do not apply — Egelhoff).
+3. **ERISA spousal consent** — `erisa` and `married` and the spouse is not 100% primary and `spousal_consent_on_file[account] ≠ true` → Critical.
+4. **No living primary** — every primary has `living = false` → Critical if no living contingent, else High.
+5. **Deceased person named** (any position) → High.
+6. **Estate named** — "estate" as primary: retirement account (`401k`…`solo_401k`) → High; other types → Medium.
+7. **Minor named directly** — any beneficiary with `is_minor = true` → High (name a trust / UTMA custodian instead).
+8. **Shares don't sum** — primary `share_pct` total ≠ 100, or contingent total ≠ 100 when contingents exist → High.
+9. **Missing contingent** — no contingent → Medium.
+10. **No per stirpes** with 2+ individual primaries → Medium.
+11. **Trust beneficiary** on a retirement account with `drafted_yyyy < 2020` or `see_through_reviewed = false` → High (estate-attorney review).
+12. **Community property** — `state` in the list, `married`, and non-spouse primary on a retirement account → Medium.
+13. **HSA** — `married` and spouse is not primary → Medium.
+14. **529 successor owner** missing → Medium.
+15. **Stale** — `last_updated_yyyy_mm` earlier than `last_life_event_yyyy_mm` → High; else older than 5 years → Medium.
+16. **Will/trust consistency** — beneficiary named on the account conflicts with the will's or trust's stated plan for that asset → Medium.
+
+Sort findings by severity (Critical → High → Medium), then account name A–Z, then check number. A check whose input is missing is listed as "Not checked — {input}".
+
+### Decision rules
+
+Evaluate top to bottom; the first match is the overall verdict.
+
+| # | Condition | Verdict |
+|---|---|---|
+| 1 | No accounts supplied | No audit — build the inventory first |
+| 2 | Any Critical finding | **Urgent** — file updated forms within 30 days, Critical items first |
+| 3 | Any High finding | **Update** — file forms within 90 days; route trust items to an estate attorney |
+| 4 | Any Medium finding | **Tidy up** at the next annual review |
+| 5 | Otherwise | **Current** — no changes; re-check after the next life event |
+
+### Output template
+
+```markdown
+# Beneficiary Audit — {YYYY-MM-DD}
+
+## Headline
+Verdict: **{verdict}** (Decision rule #{n}). {count} accounts · {count} Critical · {count} High · {count} Medium.
+
+## Account inventory
+| Account | Type | ERISA | Primary (share %) | Contingent (share %) | Per stirpes | Last updated | Verified |
+|---|---|---|---|---|---|---|---|
+
+## Findings
+| # | Account | Check | Severity | Finding | Action |
+|---|---|---|---|---|---|
+
+## Trust coordination
+{trust items for estate attorney, or "Not applicable — no trust named"}
+
+## Action list
+| Priority | Account | Action | Owner |
+|---|---|---|---|
+
+## Confirmation checklist
+- [ ] Written confirmation / portal screenshot from each custodian after updates
+```
 
 ## Report Quality
 

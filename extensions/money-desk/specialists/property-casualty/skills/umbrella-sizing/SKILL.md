@@ -34,12 +34,12 @@ description: Recommend the right personal umbrella liability policy size from ne
 
 Conventional wisdom: insure liability up to net worth. Better rule: insure up to **net worth + protected future earnings**, because lawsuit judgments include garnishment of future income (subject to state law — some states protect more aggressively than others).
 
-- **Baseline recommended limit** = ceil((net worth + 10 × annual gross income), nearest $500k), with $1M minimum.
+- **Baseline recommended limit** = ceil((net worth + annual gross income × min(10, years to retirement)), nearest $500k), with $1M minimum.
 - Floor at $1M for any household with net worth ≥ $100k.
 
 ### 2. Adjust for exposure score
 
-Each exposure factor adds risk-weight. Heuristic adjustment:
+Each exposure factor adds risk-weight. Typical ranges below; the model uses the low end of each range (Determinism rules step 3):
 
 - Teen driver: +$1-2M (teen-driver collisions are the #1 personal-umbrella claim trigger).
 - Pool / trampoline: +$500k-1M.
@@ -49,7 +49,7 @@ Each exposure factor adds risk-weight. Heuristic adjustment:
 - Board service (nonprofit, especially uninsured-D&O): +$1-2M.
 - Public-facing profession / public profile: +$1-2M.
 
-Sum the adjustments. Round up to the nearest carrier-offered increment (typically $500k or $1M steps).
+Sum the adjustments. Round the total up to the next $1M (the common carrier increment).
 
 ### 3. Confirm underlying-liability minimums
 
@@ -98,6 +98,96 @@ Check the umbrella quote's underlying-requirements section. If user's current au
 
 Analysis only. Umbrella exclusions vary significantly between carriers — read the actual umbrella policy form before relying on coverage. For unusual exposures (private aviation, ocean-going watercraft, large equestrian operation, art collection, public profile), engage a high-net-worth specialty broker.
 
+## Determinism rules
+
+### Input keys
+
+- `net_worth_usd` — number, assets − liabilities, including retirement accounts
+- `annual_gross_income_usd` — number, household
+- `years_to_retirement` — integer (0 if retired)
+- `auto_liability` — `{ bi_per_person_usd, bi_per_accident_usd, pd_usd }` or `{ csl_usd }`
+- `home_liability_usd` — number
+- `current_umbrella` — `{ limit_usd, annual_premium_usd, carrier }` or null
+- `carrier_underlying_requirements` — `{ auto_csl_usd?, auto_split?, home_liability_usd? }` from the umbrella quote (optional)
+- `exposures` — `{ teen_drivers (integer), pool_trampoline (bool), dog (bool), rental_units (integer), boats_rvs (integer), nonprofit_board (bool), public_profile_or_profession (bool), home_business (bool), frequent_guests (bool) }`
+- `premium_quote_usd` — number, annual premium for the recommended limit (optional)
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Net worth, income | **Ask — no default** | — |
+| Years of future earnings protected | `min(10, years_to_retirement)` | `[ASSUMPTION]` |
+| Exposure adjustments | Fixed table in step 3 (low end of each range in the Workflow) | `[ASSUMPTION]` |
+| Underlying minimums | `carrier_underlying_requirements` if supplied; else auto 250/500/100 or $300k CSL, home $300k | `[ASSUMPTION]` |
+| Premium | Carrier quote; otherwise "to be quoted" — no estimate | — |
+| State wage-garnishment / homestead protections | Not in md_facts — cite state statute via `md_sources`, else `[UNSOURCED]`; does not change the number | — |
+
+### Calculation method
+
+1. `future_earnings = annual_gross_income_usd × min(10, years_to_retirement)`.
+2. `baseline = max($1,000,000, ceil((net_worth_usd + future_earnings) / 500,000) × 500,000)`.
+3. **Exposure adjustments** (sum all that apply):
+   - Teen driver: +$1,000,000 per teen driver
+   - Pool / hot tub / trampoline: +$500,000
+   - Dog: +$500,000
+   - Rental property: +$500,000 per rental unit
+   - Boat / RV / motorcycle / ATV: +$500,000 each
+   - Nonprofit board: +$1,000,000
+   - Public-facing profession or public profile: +$1,000,000 (once, even if both)
+   - Frequent guests, home business: +$0 (flag only; home business is usually excluded — needs its own policy)
+4. `target_limit = ceil((baseline + adjustments) / 1,000,000) × 1,000,000`.
+5. **Underlying check:** auto meets requirement if CSL ≥ required CSL, or each split limit ≥ the required split; home meets if `home_liability_usd` ≥ required. List each shortfall with the limit to raise to.
+6. **Carrier tier:** `target_limit > $5,000,000` → high-net-worth specialty carrier; else standard carrier.
+7. Report whole dollars. If net worth or income is missing, stop and list the missing inputs.
+
+### Decision rules
+
+Evaluate top to bottom; the first match wins. Underlying shortfalls from step 5 are always listed as required actions alongside the recommendation.
+
+| # | Condition | Recommendation |
+|---|---|---|
+| 1 | Net worth or income missing | No recommendation — collect inputs |
+| 2 | `net_worth_usd < $100,000` and no exposure factor is true | Umbrella optional; if bought, $1M |
+| 3 | `current_umbrella.limit_usd ≥ target_limit` | Keep the current umbrella |
+| 4 | `target_limit > $5,000,000` | Buy/raise to `target_limit` through a high-net-worth specialty carrier |
+| 5 | Otherwise | Buy/raise to `target_limit` with a standard carrier (or a standalone umbrella if auto/home are split across carriers) |
+
+### Output template
+
+```markdown
+# Umbrella Sizing — {YYYY-MM-DD}
+
+## Headline
+Recommended umbrella: **${target_limit}** (Decision rule #{n}). {premium sentence, or "Premium to be quoted"}
+
+## What's at risk
+| Component | Amount |
+|---|---|
+| Net worth | |
+| Future earnings ({years} × income) | |
+| Baseline (rounded up to $500k, min $1M) | |
+
+## Exposure adjustments
+| Factor | Count / present | Adjustment |
+|---|---|---|
+| **Total** | | |
+
+## Underlying-liability check
+| Policy | Current | Required | Shortfall / action |
+|---|---|---|---|
+| Auto | | | |
+| Home | | | |
+
+## Carrier suitability
+{standard vs high-net-worth specialty}
+
+## Policy specifics to verify
+- Worldwide coverage · rental / non-owned autos · watercraft limits · personal injury (libel/slander) · defense costs outside limits · exclusions
+
+## Actions
+- {raise underlying limits, obtain quotes}
+```
 
 ## Report Quality
 

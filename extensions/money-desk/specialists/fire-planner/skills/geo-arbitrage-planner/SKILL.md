@@ -42,7 +42,7 @@ This skill is exploratory — partial answers are fine and the rest can be gathe
      - **Panama Pensionado** — pension-based.
      - **Costa Rica Pensionado / Rentista** — pension or rental income.
    - **Tax-residency:** most countries trigger tax residency at 183 days. US citizens / green-card holders are ALWAYS US-tax resident (citizenship-based taxation — one of two countries globally, the other is Eritrea). FEIE vs FTC analysis is a CPA problem.
-   - **FBAR / FATCA:** US-person foreign account aggregate > $10k triggers FBAR. $50k single / $100k MFJ aggregate triggers FATCA (Form 8938). Penalties are brutal ($10k/yr non-willful baseline; willful up to greater of $100k or 50% of balance, criminal exposure).
+   - **FBAR / FATCA:** US-person foreign account aggregate above `md_facts` → `expat_quick_reference_2026.fbar_filing_threshold_aggregate_usd` triggers FBAR. Form 8938 (FATCA) thresholds by filing status and residence: `md_facts` → `expat_quick_reference_2026.fatca_form_8938_threshold_*` (higher thresholds once living abroad). Penalties are brutal — non-willful per-violation and willful penalties are inflation-adjusted annually (cite via `md_sources`), plus criminal exposure.
    - **PFIC trap:** US persons MUST NOT buy non-US-domiciled mutual funds / ETFs. Buy US-domiciled funds only, hold in US-domiciled brokerage (Schwab International, IBKR).
    - **Healthcare:** in many destinations, private health insurance is $1–4k/yr per person, OR national health systems are accessible to residents. Compare to US ACA cost.
    - **Currency exposure:** monthly expenses in destination currency, portfolio in USD — major FX risk if dollar weakens. Hedge consideration.
@@ -53,51 +53,11 @@ This skill is exploratory — partial answers are fine and the rest can be gathe
 
 ## Output template
 
-```
-# Geographic arbitrage analysis
-
-## Your inputs
-- Current location / spend: {city / state} @ ${X}/yr
-- Target FIRE spend (current location): ${X}/yr
-- Open to: {domestic only / international / both}
-- Constraints: {family proximity / kid schooling / health needs / pet / etc.}
-
-## Domestic arbitrage candidates
-| Destination | COL-adj spend | State tax | Property tax | ACA / health | Net annual impact |
-|-------------|---------------|-----------|--------------|--------------|-------------------|
-| {City A, ST}| ${...}        | 0% / X%   | {...}/yr     | {notes}      | {-${...}/yr}      |
-| {City B, ST}| ${...}        | ...       | ...          | ...          | {-${...}/yr}      |
-
-→ Best domestic candidate: **{City}**, estimated **${X}/yr savings** = reduces FIRE number by **${X × 25}** at 4% WR.
-
-## International arbitrage candidates
-| Destination | Visa path  | Approx COL | US tax-residency | Healthcare cost | Net annual impact | Big-rock risks |
-|-------------|------------|-----------|------------------|-----------------|-------------------|----------------|
-| Portugal    | D7         | ${...}    | Yes (always)     | ${...}/yr       | {-${...}/yr}      | NHR scaled back; tax-residency; FX |
-| Mexico      | Temporal   | ${...}    | Yes              | ${...}/yr       | {-${...}/yr}      | safety regional; FX |
-| Thailand    | LTR        | ${...}    | Yes              | ${...}/yr       | {-${...}/yr}      | distance; visa renewal |
-| ...         | ...        | ...       | ...              | ...             | ...               | ...            |
-
-## Universal US-citizen reminders (INTERNATIONAL only)
-- You remain US-tax resident regardless of where you live.
-- FBAR + FATCA filing required at thresholds.
-- PFIC trap: US-domiciled funds in US brokerage only.
-- Tax-treaty / FEIE / FTC analysis: **CPA with expat experience**, NOT a chat.
-
-## Reversibility
-- Domestic move: easy to reverse (months, modest cost).
-- International move: hard to reverse (year+, significant cost: sell home, ship belongings, kids' schooling continuity, replace social network).
-
-## Lifestyle compatibility check
-{Honest paragraph on the things that derail moves: language barrier, family distance, healthcare quality, climate, social network. Suggest a 3-month "trial run" before committing.}
-
-## Recommended next step
-{If domestic: "Run **State Tax Move Planner** in Tax Planner" if it exists, or "Run **Net Worth & Goals — Goal Planner** in Net Worth & Goals." If international: ALWAYS "Run **Expat Tax Overview** in International / Expat first, then engage an expat-experienced CPA before any commitment."}
-```
+The canonical report skeleton is the `### Output template` under **Determinism rules** below — use it exactly.
 
 ## Common mistakes to flag
 
-- **Pricing on COL index alone.** The all-in cost includes healthcare, taxes, FX hedging cost, kids' international-school tuition (often $15–30k/yr at the top end), and the cost of re-anchoring socially. Real total is often 1.3–1.5× the headline COL number.
+- **Pricing on COL index alone.** The all-in cost includes healthcare, taxes, FX hedging cost, kids' international-school tuition (often $15–30k/yr at the top end), and the cost of re-anchoring socially. Price the all-in cost line by line (Determinism rules step 2) — a headline COL index understates it.
 - **Forgetting US tax residency for US citizens.** No matter where you live, you file. FEIE / FTC ≠ "no US tax."
 - **Buying non-US-domiciled funds abroad.** PFIC trap. Penalty: punitive tax + multi-year reporting nightmare.
 - **Treating international visa policy as permanent.** Portugal NHR scaled back 2024; Malaysia MM2H reset thresholds; rules change. Verify at decision time.
@@ -117,12 +77,109 @@ This skill is exploratory — partial answers are fine and the rest can be gathe
 
 ## Disclaimer
 
-International tax / immigration is the highest-stakes Money Desk domain. The FBAR penalty alone ($10k/yr non-willful, willful up to 50% of account or $100k criminal) makes this CPA-with-expat-experience + immigration-attorney territory. NEVER execute an international move from a chat transcript. A 90-day trial in the destination BEFORE committing is the single best money you'll spend on the plan.
+International tax / immigration is the highest-stakes Money Desk domain. The FBAR penalty regime alone (inflation-adjusted civil penalties, up to 50% of the account for willful violations, plus criminal exposure) makes this CPA-with-expat-experience + immigration-attorney territory. NEVER execute an international move from a chat transcript. A 90-day trial in the destination BEFORE committing is the single best money you'll spend on the plan.
 
 ## Next step
 
 **Next step → International / Expat:** "Run **Expat Tax Overview** for US person moving to {destination}, current US spend ${X}/yr, expected destination spend ${Y}/yr, asset structure {taxable $A / Trad $B / Roth $C}, source-of-income {portfolio / passive / consulting}."
 
+## Determinism rules
+
+### Input keys
+
+- `current_location` — string (city, state, country)
+- `candidate_destinations` — list of `{ name, type (domestic|international), col_index?, spend_estimate_annual_usd?, healthcare_annual_usd?, state_income_tax_annual_usd?, property_tax_annual_usd?, visa_path? }`
+- `current_col_index` — number, same index as the candidates
+- `household_status` — `single` | `couple` | `family`; `kids_ages` — list of integers
+- `us_person_status` — `us_citizen` | `green_card` | `non_us`
+- `annual_spend_today` — number, $ per year in the current location
+- `current_healthcare_annual_usd`, `current_state_income_tax_annual_usd`, `current_property_tax_annual_usd` — numbers
+- `work_status` — `employed` | `self_employed` | `retired` | `fire` | `studying`
+- `healthcare_situation` — free text
+- `reversibility_preference` — `commit` | `pilot_first`
+- `withdrawal_rate_pct` — number
+- `foreign_account_aggregate_usd` — number, expected max aggregate balance in foreign accounts
+- `filing_status` — `single` | `mfj`
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Current spend, candidates | **Ask — no default** (partial answers allowed; uncomputed rows say so) | — |
+| COL index values | One named index for all locations via `md_sources`; else `[UNSOURCED]` and the row is not computed | `[UNSOURCED]` |
+| Destination healthcare, state income tax, property tax | Quotes / state DOR / county assessor via `md_sources`; else **Ask** | `[UNSOURCED]` |
+| Visa income / savings thresholds | Destination embassy / immigration authority via `md_sources` — current as of the lookup date | `[UNSOURCED]` |
+| FBAR threshold | `md_facts` → `expat_quick_reference_2026.fbar_filing_threshold_aggregate_usd` | `[IRS / FinCEN Expat 2026]` |
+| FATCA (Form 8938) thresholds | `md_facts` → `expat_quick_reference_2026.fatca_form_8938_threshold_{single,mfj}_{resident_us,abroad}_end_of_year` | `[IRS / FinCEN Expat 2026]` |
+| FEIE maximum | `md_facts` → `expat_quick_reference_2026.feie_max_per_qualifying_individual` | `[IRS / FinCEN Expat 2026]` |
+| FBAR / FATCA penalty amounts | Inflation-adjusted annually — not in md_facts; cite via `md_sources`, else `[UNSOURCED]` | `[UNSOURCED]` |
+| Withdrawal rate | `md_facts` → `behavioral_assumptions_safe_defaults.safe_withdrawal_rate_30yr_horizon_percent` (× 100) | `[ASSUMPTION]` |
+
+### Calculation method
+
+Real (today's) dollars; annual figures.
+
+1. **Core spend at destination:** `spend_estimate_annual_usd` if given; else `(annual_spend_today − current healthcare − current state income tax − current property tax) × col_index / current_col_index`.
+2. **All-in annual cost:** `core + healthcare + state income tax + property tax`. For international candidates, keep the current US state income tax unless the user confirms state domicile will end (verify with the state DOR). Missing component → row "incomplete" and excluded from ranking.
+3. **Current all-in:** `annual_spend_today` (it already includes current healthcare and taxes).
+4. **Net annual impact:** `impact = all_in_destination − all_in_current` (negative = saving). `impact_pct = impact / annual_spend_today × 100`.
+5. **FIRE-number change:** `impact / (WR / 100)`.
+6. **Compliance flags (US persons, international):** FBAR required if `foreign_account_aggregate_usd >` the md_facts threshold; Form 8938 required if above the md_facts threshold for filing status and residence (abroad thresholds apply after the move).
+7. **Ranking:** by `impact` ascending (biggest saving first) → tie: domestic before international → name A–Z.
+8. Rounding: whole dollars; percents to one decimal.
+
+### Decision rules
+
+Evaluate top to bottom; the first match wins.
+
+| # | Condition | Recommendation |
+|---|---|---|
+| 1 | `us_person_status = non_us` | Out of scope for US-person mechanics — route to **International / Expat** |
+| 2 | No candidate has a complete all-in row | No ranking — list the missing data per candidate |
+| 3 | Best candidate saving < 10% of `annual_spend_today` | Arbitrage too small to justify a move on money alone; lifestyle reasons only |
+| 4 | Best candidate is international | Present it, require a 90-day trial and **Expat Tax Overview** in International / Expat + an expat-experienced CPA before any commitment |
+| 5 | `reversibility_preference = pilot_first` | Best domestic candidate — pilot (3-month rental) before selling or buying |
+| 6 | Otherwise | Best domestic candidate; route to the state-move / goal-planning hand-off |
+
+### Output template
+
+```markdown
+# Geographic arbitrage analysis
+
+## Headline
+Best candidate: **{destination}** — **${saving}/yr** ({impact_pct}%), FIRE number −${fire_change} at {WR}%. Recommendation: **rule #{k}**.
+
+## Your inputs
+| Input | Value | Tag |
+|---|---|---|
+
+## Domestic candidates
+| Destination | COL-adj core spend | State income tax | Property tax | Healthcare | All-in | Net annual impact | FIRE-number change |
+|---|---|---|---|---|---|---|---|
+{or "Not applicable — no domestic candidates"}
+
+## International candidates
+| Destination | Visa path (threshold, source) | COL-adj core spend | Healthcare | All-in | Net annual impact | US tax residency | Big-rock risks |
+|---|---|---|---|---|---|---|---|
+{or "Not applicable — no international candidates"}
+
+## US-person compliance (international only)
+| Item | Threshold (md_facts) | Applies to you? |
+|---|---|---|
+| FBAR | | |
+| Form 8938 (FATCA) | | |
+| PFIC | US-domiciled funds only | |
+{or "Not applicable — domestic only"}
+
+## Reversibility
+{domestic vs international}
+
+## Lifestyle compatibility check
+{paragraph; 90-day trial}
+
+## Recommended next step
+{hand-off}
+```
 
 ## Report Quality
 

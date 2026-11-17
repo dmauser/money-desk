@@ -42,7 +42,7 @@ description: Age-appropriate money lessons for parents/guardians who want to rai
 - **What sticks:** Their own pay stub from a real job; their own checking account; the realization that "$15/hour" doesn't mean "$15 × hours" in your pocket.
 - **Activity:**
   1. **Paycheck walkthrough.** First pay stub from their first job → walk through FIT / FICA / Medicare line by line (or run **Paycheck Walkthrough** in Financial Literacy together).
-  2. **Custodial Roth IRA.** The day they have earned income, you (the parent) can open a **Custodial Roth IRA** for them. Contribute up to the lesser of their earned income or the annual limit ($7,000 for 2026 — verify via `md_facts`). $3,000 contributed at age 16 and left until age 67 is roughly $100k at a 6% real return. This is the single highest-leverage move available to a teenager and almost nobody does it.
+  2. **Custodial Roth IRA.** The day they have earned income, you (the parent) can open a **Custodial Roth IRA** for them. Contribute up to the lesser of their earned income or the annual limit (`md_facts` → `irs_contribution_limits.ira_traditional_or_roth`). $3,000 contributed at age 16 and left until age 67 is roughly $58,600 in today's dollars at the `md_facts` 6% real return (3,000 × 1.06^51). This is the single highest-leverage move available to a teenager and almost nobody does it.
   3. **Credit literacy.** Add them as an authorized user on YOUR oldest credit card with the lowest utilization. They build credit history (oldest line on their report ages with yours) without needing to actually use the card. They don't need to know the card number.
   4. **The car / phone decision.** First big purchase decision — let them OWN it. "Here's what you have; here's what each option costs; you decide." Even if they pick poorly.
 - **Trap to avoid:** Co-signing anything. Co-signing a car loan or apartment with your teen is YOUR debt with their behavior; almost always a mistake. Authorized-user on a credit card is different — no liability to you.
@@ -62,7 +62,7 @@ description: Age-appropriate money lessons for parents/guardians who want to rai
 If a minor has **earned income** (W-2, 1099, paid tutoring, paid babysitting, lifeguarding, etc.), you as a parent can open a **Custodial Roth IRA** and contribute up to the lesser of their earned income or the annual limit.
 
 - **Why it's the highest-leverage move available:** 50+ years of tax-free compounding from contributions made at ages 14-22.
-- **Worked example:** $3,000 contributed at age 16, left untouched at 6% real return, becomes roughly **$100,000** at age 67.
+- **Worked example:** $3,000 contributed at age 16, left untouched at the `md_facts` 6% real return, becomes roughly **$58,600** in today's dollars at age 67 (3,000 × 1.06^51).
 - **Where to open:** Fidelity, Schwab, Vanguard all offer custodial Roth IRAs at no cost.
 - **The catch:** The kid needs documented earned income. Allowance / gift money / chore money doesn't count. A real W-2 or self-employment income with a record (Venmo for tutoring, etc.) does.
 - **Money for the contribution can come from you (the parent)** — the IRS only requires that the kid had the earned income, not that they personally fund the contribution. Many parents match: "every dollar you earn, I'll put in your Roth IRA."
@@ -70,24 +70,7 @@ If a minor has **earned income** (W-2, 1099, paid tutoring, paid babysitting, li
 
 ## Output template
 
-```
-# Money lessons for a {age}-year-old
-
-## What lands at this age
-{1-2 paragraphs: developmental concept + what sticks}
-
-## Activity this month
-{ONE concrete thing to do this month}
-
-## Trap to avoid
-{the most common parent mistake at this stage}
-
-## Coming up — preview of the next stage
-{1 paragraph: what shifts in the next age band so the parent can see it coming}
-
-## If applicable: custodial Roth IRA pitch
-{only for ages 14+ with earned income}
-```
+Use the skeleton in **Determinism rules → Output template** below — it is the single source of truth for this skill's report shape.
 
 ## Citations
 
@@ -101,6 +84,80 @@ If a minor has **earned income** (W-2, 1099, paid tutoring, paid babysitting, li
 
 Education for parents on money lessons. Not a parenting strategy. Not therapy for the kid. Custodial Roth IRA mechanics are general; the specific tax / state-law nuances (UTMA vs UGMA, state age of majority, kiddie tax interaction) are a CPA's job for any case involving substantial sums.
 
+## Determinism rules
+
+### Input keys
+
+- `kid_age` — integer (years)
+- `current_practices` — list from `allowance` | `chores_linked` | `matching_savings` | `kids_debit_card` | `none`
+- `kid_earned_income_annual_usd` — number (0 if none; W-2 or documented self-employment only)
+- `trigger_incident` — string or null
+- `state` — two-letter code or null (age of majority for custodial accounts)
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Kid's age | **Ask — no default** | — |
+| Earned income | 0 (custodial Roth section omitted) | `[ASSUMPTION: $0]` |
+| IRA contribution limit | `md_facts` → `irs_contribution_limits.ira_traditional_or_roth` | `[IRS 2026 limits]` |
+| Real return for the Roth projection | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_percent` (fraction; 0.06 = 6%) | `[ASSUMPTION]` |
+| Projection end age | 67 (skill convention, matching SSA full retirement age `md_facts` → `social_security_2026.full_retirement_age_born_1960_or_later`) | `[SSA 2026]` |
+| Allowance benchmark ($1–2 per year of age per week) | Heuristic — cite T. Rowe Price survey or `[UNSOURCED]` | `[UNSOURCED]` |
+| State age of majority (UTMA/custodial transfer) | Not in md_facts — state statute via `md_sources`, else `[UNSOURCED]` | `[UNSOURCED]` |
+
+### Calculation method
+
+1. **Stage** by `kid_age` (Decision rules table).
+2. **Activity this month** = the first activity listed for that stage that is not already in `current_practices`; if all are in place, use the stage's last activity.
+3. **Trap** = the stage's "Trap to avoid", verbatim in substance.
+4. **Preview** = the next stage's developmental concept (Stage 5 → "Not applicable — final stage").
+5. **Custodial Roth** (only if `kid_earned_income_annual_usd` > 0): max contribution = `min(kid_earned_income_annual_usd, ira_traditional_or_roth)`. Projection: `FV = contribution × (1 + r)^(67 − kid_age)`, r from md_facts; round to the nearest $100. Worked example in the text uses $3,000 at age 16 with the same formula (at r = 0.06: ≈ $58,600 in today's dollars).
+6. If `trigger_incident` is present, open "What lands at this age" with one sentence that connects the incident to the stage concept.
+7. Length: 250–450 words total, plain language, no jargon without an inline definition.
+
+### Decision rules
+
+Evaluate top to bottom; first match wins.
+
+| # | `kid_age` | Stage |
+|---|---|---|
+| 1 | < 3 | Not applicable — too young; give the Stage 1 preview only |
+| 2 | 3–5 | Stage 1 — Preschool |
+| 3 | 6–9 | Stage 2 — Early elementary |
+| 4 | 10–13 | Stage 3 — Late elementary / middle |
+| 5 | 14–17 | Stage 4 — High school |
+| 6 | 18–22 | Stage 5 — Young adult |
+| 7 | Otherwise (> 22) | Out of scope — route to **Beginner Roadmap** (Financial Literacy) |
+
+| # | Custodial Roth section | |
+|---|---|---|
+| 1 | `kid_earned_income_annual_usd` > 0 and `kid_age` < age of majority | Include custodial Roth IRA section |
+| 2 | `kid_earned_income_annual_usd` > 0 | Include as the kid's own Roth IRA |
+| 3 | Otherwise | "Not applicable — no earned income yet" |
+
+### Output template
+
+```markdown
+# Money lessons for a {kid_age}-year-old — Stage {n}: {stage name}
+
+## What lands at this age
+{1–2 paragraphs: developmental concept + what sticks}
+
+## Activity this month
+{ONE concrete thing}
+
+## Trap to avoid
+{the stage's trap}
+
+## Coming up — preview of the next stage
+{1 paragraph — or "Not applicable — final stage"}
+
+## Custodial Roth IRA
+| Earned income | Max contribution ({year}) | Years to 67 | Projected value (real, r = {r}%) |
+|---|---|---|---|
+{or "Not applicable — no earned income yet"}
+```
 
 ## Report Quality
 

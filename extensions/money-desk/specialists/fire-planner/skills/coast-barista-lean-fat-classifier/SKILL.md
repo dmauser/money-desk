@@ -29,7 +29,7 @@ description: Help the user decide which flavor of FIRE actually fits — lean / 
    - **Lean FIRE** — ~$25–50k/yr household spend; tight budget; high geographic flexibility usually required; very high savings rate (50–70%); FI in ~10–15 years from a normal income; identity-tight ("we live small").
    - **Coast FIRE** — current portfolio is large enough that, without ANY more contributions, it'll compound to a normal-retirement number by 65; user keeps working but only to cover current expenses; flexibility to switch to lower-paid / fulfilling work.
    - **Barista FIRE** — full FI not yet hit; user covers ~50% of expenses with portfolio WR and 50% with part-time work that often provides healthcare; typical post-50, popular pre-Medicare.
-   - **Chubby FIRE** — ~1.5× lean; comfortable middle-class retirement spend ($80–140k/yr household); moderate frugality not extreme; the "we don't want to count every dollar" version.
+   - **Chubby FIRE** — ~1.5× lean; comfortable middle-class retirement spend (typically $80–140k/yr household; this skill's naming band is $50,001–$199,999); moderate frugality not extreme; the "we don't want to count every dollar" version.
    - **Fat FIRE** — $200k+/yr spend; $5M+ household; typically high-income professionals or business exits; geographic flexibility optional; lifestyle preserved or expanded post-retirement.
 2. **Match the user's numbers to each flavor.** Show: at current savings rate, when does the user hit each flavor's target?
 3. **Match the user's lifestyle to each flavor.** Lean and coast require *very different* personalities. Barista requires comfort with part-time identity. Fat requires the income to get there.
@@ -44,50 +44,7 @@ description: Help the user decide which flavor of FIRE actually fits — lean / 
 
 ## Output template
 
-```
-# FIRE Flavor recommendation
-
-## Your inputs
-- Household: {single / couple [+ kids]}
-- Income / spend / savings rate: ${I} / ${S} / {sr}%  [USER-PROVIDED]
-- Portfolio: ${P} ({by-bucket breakdown})
-- Hard-floor / comfortable spend: ${HF} / ${C} (today's $)  [USER-PROVIDED]
-- Earliest quit age: {E}
-- Top lifestyle priorities: {ranked list}
-- Career attachment: {dislike / neutral / love}
-- Spouse alignment: {same / different / unaddressed}
-
-## How each flavor fits YOU
-
-| Flavor   | Annual spend | Target portfolio | Years from now at current savings | Lifestyle fit |
-|----------|--------------|------------------|----------------------------------|---------------|
-| Lean     | ${...}       | ${...}           | {N}                              | {1–5 stars}   |
-| Coast    | n/a (target normal retirement) | (already there? or needs ${gap}) | n/a — coast now | {...} |
-| Barista  | ${...}       | ${...}           | {N}                              | {...}         |
-| Chubby   | ${...}       | ${...}           | {N}                              | {...}         |
-| Fat      | ${...}       | ${...}           | {N}                              | {...}         |
-
-## Recommended flavor: **{X}**
-
-Why: {one paragraph tying numbers + lifestyle inputs to the recommendation}.
-
-Path:
-- FIRE number: ${T}
-- Gap from today: ${T - P}
-- Years to close at current savings rate: ~{N}
-- Years to close if you cut spend by 10%: ~{N - 2}
-- Years to close if you increase income by 20%: ~{N - 3}
-
-## Flavor-specific failure modes (yours: {X})
-- {failure mode 1, with the specific guard rail}
-- {failure mode 2, with the specific guard rail}
-
-## If you're wrong about the flavor
-{Plain sentence on what to watch for and when to re-run this skill — usually annually + at any income / family / housing change.}
-
-## Recommended next step
-{ONE thing — usually: "Run Savings-Rate Optimizer in FIRE Planner" if income flex needed, OR "Run Couples Money Alignment in Behavioral Coach" if spouse alignment unaddressed, OR "Run FIRE Number Calculator in FIRE Planner" to lock in the target.}
-```
+The canonical report skeleton is the `### Output template` under **Determinism rules** below — use it exactly.
 
 ## Common mistakes to flag
 
@@ -110,6 +67,110 @@ FIRE flavor is a working hypothesis, not a contract. Most users shift flavors at
 
 **Next step → FIRE Planner:** "Run FIRE Number Calculator for {recommended flavor}, ${target spend}/yr, target FI age {E}."
 
+## Determinism rules
+
+### Input keys
+
+- `current_age` — integer
+- `household` — `single` | `couple`; `kids_count` — integer
+- `gross_income_annual_usd` — number
+- `current_spend_annual_usd` — number, today's dollars
+- `savings_rate_pct` — number, % of gross saved
+- `taxable_balance`, `trad_balance`, `roth_balance`, `hsa_balance`, `cash_balance` — numbers, $
+- `hard_floor_spend_annual_usd` — number, minimum acceptable retirement spend, today's dollars
+- `comfortable_spend_annual_usd` — number, desired retirement spend, today's dollars
+- `earliest_quit_age` — integer
+- `planning_to_age` — integer
+- `lifestyle_priorities` — ranked list from `geographic_flexibility`, `kids_college`, `international_travel`, `fixed_cost_hobbies`, `security_buffer`, `inheritance`
+- `career_attachment` — `dislike` | `neutral` | `love`
+- `spouse_alignment` — `same` | `different` | `unaddressed` | `not_applicable`
+- `expected_real_return_pct` — number
+- `part_time_income_annual_usd` — number (0 = none); `part_time_years` — integer
+- `effective_tax_rate_pct` — number, for the "+20% income" path
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Income, spend, savings rate, portfolio, floor and comfortable spend, quit age, planning age, real return | **Ask — no default** | — |
+| Lifestyle priorities, career attachment, spouse alignment | **Ask — no default** | — |
+| Withdrawal rate | Horizon rule shared with FIRE Number Calculator: `H = planning_to_age − earliest_quit_age`; H ≤ 30 → 4.0%, 31–49 → 3.5%, ≥ 50 → 3.0% | `[ASSUMPTION]` |
+| Normal retirement age for Coast FIRE | 65 | `[ASSUMPTION]` |
+| Spend bands for naming | Lean ≤ $50,000; Chubby $50,001–$199,999; Fat ≥ $200,000 (household, today's $; community convention) | `[ASSUMPTION]` |
+| Chubby multiple | 1.5 × lean target | `[ASSUMPTION]` |
+| Part-time income / years | 0 | `[ASSUMPTION: 0]` |
+| Effective tax rate | **Ask — no default**; without it the "+20% income" line is "Not applicable" | — |
+
+### Calculation method
+
+Real dollars, annual compounding, `r = expected_real_return_pct / 100`, savings at end of year.
+
+1. `P = Σ balances`; `S = gross_income_annual_usd × savings_rate_pct / 100`; `M = 100 / WR`; `quit_gap = earliest_quit_age − current_age`.
+2. **Targets:** Lean `= hard_floor × M`; Comfortable `= comfortable × M`; Chubby `= 1.5 × Lean`; Fat `= max(comfortable, 200000) × M`; Barista `= Comfortable − part_time_income × AF(r, part_time_years)` with `AF = (1 − (1 + r)^−n)/r`.
+3. **Coast:** `coast_need_today = Comfortable / (1 + r)^(65 − current_age)`; coast = `P ≥ coast_need_today`.
+4. **Years to each target:** smallest integer `n` with `P(1 + r)^n + S((1 + r)^n − 1)/r ≥ target`; cap 60 → "> 60".
+5. **Paths for the recommended flavor:** spend −10% (`S + 0.10 × current_spend`, target × 0.90); income +20% (`S + 0.20 × gross × (1 − effective_tax_rate/100)`).
+6. **Lifestyle-fit stars:** start at 3 per flavor, apply each matching signal, clamp 1–5:
+   - Lean: +1 `geographic_flexibility` in top 3; −1 `international_travel` or `fixed_cost_hobbies` in top 2; −1 `kids_college` in top 3.
+   - Coast: +1 career `love` or `neutral`; −1 career `dislike`.
+   - Barista: +1 career `neutral`/`dislike` and part-time income > 0; −1 part-time income = 0.
+   - Chubby: +1 `security_buffer` in top 3.
+   - Fat: +1 `inheritance` in top 3; −1 years to Fat > `quit_gap + 10`.
+7. `spend_flavor(x)` = Lean / Chubby / Fat by the spend bands.
+8. Rounding: whole dollars; years as integers.
+
+### Decision rules
+
+Evaluate top to bottom; the first match is the recommended flavor.
+
+| # | Condition | Recommended flavor |
+|---|---|---|
+| 1 | `household = couple` and `spouse_alignment = unaddressed` | None yet — route to **Couples Money Alignment** in Behavioral Coach |
+| 2 | `P ≥ Comfortable` | Already FI — `spend_flavor(comfortable)` |
+| 3 | Years to Comfortable ≤ `quit_gap` | `spend_flavor(comfortable)` |
+| 4 | Coast = true and `career_attachment` ≠ `dislike` | Coast |
+| 5 | Part-time income > 0 and years to Barista ≤ `quit_gap` | Barista |
+| 6 | Years to Lean ≤ `quit_gap` and Lean stars ≥ 3 | Lean |
+| 7 | Otherwise | `spend_flavor(comfortable)` with the longer timeline — route to **Savings-Rate Optimizer** |
+
+### Output template
+
+```markdown
+# FIRE Flavor recommendation
+
+## Headline
+Recommended: **{flavor}** (rule #{k}). Number: **${T}** at {WR}%; gap ${T − P}; ~{n} years at current savings.
+
+## Your inputs
+| Input | Value | Tag |
+|---|---|---|
+
+## How each flavor fits you
+| Flavor | Annual spend | Target portfolio | Years at current savings | Lifestyle fit (stars) |
+|---|---|---|---|---|
+| Lean | | | | |
+| Coast | n/a (target at 65) | need ${coast_need_today} today | {coast now / not yet} | |
+| Barista | | | | |
+| Chubby | | | | |
+| Fat | | | | |
+
+## Path
+| Scenario | Years to close |
+|---|---|
+| Current savings rate | |
+| Cut spend 10% | |
+| Income +20% | {or "Not applicable — no tax rate given"} |
+
+## Flavor-specific failure modes ({flavor})
+- {failure mode + guard rail}
+- {failure mode + guard rail}
+
+## If you're wrong about the flavor
+{what to watch; re-run annually and at income / family / housing changes}
+
+## Recommended next step
+{ONE hand-off}
+```
 
 ## Report Quality
 

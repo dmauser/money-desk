@@ -53,8 +53,19 @@ follow-up questions. Each one should cover:
 - **Deliverable shape** — the file path and section structure of the
   produced report.
 - **Notes** — gotchas, anti-patterns, caveats.
+- **Determinism rules** (required, just before `## Report Quality`) —
+  input keys, assumptions tied to the user or an `md_facts` key, exact
+  calculation method, threshold-based decision rules, and a fixed output
+  template, so the same inputs always give the same report. See
+  [`docs/SKILL_DETERMINISM.md`](./docs/SKILL_DETERMINISM.md);
+  `tests/skill-determinism.test.mjs` enforces the structure.
 
-Aim for ~60–120 lines. Quality beats length.
+Never hard-code year-specific limits or thresholds in a skill; reference
+the `md_facts` topic and key instead (add the figure to
+`extensions/money-desk/data/facts-2026.json` with its primary source if
+it's missing).
+
+Aim for ~60–160 lines. Quality beats length.
 
 ## Versioning
 

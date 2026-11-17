@@ -30,7 +30,7 @@ description: 12-month sequenced personal-finance curriculum for someone starting
 - **Focus:** awareness, not optimization.
 - **Learn:** the difference between essential (rent, utilities, groceries, transport, insurance, min debt) and discretionary (everything else).
 - **Do:** track every dollar for 30 days using any tool (Copilot Money, Monarch, YNAB, a spreadsheet — doesn't matter which).
-- **Diagnostic skill:** **Cash Flow Audit** (Budget Coach, `md_bc_skill_cash_flow_audit`).
+- **Diagnostic skill:** **Cash Flow Audit** (Budget Coach, `md_bc_skill_cashflow_review`).
 - **What you walk away with:** a one-page "where my money actually went last month" instead of an estimate.
 
 ### Month 2 — Concept literacy
@@ -58,26 +58,26 @@ description: 12-month sequenced personal-finance curriculum for someone starting
 - **Focus:** map and prioritize all your debts.
 - **Learn:** debt-avalanche (highest APR first) vs debt-snowball (smallest balance first). Math says avalanche; behavior often says snowball.
 - **Do:** list every debt — creditor, balance, APR, minimum payment. Pick one method. Auto-pay the minimum on all; throw any extra at #1.
-- **Diagnostic skill:** **Debt Payoff Strategy** (Debt Coach, `md_dc_skill_debt_payoff_strategy`).
+- **Diagnostic skill:** **Payoff Plan** (Debt Strategist, `md_ds_skill_payoff_plan`).
 - **Walk away with:** a written payoff order and an end date.
 
 ### Month 6 — Credit score basics
 - **Focus:** what FICO actually rewards.
 - **Learn:** payment history (35%), utilization (30%), age of credit (15%), mix (10%), new credit (10%). The two giant levers: on-time payment + < 10% utilization.
 - **Do:** pull your free FICO from each card / bank that offers it; pull your full credit report (free yearly at annualcreditreport.com from each bureau). Dispute any errors. Set every recurring bill to auto-pay-minimum to lock in 100% payment history.
-- **Diagnostic skill:** **Credit Score Diagnostic** (Credit Coach, `md_cr_skill_credit_score_diagnostic`).
+- **Diagnostic skill:** **Score Improvement Plan** (Credit & Identity, `md_ci_skill_score_improvement_plan`).
 - **Walk away with:** a score, a baseline, and any errors disputed.
 
 ### Month 7 — Insurance baseline
 - **Focus:** the right amount, no more, no less.
 - **Learn:** the four insurances most people genuinely need (health, auto if you drive, renters/homeowners, term life if dependents). What a deductible / premium / coverage limit is. Why whole life is usually wrong.
 - **Do:** confirm you have appropriate health coverage; verify auto liability limits aren't state-minimum (raise to 100/300/100 if affordable); add renters insurance if you don't have it ($10-20/mo); evaluate term life only if anyone depends on your income.
-- **Diagnostic skill:** **Coverage Audit** (Property & Casualty, `md_pc_skill_coverage_audit`) + **Life Insurance Needs** (Life & Disability, `md_lp_skill_life_insurance_needs`) if dependents.
+- **Diagnostic skill:** **Coverage Audit** (Property & Casualty, `md_pc_skill_auto_home_policy_review`) + **Life Insurance Needs** (Life & Disability, `md_lp_skill_life_insurance_needs`) if dependents.
 - **Walk away with:** appropriate coverage on the things that could financially destroy you.
 
 ### Month 8 — Roth IRA
 - **Focus:** the tax-advantaged account everyone should have if they can.
-- **Learn:** Roth IRA basics; contribution limit ($7,000 for 2026 — verify with `md_facts`); income limits and the Backdoor Roth workaround for high earners.
+- **Learn:** Roth IRA basics; contribution limit (`md_facts` → `irs_contribution_limits.ira_traditional_or_roth`); income limits and the Backdoor Roth workaround for high earners.
 - **Do:** open a Roth IRA at a low-cost custodian (Fidelity / Schwab / Vanguard). Set up auto-monthly transfers up to the annual limit. Invest in a 3-fund portfolio or single target-date fund.
 - **Diagnostic skill:** **Contribution Optimizer** (Retirement Planner) — second pass with the Roth IRA layer added.
 - **Walk away with:** a Roth IRA, funded automatically.
@@ -119,31 +119,11 @@ Once month 12 is done, the user is past "beginner". From here, the playbooks are
 - Real estate investing curious → **Rental Property Analyzer** (Real Estate Investor).
 - Self-employment / side-business → **Self-Employed**.
 - Moving abroad / cross-border → **International / Expat**.
-- Estate planning prompt (kids, marriage, inheritance) → **Estate Planner**.
+- Estate planning prompt (kids, marriage, inheritance) → **Estate & Legacy**.
 
 ## Output template
 
-```
-# Your 12-month money roadmap — starting {month}
-
-## Your starting point
-- Income: {W-2 / 1099 / mixed}
-- Debt: {none / SL / CC / mortgage / mixed}
-- Already set up: {checking / 401k / IRA / brokerage}
-
-## This month — Month {N}: {focus}
-- **Learn:** {one paragraph}
-- **Do this week:** {ONE specific action}
-- **Diagnostic skill to run:** **{Skill Name}** ({Specialist}) — `md_{prefix}_skill_{id}`
-
-## Coming up
-- Month {N+1}: {focus}
-- Month {N+2}: {focus}
-- Month {N+3}: {focus}
-
-## The whole-year preview (for reference)
-{abbreviated 12-month list}
-```
+Use the skeleton in **Determinism rules → Output template** below — it is the single source of truth for this skill's report shape.
 
 ## Citations
 
@@ -156,6 +136,87 @@ Once month 12 is done, the user is past "beginner". From here, the playbooks are
 
 This is a default sequence designed for a typical W-2 earner with moderate debt. Aggressive customization is the diagnostic specialists' job — Roadmap just makes sure you're not lost.
 
+## Determinism rules
+
+### Input keys
+
+- `income_source` — `w2` | `1099` | `mixed` | `not_earning`
+- `debt_situation` — `none` | `student_loans_only` | `credit_card` | `mortgage` | `mixed`
+- `already_set_up` — list from `checking` | `hysa` | `employer_401k_enrolled` | `retirement_account` | `roth_ira` | `brokerage`
+- `start_yyyy_mm` — month the roadmap starts (default: current month)
+- Optional (used only if volunteered): `tracks_spending` (boolean), `emergency_fund_months` (number), `contributing_to_match` (boolean), `has_dependents` (boolean)
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| The three starting datapoints | **Ask — no default** | — |
+| Roth IRA contribution limit (Month 8) | `md_facts` → `irs_contribution_limits.ira_traditional_or_roth` | `[IRS 2026 limits]` |
+| Optional fields | Treated as "not done" (the month is kept) | — |
+| Credit-score factor weights (Month 6) | Cite myFICO "What's in my score"; else `[UNSOURCED]` | `[UNSOURCED]` |
+
+### Calculation method
+
+1. Evaluate each month's **skip test** in order (table below). A month is skipped only when its test is met; unknown = not met.
+2. **Start month** = the lowest-numbered month that is not skipped.
+3. **Calendar**: Month N's calendar month = `start_yyyy_mm + (position in the un-skipped list − 1)`; skipped months are listed as "✓ already done" and take no calendar slot.
+4. "This month" shows exactly one Learn paragraph and **one** Do-this-week action (the first bullet of that month's **Do**), plus the diagnostic skill. "Coming up" shows the next three un-skipped months.
+5. Diagnostic skill per month = the skill named in the curriculum, shown as friendly name + specialist.
+
+| Month | Skip test (met → skip) |
+|---|---|
+| 1 Money diary | `tracks_spending = true` |
+| 2 Concept literacy | Never skipped |
+| 3 Mini emergency fund | `emergency_fund_months` ≥ 1 |
+| 4 401(k) match | `contributing_to_match = true`, or `income_source` ∈ {1099, not_earning} (no employer plan) |
+| 5 Debt triage | `debt_situation` ∈ {none, mortgage} |
+| 6 Credit basics | Never skipped |
+| 7 Insurance baseline | Never skipped |
+| 8 Roth IRA | `roth_ira` in `already_set_up`, or `income_source = not_earning` (no earned income) |
+| 9 Emergency fund finish | `emergency_fund_months` ≥ 3 and `has_dependents ≠ true`, or ≥ 6 |
+| 10 Tax intuition | Never skipped |
+| 11 Investment basics | Never skipped |
+| 12 Net worth snapshot | Never skipped |
+
+### Decision rules
+
+Evaluate top to bottom; first match wins.
+
+| # | Condition | Adjustment |
+|---|---|---|
+| 1 | `debt_situation` ∈ {credit_card, mixed} | Month 5 moves to immediately after Month 3 (high-APR debt before the match month) — keep all other order |
+| 2 | `income_source` ∈ {1099, mixed} | Month 10 adds quarterly estimated taxes; hand-off **Quarterly Estimated Taxes** (Self-Employed) |
+| 3 | `income_source = not_earning` | Months 4 and 8 skipped (step 1); Month 10 becomes "tax basics preview" |
+| 4 | Otherwise | Default sequence |
+
+Expense-ratio flag in Month 11: any holding with expense ratio > 0.50%.
+
+### Output template
+
+```markdown
+# Your 12-month money roadmap — starting {start_yyyy_mm}
+
+## Your starting point
+- Income: {w2 / 1099 / mixed / not earning}
+- Debt: {none / student loans / credit card / mortgage / mixed}
+- Already set up: {list}
+- Rule applied: #{n}
+
+## This month — Month {N}: {focus}
+- **Learn:** {one paragraph}
+- **Do this week:** {ONE specific action}
+- **Diagnostic skill to run:** **{Skill Name}** ({Specialist})
+
+## Coming up
+- {YYYY-MM} — Month {N+1}: {focus}
+- {YYYY-MM} — Month {N+2}: {focus}
+- {YYYY-MM} — Month {N+3}: {focus}
+
+## The whole-year preview
+| Month | Focus | Status |
+|---|---|---|
+{12 rows; skipped months show "✓ already done"}
+```
 
 ## Report Quality
 

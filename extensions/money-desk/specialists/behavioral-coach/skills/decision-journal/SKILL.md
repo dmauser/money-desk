@@ -63,7 +63,7 @@ description: Pre-commitment framework for any big money decision ($10k+ purchase
 1. User describes a pending decision.
 2. Walk through the 8 sections in order.
 3. Save the completed journal entry as a dated file in `./money-desk/behavioral-coach/decision-journal/`.
-4. Schedule the revisit date (12 months default; sooner for high-volatility decisions).
+4. Schedule the revisit date: 12 months out, or the earliest kill-criteria check date if that is sooner.
 5. At revisit: re-open, score the prediction against actual outcome, identify which sections most helped or most missed.
 
 ## What this skill does NOT do
@@ -86,6 +86,87 @@ description: Pre-commitment framework for any big money decision ($10k+ purchase
 
 Analysis only. A decision journal does not guarantee a good outcome — it improves decision quality and creates an honest audit trail. Outcome variance still matters.
 
+## Determinism rules
+
+### Input keys
+
+- `decision` — string, one sentence (required)
+- `dollars_at_stake` — number, USD (required)
+- `deadline` — `YYYY-MM-DD` or `none`
+- `today` — `YYYY-MM-DD`
+- `reversibility` — `reversible` | `partially_reversible` | `irreversible`
+- `people_affected` — integer (including the user)
+- `alternatives_considered` — list of strings
+- `expected_outcome` — string (testable prediction); `prediction_horizon_months` — 12 | 36 | 60
+- `confidence_pct` — integer 0–100
+- `kill_criteria` — list of `{ metric, threshold, check_date: YYYY-MM-DD, action: reverse | partial_reverse | accept }`
+- `emotional_state` — `calm` | `anxious` | `excited` | `pressured` | `fomo` | `regretful` | free text
+- `emergency_fund_usd`, `annual_net_income_usd` — numbers or null (recovery check)
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Decision, dollars, prediction, kill criteria | **Ask — no default** (the journal is the user's own words) | — |
+| Reversibility | **Ask — no default** | — |
+| Base rate for this decision type | Cite a source via `md_sources`; else write `[UNSOURCED]` — never a number from memory | `[UNSOURCED]` |
+| Revisit date | Rule-driven (Decision rules), not assumed | — |
+
+### Calculation method
+
+1. **Rigor tier** from the Decision rules (Full = all 8 sections; Short = sections 1, 3, 4, 6).
+2. **Options**: require ≥ 3 options including "do nothing"; if the user lists fewer, ask for more before continuing.
+3. **Prediction test**: the prediction must name a metric, a number, and a date. If any is missing, rewrite it with the user until all three are present; do not proceed without them.
+4. **Kill criteria**: at least one `{metric, threshold, check_date, action}`; earliest `check_date` = first checkpoint.
+5. **Recovery check** (section 6): `recovery_months = dollars_at_stake / (annual_net_income_usd / 12)` if income given; flag "cannot recover within 24 months" when `recovery_months` > 24. If `emergency_fund_usd < dollars_at_stake` and reversibility is `irreversible`, flag "total loss exceeds emergency fund".
+6. **Revisit date** = earlier of (`today + 12 months`) and the earliest kill-criteria `check_date`.
+7. Summary line exactly: `Decision: {decision}. Reversibility: {R|PR|IR}. Confidence: {N}%. Revisit: {YYYY-MM-DD}.`
+8. Never state or imply which option to choose.
+
+### Decision rules
+
+Evaluate top to bottom; first match wins.
+
+| # | Condition | Result |
+|---|---|---|
+| 1 | `emotional_state` ∈ {anxious, pressured, fomo, regretful} and (`deadline` within 2 days of `today` or `deadline = none` with the user saying "now") | Run **Panic Circuit Breaker** (Behavioral Coach) first; resume the journal after its cooldown |
+| 2 | `reversibility = irreversible` or `dollars_at_stake` ≥ 10,000 or `people_affected` ≥ 2 | **Full** rigor — all 8 sections |
+| 3 | Otherwise | **Short** rigor — sections 1, 3, 4, 6 |
+
+### Output template
+
+```markdown
+# Decision Journal — {decision} ({today})
+
+**Decision: {decision}. Reversibility: {R|PR|IR}. Confidence: {N}%. Revisit: {YYYY-MM-DD}.**
+Rigor: {Full | Short} (rule #{n})
+
+## 1. The decision
+## 2. The frame
+| Option | Problem it solves |
+|---|---|
+{or "Not applicable — Short rigor"}
+## 3. The bet
+- Prediction: {metric} reaches {number} by {date}
+- Confidence: {N}%
+## 4. Kill criteria
+| Metric | Threshold | Check date | Action |
+|---|---|---|---|
+## 5. Base rate
+{cited or [UNSOURCED] — or "Not applicable — Short rigor"}
+## 6. Cost of being wrong
+- Worst plausible outcome: {…}
+- Recovery: {recovery_months} months of net income {flag}
+- Who else is affected: {…}
+## 7. Pre-mortem
+{2–3 reasons + de-risk step — or "Not applicable — Short rigor"}
+## 8. Motivated-reasoning check
+{steelman, dissenting voices, status vs outcome — or "Not applicable — Short rigor"}
+
+## Revisit log
+| Date | Prediction outcome | Decision quality (process) | Outcome quality | Lesson |
+|---|---|---|---|---|
+```
 
 ## Report Quality
 

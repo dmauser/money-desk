@@ -66,6 +66,106 @@ description: Plan for digital assets and accounts after incapacity or death — 
 - Crypto self-custody is unforgiving on death. Without keys, no recovery. Plan accordingly.
 - "NOT legal advice. Some jurisdictions have specific digital-assets statutes (RUFADAA in many U.S. states) — attorney can advise."
 
+## Determinism rules
+
+### Input keys
+
+- `password_manager` — `{ name | none, emergency_access_configured (bool), emergency_kit_stored_with_estate_docs (bool) }`
+- `email_accounts` — list of `{ provider, recovery_email_set, recovery_phone_set, backup_codes_stored }` (bools)
+- `two_factor` — `{ authenticator_backup_codes_stored (bool), sms_only_on_critical_accounts (bool) }`
+- `platforms` — list of `{ platform (google | apple | facebook | instagram | x | linkedin | microsoft | other), legacy_feature_configured (yes | no | n/a) }`
+- `crypto` — list of `{ wallet_or_exchange, type (hot | cold | exchange), value_usd, recovery_documented (bool), heir_instructions (bool), backup_method (none | paper | metal | shamir | multisig) }`
+- `cloud_data` — `{ photos_exported_within_12mo (bool), important_docs_executor_accessible (bool) }`
+- `subscriptions_list_exists` — bool
+- `devices` — list of `{ device, unlock_method_documented (bool), fde_recovery_key_stored (bool) }`
+- `letter_of_instruction_points_to_vault` — bool
+- `review_date` — YYYY-MM-DD; default today
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Any unanswered yes/no item | Scored **not done** | `[ASSUMPTION]` |
+| Crypto value | **Ask — no default**; drives severity only | `[USER-PROVIDED]` |
+| Platform legacy-feature availability | Cite each platform's official help page | — |
+
+None — no year-specific figures are used.
+
+### Calculation method
+
+1. **Score each item** in this fixed order with a fixed severity (each `done` / `not done` / `n/a`):
+   - **D1** Password manager in use with emergency access configured — Critical
+   - **D2** Primary email recovery (recovery email + phone + backup codes all set) — Critical
+   - **D3** Each crypto holding with `value_usd > 0` has `recovery_documented` and `heir_instructions` — Critical
+   - **D4** Authenticator backup codes stored with estate docs; no SMS-only 2FA on critical accounts — High
+   - **D5** Every device has unlock method documented and FDE recovery key stored — High
+   - **D6** Letter of instruction points to the password manager (no passwords in the will) — High
+   - **D7** Each platform's legacy feature configured — Medium (one row per platform)
+   - **D8** Crypto holdings with `value_usd ≥ $100,000` use metal, Shamir, or multisig backup — Medium
+   - **D9** Photos exported within 12 months; important documents executor-accessible — Medium
+   - **D10** Subscription list exists — Low
+2. **Completion** `= done / (done + not done)` × 100, rounded to a whole percent (`n/a` excluded).
+3. **Action items** = every `not done`, sorted by severity, then item number, then platform A–Z.
+
+### Decision rules
+
+Applied to the highest-severity `not done` item; evaluate top to bottom; the first match wins.
+
+| # | Condition | Recommendation |
+|---|---|---|
+| 1 | No inputs supplied | No review — ask |
+| 2 | Any Critical not done | Fix Critical items this week (password-manager emergency access, email recovery, crypto heir path) |
+| 3 | Any High not done | Fix within 30 days |
+| 4 | Any Medium not done | Fix within 90 days |
+| 5 | Any Low not done | Add to the next annual review |
+| 6 | Otherwise | Complete — re-review in 12 months |
+
+### Output template
+
+```markdown
+# Digital Estate Review — {review_date}
+
+## Headline
+**{action_count} action items** · completion {completion}% · Recommendation: **{rule # action}**.
+
+## Password manager status
+| Item | Status |
+|---|---|
+| Password manager | |
+| Emergency access contact | |
+| Emergency kit stored with estate docs | |
+
+## 2FA recovery status
+{D2 / D4 results}
+
+## Per-platform legacy settings
+| Platform | Feature | Configured? | Help-page source |
+|---|---|---|---|
+
+## Crypto plan
+| Wallet / exchange | Type | Value | Recovery documented | Heir instructions | Backup method |
+|---|---|---|---|---|---|
+{or "Not applicable — no crypto holdings"}
+
+## Important data export plan
+{D9 results and steps}
+
+## Subscription list
+{exists / to create}
+
+## Device unlock plan
+| Device | Unlock documented | FDE key stored |
+|---|---|---|
+
+## Action items
+| Priority | Item | Severity | Action |
+|---|---|---|---|
+
+## Letter of instruction template
+{template pointing the executor to the password manager — never passwords}
+
+NOT legal advice.
+```
 
 ## Report Quality
 

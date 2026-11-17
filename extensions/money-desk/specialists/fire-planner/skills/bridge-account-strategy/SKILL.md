@@ -56,9 +56,9 @@ description: The four legal mechanisms to access retirement money before 59½ wi
 
 ## Workflow
 
-1. **Compute bridge size needed.** `(59.5 − FIRE age) × annual spend × inflation adjustment`. Sketch with no haircut for SS / pension that arrives after 59.5.
+1. **Compute bridge size needed.** `(59.5 − FIRE age) × annual need` in today's dollars, where annual need = spend − spouse and other income (Determinism rules steps 1–3). No haircut for SS / pension that arrives after 59.5.
 2. **Inventory the user's bucket distribution.** Where is the money actually sitting?
-3. **Pick the primary bridge mechanism** based on inventory:
+3. **Pick the primary bridge mechanism** with the Decision rules (coverage years vs bridge years); in words:
    - Big taxable balance → **brokerage bridge** (potentially + Roth ladder for tax efficiency).
    - Mostly Traditional, no taxable → **SEPP/72(t)** likely required (or 5 years of cash before ladder activates).
    - Mostly Roth → already great (Roth contributions accessible anytime).
@@ -69,46 +69,7 @@ description: The four legal mechanisms to access retirement money before 59½ wi
 
 ## Output template
 
-```
-# Pre-59½ bridge plan — FIRE at {age}, bridge years {N}
-
-## Sizing
-- Annual spend in early-retirement (today's $): ${X}  [USER-PROVIDED]
-- Bridge years (FIRE → 59.5): {N}
-- Approximate total bridge $ needed: ${X × N × inflation factor}
-
-## Your bucket inventory
-| Bucket          | Balance | Notes |
-|-----------------|---------|-------|
-| Taxable         | ${...}  | unlock: anytime, LTCG cost basis = ${...} |
-| Trad 401(k)/IRA | ${...}  | unlock: SEPP / conversion ladder / Rule of 55 if applicable |
-| Roth contribs   | ${...}  | unlock: anytime, tax + penalty-free |
-| Roth earnings   | ${...}  | unlock: 5y + age 59.5 OR conversion ladder |
-| HSA             | ${...}  | unlock: receipts anytime, qualified med tax-free |
-| Cash            | ${...}  | unlock: now |
-
-## Recommended bridge stack
-**Primary:** {Brokerage bridge / SEPP / Roth ladder / combination}
-**Secondary:** {layered piece}
-**Stealth boost:** HSA receipts if HDHP-eligible.
-
-## Plan sketch by year
-- Year 1–{X}: pull ${...}/yr from {bucket} (cost basis impact / MAGI impact noted)
-- Year {X+1}–{Y}: shift to {next mechanism}
-- ...
-
-## ACA-MAGI ceiling
-- {Subsidy band that minimizes premium cost or hits enhanced-subsidy regime}
-- → Limits annual Roth conversion to ~${conversion ceiling}
-- Coordinate with **Pre-65 Healthcare Plan** in FIRE Planner.
-
-## IRREVERSIBLE warnings (if SEPP selected)
-- Modification = 10% penalty retroactively on ALL prior SEPP payments + interest.
-- Get a CPA before electing.
-
-## Recommended next step
-**Tax Planner** owns the execution model. Hand off: "Build me a {N}-rung Roth conversion ladder starting tax year {year}, $X/yr conversions, ACA-MAGI ceiling $Y."
-```
+The canonical report skeleton is the `### Output template` under **Determinism rules** below — use it exactly.
 
 ## Common mistakes to flag
 
@@ -136,6 +97,104 @@ These mechanisms have multi-year tax and benefit consequences. SEPP in particula
 
 **Next step → Tax Planner:** "Build me a {primary mechanism} plan for ${spend}/yr bridge from age {FIRE age} to 59.5, current buckets {taxable $A / Trad $B / Roth $C / HSA $D}, target ACA-MAGI ceiling ${E}."
 
+## Determinism rules
+
+### Input keys
+
+Names match the `md_fi_skill_bridge_account_strategy` intake schema; extra keys follow.
+
+- `current_age`, `target_fire_age` — integers
+- `annual_spend_early_retirement` — number, $ per year, today's dollars
+- `taxable_balance`, `taxable_cost_basis` — numbers, $
+- `trad_balance` — number, $ (401(k) + IRA)
+- `roth_contributions_accessible`, `roth_earnings` — numbers, $
+- `hsa_balance`, `cash_balance` — numbers, $
+- `spouse_income_post_fire`, `other_income_post_fire` — numbers, $ per year
+- `filing_status` — `Single` | `Married Filing Jointly` | `Married Filing Separately` | `Head of Household`
+- `state` — two-letter code
+- `aca_magi_ceiling` — number, $ per year (0 = not using ACA)
+- `hsa_unreimbursed_receipts_usd` — number, saved qualified-medical receipts not yet reimbursed
+- `rule_of_55_eligible` — boolean; separating from the employer whose 401(k) holds money in or after the year the user turns 55
+- `rule_of_55_balance_usd` — number, balance in that 401(k)
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Ages, spend, filing status, state | **Ask — no default** (intake requires them) | — |
+| Bucket balances, other incomes | 0 | `[USER-PROVIDED]` / `[ASSUMPTION: 0]` |
+| HSA receipts | 0 (HSA not counted as accessible) | `[ASSUMPTION]` |
+| Return on bridge assets | 0% real (conservative — bridge money is spent) | `[ASSUMPTION]` |
+| Inflation (only for nominal display) | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_percent` (× 100) | `[ASSUMPTION]` |
+| Standard deduction, ordinary brackets, 0% LTCG ceiling | `md_facts` → `income_tax_brackets_mfj_2026.standard_deduction_*`, `.brackets`, `.ltcg_qualified_dividend_brackets_mfj` (MFJ tables only; other statuses not in md_facts — `md_sources`, else `[UNSOURCED]`) | `[IRS 2026 brackets]` |
+| SEPP interest rate | 5.00% — the Notice 2022-6 rate that is always permitted (the alternative "120% of federal mid-term rate" via `md_sources`) | — |
+| SEPP life-expectancy divisor | Not in md_facts — IRS Single Life Table (Treas. Reg. §1.401(a)(9)-9) via `md_sources`, else `[UNSOURCED]` | `[UNSOURCED]` |
+| State early-distribution treatment | State DOR via `md_sources`, else `[UNSOURCED]` | `[UNSOURCED]` |
+
+### Calculation method
+
+Real (today's) dollars throughout.
+
+1. **Bridge length:** `bridge_years = 59.5 − target_fire_age` (one decimal). If ≤ 0 → Decision rule 1.
+2. **Annual need:** `need = max(0, annual_spend_early_retirement − spouse_income_post_fire − other_income_post_fire)`.
+3. **Bridge total:** `bridge_usd = need × bridge_years`.
+4. **Accessible before 59½:** `access = taxable_balance + roth_contributions_accessible + cash_balance + min(hsa_balance, hsa_unreimbursed_receipts_usd)` (+ `rule_of_55_balance_usd` if `rule_of_55_eligible` and `target_fire_age ≥ 55`). Unrealized gain = `taxable_balance − taxable_cost_basis`.
+5. **Coverage:** `coverage_years = access / need` (∞ if `need = 0`).
+6. **Conversion ceiling per year:** if `aca_magi_ceiling > 0`, `conv_cap = aca_magi_ceiling − spouse_income_post_fire − other_income_post_fire − planned realized gains`; else `conv_cap = standard deduction + top of the 12% bracket − ordinary income` (md_facts). Floor 0.
+7. **Roth ladder:** rung size = `min(need, conv_cap, remaining trad balance)` converted every year from FIRE year 1; rung converted in year `y` becomes spendable in year `y + 5` (5-tax-year rule). Ladder covers year `t ≥ 6` if rung `t − 5` ≥ `need`.
+8. **SEPP (amortization method):** `payment = trad_balance × i / (1 − (1 + i)^−n)` with `i = 0.05`, `n` = single life expectancy at the age in the first distribution year (sourced). Required duration = later of 5 years or age 59½.
+9. **Year sketch:** years 1–5 funded from `access` (cash → taxable → Roth contributions → HSA receipts); years 6 … bridge end from ladder rungs, topped up from remaining `access`; SEPP only if Decision rules select it.
+10. Rounding: cents internally; whole dollars; years to one decimal.
+
+### Decision rules
+
+Primary mechanism — evaluate top to bottom; the first match wins. HSA receipts are always stacked when `hsa_unreimbursed_receipts_usd > 0`.
+
+| # | Condition | Primary bridge |
+|---|---|---|
+| 1 | `bridge_years ≤ 0` | Not applicable — already 59½ at FIRE |
+| 2 | `rule_of_55_eligible` and `target_fire_age ≥ 55` and `rule_of_55_balance_usd ≥ bridge_usd` | Rule of 55 (that 401(k) only) |
+| 3 | `coverage_years ≥ bridge_years` | Brokerage bridge (+ Roth ladder conversions inside `conv_cap` if `trad_balance > 0`) |
+| 4 | `coverage_years ≥ 5` and `trad_balance > 0` | Brokerage bridge years 1–5 → Roth conversion ladder from year 6 |
+| 5 | `trad_balance > 0` and `coverage_years < 5` | SEPP / 72(t) sized to the gap — **IRREVERSIBLE**, CPA required |
+| 6 | Otherwise | Shortfall — FIRE age not bridgeable; route to Savings-Rate Optimizer |
+
+### Output template
+
+```markdown
+# Pre-59½ bridge plan — FIRE at {target_fire_age}, bridge {bridge_years} years
+
+## Headline
+Primary: **{mechanism}** (rule #{n}). Bridge need **${bridge_usd}** (today's $); accessible now **${access}** = **{coverage_years} years**.
+
+## Sizing
+| Item | Value |
+|---|---|
+| Annual need (spend − other income) | |
+| Bridge years | |
+| Bridge total (today's $) | |
+| Conversion ceiling / yr | |
+
+## Bucket inventory
+| Bucket | Balance | Accessible before 59½? | Notes |
+|---|---|---|---|
+
+## Recommended bridge stack
+**Primary:** {…} · **Secondary:** {… or "None"} · **HSA receipts:** {$ or "Not applicable"}
+
+## Plan by year
+| Year | Age | Source(s) | Amount | Roth conversion | Realized gain | Est. MAGI |
+|---|---|---|---|---|---|---|
+
+## ACA-MAGI ceiling
+{ceiling and its effect — or "Not applicable — not using ACA"}
+
+## SEPP
+{payment, divisor source, duration, IRREVERSIBLE warning — or "Not applicable — SEPP not selected"}
+
+## Recommended next step
+**Tax Planner** owns execution: "{hand-off sentence}"
+```
 
 ## Report Quality
 

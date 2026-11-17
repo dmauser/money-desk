@@ -24,7 +24,7 @@ description: The pre-Medicare gap is the #1 FIRE blocker. Map the user's options
 
 ### 1. ACA Marketplace + premium subsidies (most common)
 
-- **Mechanism:** Buy Marketplace plan on healthcare.gov (or state exchange). Subsidies are based on **MAGI** as % of Federal Poverty Level (FPL). Under the IRA 2022 / 2025 enhanced subsidies (cite current law year), the 400% FPL "cliff" was replaced with a phase-out capping premiums at 8.5% of MAGI — verify whether this regime is still in force for the user's plan year.
+- **Mechanism:** Buy Marketplace plan on healthcare.gov (or state exchange). Subsidies are based on **MAGI** as % of Federal Poverty Level (FPL). Under the IRA 2022 / 2025 enhanced subsidies (cite current law year), the 400% FPL "cliff" was replaced with a phase-out capping the expected contribution at a fixed share of MAGI (applicable-percentage table — not in `md_facts`; cite via `md_sources`) — verify whether this regime is still in force for the user's plan year (`md_facts` → `federal_poverty_level_2026_48_states.aca_premium_tax_credit_eligibility_ceiling_post_2025_unless_extended`).
 - **Critical lever:** MAGI is the input. Roth conversions, realized cap gains, dividends, interest — all push MAGI up and can reduce or eliminate subsidies.
 - **Sweet spots (verify for current year):** ~150% FPL (silver-plan CSR enhanced cost-sharing kicks in), staying under the legacy 400% FPL cliff if enhanced subsidies sunset.
 - **Cost in FIRE-optimal MAGI band:** can be very low for a family of 4 in the right MAGI band; for high-MAGI households, full premium.
@@ -32,7 +32,7 @@ description: The pre-Medicare gap is the #1 FIRE blocker. Map the user's options
 
 ### 2. COBRA bridge (short-term)
 
-- **Mechanism:** Continue employer plan post-separation for 18 months (29 months in some disability cases, 36 months for some dependents). Full premium + 2% admin fee — typically $700–2,500/mo per person.
+- **Mechanism:** Continue employer plan post-separation for 18 months (29 months in some disability cases, 36 months for some dependents). Full premium + 2% admin fee — price it from the user's COBRA election notice.
 - **Fits:** Recently FIRE'd household with health condition mid-treatment, planned procedure pre-FIRE, or buying time to set up ACA.
 - **Cost:** high; usually a stopgap, not a multi-year solution.
 
@@ -44,7 +44,7 @@ description: The pre-Medicare gap is the #1 FIRE blocker. Map the user's options
 
 ### 4. Direct Primary Care (DPC) + catastrophic coverage
 
-- **Mechanism:** Pay a monthly DPC membership ($50–150/mo) for unlimited primary care, plus a high-deductible catastrophic plan for hospital / specialist. Total often less than ACA Bronze.
+- **Mechanism:** Pay a monthly DPC membership (user's quote) for unlimited primary care, plus a high-deductible catastrophic plan for hospital / specialist. Total often less than ACA Bronze.
 - **Fits:** Generally healthy households comfortable with paying cash for routine care, wanting predictable primary-care relationship.
 - **Watch:** Catastrophic plans have very limited availability under ACA — must qualify (under 30, OR have a hardship exemption). Otherwise the cheaper plan is Bronze.
 
@@ -56,12 +56,12 @@ description: The pre-Medicare gap is the #1 FIRE blocker. Map the user's options
 
 ## Workflow
 
-1. **Compute the gap.** Years × $/year per household member. Pre-65 healthcare commonly runs $15–25k/yr for a family-of-four without ACA subsidies. With subsidies in the MAGI sweet spot, this can drop to a few thousand.
+1. **Compute the gap.** Years × $/year per household member, priced from the user's quotes (Determinism rules step 4) — never a generic range.
 2. **Set the MAGI ceiling.** The ACA-subsidy max-benefit MAGI band is the binding constraint on the user's Roth conversion ladder and realized cap gains. Make this number explicit.
 3. **Compare options at the user's actual situation.**
    - Healthy + flexible income → ACA + MAGI management is usually winner.
-   - Mid-treatment / procedure scheduled → COBRA for 12–18 months, then ACA.
-   - One spouse loves working → spouse plan if family-coverage cost reasonable.
+   - Mid-treatment / procedure scheduled → COBRA through treatment (≤ 18 months), then ACA.
+   - One spouse loves working → spouse plan if its annual cost ≤ the lowest ACA option (Decision rule 3).
    - Generally healthy + risk-tolerant → DPC + catastrophic or HSA + bronze ACA.
 4. **Layer HSA.** If HDHP-eligible (ACA Bronze HDHP qualifies), max HSA. Triple tax advantage in working years, stealth IRA in retirement.
 5. **Geographic factor.** Some states (NY, CA, MN) have richer state-level subsidies; some (Florida, Texas) didn't expand Medicaid and have coverage cliffs. Surface if relevant.
@@ -70,43 +70,7 @@ description: The pre-Medicare gap is the #1 FIRE blocker. Map the user's options
 
 ## Output template
 
-```
-# Pre-65 healthcare plan — household of {N}, FIRE at {age}, bridge to 65
-
-## Gap
-- Years pre-65: {self} {N1}y, {spouse} {N2}y, {kids if relevant}
-- Approximate gross annual cost without subsidies: ${...}
-- Approximate annual cost in MAGI-optimized ACA: ${...}
-- **Savings from MAGI management: ${...}/yr** (cite current IRA-enhanced-subsidy regime status)
-
-## Your MAGI ceiling
-- Target MAGI band: {X}–{Y}% FPL (= ${...}–${...}/yr for household of {N} in {state})  [HHS FPL 2026]
-- → Coordinates with **Pre-59½ Bridge Strategy** Roth conversion cap.
-
-## Option fit (your situation)
-| Option                       | Annual cost | Fit | Notes |
-|------------------------------|-------------|-----|-------|
-| ACA + MAGI management        | ${...}      | {★★★★★} | usually winner for FIRE'd households |
-| COBRA (18 mo)                | ${...}      | {★}     | bridge only |
-| Spouse plan                  | ${...}      | {?}    | only if spouse working |
-| DPC + catastrophic           | ${...}      | {?}    | healthy + risk-tolerant only |
-| Health-sharing ministry      | ${...}      | {?}    | not insurance; pre-existing risk |
-
-## HSA stacking (if HDHP-eligible)
-- Annual HSA contribution: ${current-year limit from md_facts}  [IRS 2026 limits]
-- Strategy: pay medical out-of-pocket, save receipts, let HSA compound. Withdraw tax-free in retirement against accumulated receipts.
-
-## Recommended primary
-**{Option}**: estimated ${X}/yr in the {Y}% FPL band.
-
-## Coordination required
-- Roth conversion cap: ${...}  → Pre-59½ Bridge Strategy
-- Realized cap-gain budget: ${...} → Withdrawal Order Optimizer
-- ACA plan selection: → **Health & Medicare**
-
-## Recommended next step
-**Health & Medicare** owns plan-by-plan comparison. Hand off: "Compare ACA Bronze/Silver/Gold for household of {N} in {state}, MAGI target ${X}, expected medical spend ${Y}/yr."
-```
+The canonical report skeleton is the `### Output template` under **Determinism rules** below — use it exactly.
 
 ## Common mistakes to flag
 
@@ -132,6 +96,113 @@ Healthcare policy changes. The IRA enhanced-subsidy regime is one example — po
 
 **Next step → Health & Medicare:** "Compare ACA plans for household of {N} in {state}, MAGI target ${X}, expected annual medical spend ${Y}, HDHP eligibility {required for HSA stack}."
 
+## Determinism rules
+
+### Input keys
+
+- `fire_age` — integer; `spouse_fire_age` — integer or null
+- `household_members` — list of `{ role (self|spouse|child), age_at_fire }`
+- `health_flags` — list of `chronic` | `expensive_rx` | `mid_treatment` | `planned_procedure_within_18mo` (empty = none)
+- `state` — two-letter code
+- `medicaid_expansion_state` — boolean (look up if unknown)
+- `target_magi_usd` — number, planned annual MAGI after FIRE
+- `hsa_balance_usd` — number
+- `expected_medical_spend_annual_usd` — number, household out-of-pocket care expected per year
+- `benchmark_silver_monthly_usd` — number, second-lowest-cost silver premium for the household (healthcare.gov / state exchange)
+- `aca_quotes` — list of `{ tier (bronze|silver|gold), monthly_premium_usd, oop_max_usd, hsa_eligible }`
+- `cobra_total_monthly_premium_usd` — number, full plan cost before the 2% admin fee (0 = no COBRA)
+- `spouse_plan_monthly_usd` — number, employee share for family coverage (0 = none)
+- `dpc_monthly_usd`, `catastrophic_monthly_usd` — numbers (0 = not quoted)
+- `sharing_ministry_monthly_usd` — number (0 = not considered)
+- `geographic_flexibility` — boolean
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Ages, household, state, target MAGI | **Ask — no default** | — |
+| Premium quotes (ACA, COBRA, spouse plan, DPC, sharing) | **Ask — no default**; an option without a quote is shown as "Not quoted" and cannot be recommended | — |
+| Expected medical spend | **Ask — no default** | — |
+| FPL for household size | `md_facts` → `federal_poverty_level_2026_48_states.household_size_to_fpl` (48 states; AK / HI not in md_facts — `md_sources`, else `[UNSOURCED]`) | `[HHS FPL 2026]` |
+| PTC eligibility ceiling | `md_facts` → `federal_poverty_level_2026_48_states.aca_premium_tax_credit_eligibility_ceiling_post_2025_unless_extended` (400% FPL cliff unless extended — verify current law via `md_sources`) | `[HHS FPL 2026]` |
+| Applicable-percentage table (expected contribution % of MAGI by FPL band) | Not in md_facts — IRS Rev. Proc. for the plan year via `md_sources`; else `[UNSOURCED]` and no subsidy $ is computed | `[UNSOURCED]` |
+| HSA contribution limits | `md_facts` → `irs_contribution_limits.hsa_self_only` / `.hsa_family`, `.hsa_catchup_age_55_plus` | `[IRS 2026 limits]` |
+| COBRA admin fee and duration | Statutory: premium × 1.02; 18 months (29 / 36 in qualifying cases) | — |
+| Medicaid / CSR thresholds | Statutory: Medicaid expansion ≤ 138% FPL; CSR on silver plans ≤ 250% FPL | — |
+
+### Calculation method
+
+1. **Gap:** for each adult, `years_pre65 = max(0, 65 − age_at_fire)`; household gap years = the maximum.
+2. **FPL position:** `fpl = household_size_to_fpl[n]` (n > 8 → `[8] + (n − 8) × each_additional_person`); `fpl_pct = target_magi_usd / fpl × 100`.
+3. **Premium tax credit:** if `100 ≤ fpl_pct ≤ ceiling × 100` (and above 138 in expansion states), `PTC = max(0, benchmark_silver_monthly × 12 − applicable_pct(fpl_pct) × target_magi_usd)`; else 0. Below the floor → Medicaid flag.
+4. **Annual cost per option** = `premium × 12 − PTC (ACA only, capped at the premium) + min(expected_medical_spend, oop_max)`:
+   - COBRA: `cobra_total_monthly × 1.02 × 12` + `min(spend, plan oop_max)`; only for the first 18 months.
+   - DPC + catastrophic: `(dpc + catastrophic) × 12` + spend above DPC scope (Ask; else the full `expected_medical_spend`); eligible only if every covered adult is under 30 or has a hardship exemption.
+   - Sharing ministry: `monthly × 12` + spend (no OOP cap — show worst case as "uncapped").
+5. **MAGI band:** floor = 138% FPL (expansion state) or 100% FPL; ceiling = PTC ceiling × FPL − $1 when the cliff applies (none if enhanced subsidies are verified in force). Convert to $ for the household.
+6. **Projection to 65:** `annual_cost × gap_years` (real dollars) at `target_magi_usd` and at the band ceiling.
+7. **HSA stack:** if the chosen plan is HSA-eligible, annual contribution = md_facts limit for coverage type (+ catch-up 55+).
+8. Rounding: cents internally; whole dollars; FPL % to whole numbers.
+
+### Decision rules
+
+Primary option — evaluate top to bottom; the first match wins (options with no quote are skipped).
+
+| # | Condition | Recommendation |
+|---|---|---|
+| 1 | `fpl_pct` below the Medicaid / PTC floor | Medicaid (expansion state) or raise MAGI to the floor — flag the coverage gap |
+| 2 | `mid_treatment` or `planned_procedure_within_18mo` in `health_flags` and COBRA quoted | COBRA through treatment (≤ 18 months), then the lowest-cost ACA tier |
+| 3 | Spouse plan quoted and its annual cost ≤ the lowest ACA annual cost | Spouse employer plan |
+| 4 | DPC + catastrophic eligible, no `health_flags`, and its annual cost < the lowest ACA annual cost | DPC + catastrophic |
+| 5 | Otherwise | ACA tier with the lowest annual cost at `target_magi_usd`; tie → silver if `fpl_pct ≤ 250` (CSR), else the lower premium |
+
+A health-sharing ministry is never the primary recommendation (not insurance); it is shown for comparison only.
+
+### Output template
+
+```markdown
+# Pre-65 healthcare plan — household of {n}, FIRE at {fire_age}, {gap_years} years to 65
+
+## Headline
+Primary: **{option}** (rule #{k}) — **${annual_cost}/yr** at MAGI ${target_magi} ({fpl_pct}% FPL).
+
+## Gap
+| Member | Age at FIRE | Years to 65 |
+|---|---|---|
+
+## MAGI band
+| Item | % FPL | $ for household | Source |
+|---|---|---|---|
+| Floor | | | |
+| Target | | | |
+| Ceiling | | | |
+
+## Option comparison (annual, today's $)
+| Option | Premium | PTC | Expected OOP | Annual cost | Eligible? | Notes |
+|---|---|---|---|---|---|---|
+| ACA bronze | | | | | | |
+| ACA silver | | | | | | |
+| ACA gold | | | | | | |
+| COBRA (≤ 18 mo) | | — | | | | |
+| Spouse plan | | — | | | | |
+| DPC + catastrophic | | — | | | | |
+| Health-sharing ministry | | — | uncapped | | | not insurance |
+
+## Cost to 65
+| Scenario | Annual | Total to 65 |
+|---|---|---|
+
+## HSA stacking
+{contribution $ and source — or "Not applicable — plan not HSA-eligible"}
+
+## Coordination
+- Roth conversion cap → Pre-59½ Bridge Strategy: ${…}
+- Realized-gain budget → Withdrawal Order Optimizer: ${…}
+- Plan selection → **Health & Medicare**
+
+## Recommended next step
+{hand-off sentence}
+```
 
 ## Report Quality
 

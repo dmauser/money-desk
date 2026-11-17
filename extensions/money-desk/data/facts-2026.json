@@ -1,7 +1,7 @@
 {
   "_meta": {
     "tax_year": 2026,
-    "last_verified": "2026-05-26",
+    "last_verified": "2026-11-17",
     "scope": "US federal only — state-specific rules and US-resident filing assumed unless noted.",
     "disclaimer": "Curated reference data. Always re-verify against the cited primary source before citing in client output, and prefer the user's actual plan/account documents when available."
   },
@@ -24,13 +24,14 @@
     "hsa_family": 8750,
     "hsa_catchup_age_55_plus": 1000,
     "fsa_healthcare": 3400,
-    "fsa_dependent_care_married_or_single": 5000,
-    "_notes": "Numbers above are illustrative projections for the 2026 plan year — confirm against the IRS notice for the year of use. Mark [UNSOURCED] if the official notice has not yet been released at the time of use.",
-    "_label": "IRS 2026 limits"
+    "fsa_dependent_care_married_or_single": 7500,
+    "_notes": "Numbers above are illustrative projections for the 2026 plan year — confirm against the IRS notice for the year of use. Mark [UNSOURCED] if the official notice has not yet been released at the time of use. Dependent-care FSA raised to $7,500 by OBBBA (IRS Pub 15-B 2026).",
+    "_label": "IRS 2026 limits",
+    "fsa_dependent_care_married_filing_separately": 3750
   },
   "income_tax_brackets_mfj_2026": {
-    "_source": "IRS Rev. Proc. 2025-32 (projected); confirm via final IRS publication for tax year 2026.",
-    "_url": "https://www.irs.gov/forms-pubs/about-publication-17",
+    "_source": "IRS Rev. Proc. 2025-32 (final 2026 inflation adjustments, incl. OBBBA P.L. 119-21 changes)",
+    "_url": "https://www.irs.gov/pub/irs-drop/rp-25-32.pdf",
     "standard_deduction_mfj": 32200,
     "standard_deduction_single": 16100,
     "standard_deduction_hoh": 24150,
@@ -40,47 +41,47 @@
       {
         "rate": 0.1,
         "min": 0,
-        "max": 24300
+        "max": 24800
       },
       {
         "rate": 0.12,
-        "min": 24300,
-        "max": 98800
+        "min": 24800,
+        "max": 100800
       },
       {
         "rate": 0.22,
-        "min": 98800,
-        "max": 210700
+        "min": 100800,
+        "max": 211400
       },
       {
         "rate": 0.24,
-        "min": 210700,
-        "max": 402100
+        "min": 211400,
+        "max": 403550
       },
       {
         "rate": 0.32,
-        "min": 402100,
-        "max": 511000
+        "min": 403550,
+        "max": 512450
       },
       {
         "rate": 0.35,
-        "min": 511000,
-        "max": 766800
+        "min": 512450,
+        "max": 768700
       },
       {
         "rate": 0.37,
-        "min": 766800,
+        "min": 768700,
         "max": null
       }
     ],
     "ltcg_qualified_dividend_brackets_mfj": [
       {
         "rate": 0,
-        "max": 99000
+        "max": 98900
       },
       {
         "rate": 0.15,
-        "max": 615000
+        "max": 613700
       },
       {
         "rate": 0.2,
@@ -89,103 +90,178 @@
     ],
     "niit_threshold_mfj": 250000,
     "niit_threshold_single": 200000,
-    "amt_exemption_mfj": 142200,
-    "amt_exemption_single": 90750,
-    "_label": "IRS 2026 brackets"
+    "amt_exemption_mfj": 140200,
+    "amt_exemption_single": 90100,
+    "_label": "IRS 2026 brackets",
+    "brackets_single": [
+      {
+        "rate": 0.1,
+        "min": 0,
+        "max": 12400
+      },
+      {
+        "rate": 0.12,
+        "min": 12400,
+        "max": 50400
+      },
+      {
+        "rate": 0.22,
+        "min": 50400,
+        "max": 105700
+      },
+      {
+        "rate": 0.24,
+        "min": 105700,
+        "max": 201750
+      },
+      {
+        "rate": 0.32,
+        "min": 201750,
+        "max": 256200
+      },
+      {
+        "rate": 0.35,
+        "min": 256200,
+        "max": 640600
+      },
+      {
+        "rate": 0.37,
+        "min": 640600,
+        "max": null
+      }
+    ],
+    "ltcg_qualified_dividend_brackets_single": [
+      {
+        "rate": 0,
+        "max": 49450
+      },
+      {
+        "rate": 0.15,
+        "max": 545500
+      },
+      {
+        "rate": 0.2,
+        "max": null
+      }
+    ],
+    "ltcg_qualified_dividend_brackets_hoh": [
+      {
+        "rate": 0,
+        "max": 66200
+      },
+      {
+        "rate": 0.15,
+        "max": 579600
+      },
+      {
+        "rate": 0.2,
+        "max": null
+      }
+    ]
   },
   "social_security_2026": {
-    "_source": "SSA fact sheet (annual COLA + wage-base release).",
+    "_source": "SSA 2026 COLA fact sheet; SSA earnings-test exempt amounts (ssa.gov/oact/cola/rtea.html); SSA FAQ KA-01897.",
     "_url": "https://www.ssa.gov/oact/cola/",
     "wage_base": 184500,
     "fica_employee_rate": 0.062,
     "medicare_employee_rate": 0.0145,
     "additional_medicare_rate_above_threshold_mfj_250k": 0.009,
     "full_retirement_age_born_1960_or_later": 67,
-    "earnings_test_limit_under_fra": 23400,
-    "earnings_test_limit_year_of_fra": 62160,
-    "max_benefit_at_fra": 4250,
-    "cola_for_year": 0.025,
+    "earnings_test_limit_under_fra": 24480,
+    "earnings_test_limit_year_of_fra": 65160,
+    "max_benefit_at_fra": 4152,
+    "cola_for_year": 0.028,
     "_label": "SSA 2026"
   },
   "medicare_2026": {
-    "_source": "CMS Annual Premium and Deductible Notice; SSA IRMAA tables.",
-    "_url": "https://www.cms.gov/medicare/medicare-costs",
-    "part_b_base_premium_monthly": 196.1,
-    "part_b_deductible_annual": 264,
-    "part_a_deductible_per_benefit_period": 1720,
+    "_source": "CMS fact sheet \"2026 Medicare Parts A & B Premiums and Deductibles\" (Nov 14, 2025).",
+    "_url": "https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles",
+    "part_b_base_premium_monthly": 202.9,
+    "part_b_deductible_annual": 283,
+    "part_a_deductible_per_benefit_period": 1736,
     "part_d_base_beneficiary_premium_monthly": 36,
     "irmaa_lookback_years": 2,
     "irmaa_brackets_mfj_part_b_total_monthly": [
       {
-        "magi_max": 212000,
-        "part_b_total": 196.1
+        "magi_max": 218000,
+        "part_b_total": 202.9
       },
       {
-        "magi_max": 266000,
-        "part_b_total": 274.5
+        "magi_max": 274000,
+        "part_b_total": 284.1
       },
       {
-        "magi_max": 334000,
-        "part_b_total": 392.1
+        "magi_max": 342000,
+        "part_b_total": 405.8
       },
       {
-        "magi_max": 400000,
-        "part_b_total": 509.7
+        "magi_max": 410000,
+        "part_b_total": 527.5
       },
       {
         "magi_max": 750000,
-        "part_b_total": 627.3
+        "part_b_total": 649.2
       },
       {
         "magi_max": null,
-        "part_b_total": 666.5
+        "part_b_total": 689.9
       }
     ],
     "irmaa_brackets_single_part_b_total_monthly": [
       {
-        "magi_max": 106000,
-        "part_b_total": 196.1
+        "magi_max": 109000,
+        "part_b_total": 202.9
       },
       {
-        "magi_max": 133000,
-        "part_b_total": 274.5
+        "magi_max": 137000,
+        "part_b_total": 284.1
       },
       {
-        "magi_max": 167000,
-        "part_b_total": 392.1
+        "magi_max": 171000,
+        "part_b_total": 405.8
       },
       {
-        "magi_max": 200000,
-        "part_b_total": 509.7
+        "magi_max": 205000,
+        "part_b_total": 527.5
       },
       {
         "magi_max": 500000,
-        "part_b_total": 627.3
+        "part_b_total": 649.2
       },
       {
         "magi_max": null,
-        "part_b_total": 666.5
+        "part_b_total": 689.9
       }
     ],
-    "_label": "CMS Medicare 2026"
+    "_label": "CMS Medicare 2026",
+    "irmaa_part_d_monthly_adjustment_by_tier": [
+      0,
+      14.5,
+      37.5,
+      60.4,
+      83.3,
+      91
+    ],
+    "_notes": "IRMAA tiers share the MAGI breakpoints above (MFJ / single). part_d_base_beneficiary_premium_monthly not re-verified in the 2026-11 refresh — confirm via CMS before citing."
   },
   "estate_and_gift_2026": {
-    "_source": "IRS Rev. Proc. 2025-32; Public Law (TCJA sunset) — confirm post-sunset rules.",
+    "_source": "IRS Rev. Proc. 2025-32 (final 2026 inflation adjustments, incl. OBBBA P.L. 119-21 changes); OBBBA §70106 made the higher exemption permanent and indexed after 2026.",
     "_url": "https://www.irs.gov/businesses/small-businesses-self-employed/estate-tax",
     "annual_gift_exclusion_per_donee": 19000,
-    "lifetime_exemption_per_individual": 14000000,
-    "annual_exclusion_to_non_citizen_spouse": 195000,
-    "_notes": "The TCJA-doubled exemption is scheduled to sunset; verify whether legislation extended it before relying on the $14M figure.",
-    "_label": "IRS Estate 2026"
+    "lifetime_exemption_per_individual": 15000000,
+    "annual_exclusion_to_non_citizen_spouse": 194000,
+    "_notes": "No sunset: OBBBA set the basic exclusion at $15M for 2026, inflation-indexed from 2027.",
+    "_label": "IRS Estate 2026",
+    "gst_exemption": 15000000
   },
   "qbi_section_199a_2026": {
-    "_source": "IRS Rev. Proc. 2025-32 — projected QBI thresholds.",
+    "_source": "IRS Rev. Proc. 2025-32 (final 2026 inflation adjustments, incl. OBBBA P.L. 119-21 changes) §4.26 (OBBBA widened the phase-in range).",
     "_url": "https://www.irs.gov/newsroom/qualified-business-income-deduction",
     "deduction_percent": 0.2,
-    "phase_in_start_mfj": 410000,
-    "phase_in_end_mfj": 510000,
-    "phase_in_start_single": 205000,
-    "phase_in_end_single": 255000,
+    "phase_in_start_mfj": 403500,
+    "phase_in_end_mfj": 553500,
+    "phase_in_start_single": 201750,
+    "phase_in_end_single": 276750,
     "_label": "IRS QBI 2026"
   },
   "fafsa_and_education_2026_27": {
@@ -200,37 +276,44 @@
     "_label": "FSA / Ed Dept 2026-27"
   },
   "mortgage_and_real_estate_2026": {
-    "_source": "FHFA conforming-loan limit notice; HUD FHA loan limit table; IRS publications for housing rules.",
+    "_source": "FHFA 2026 conforming loan limit release; IRS Pub 505 (2026) for SALT; IRS Rev. Proc. 2025-32 §4.24 for §179; IRS Notice 2026-11 for bonus depreciation.",
     "_url_fhfa": "https://www.fhfa.gov/news/news-release/conforming-loan-limit-values",
     "_url_hud": "https://entp.hud.gov/idapp/html/hicostlook.cfm",
-    "conforming_loan_limit_one_unit_baseline": 802650,
-    "conforming_loan_limit_one_unit_high_cost_ceiling": 1203975,
+    "conforming_loan_limit_one_unit_baseline": 832750,
+    "conforming_loan_limit_one_unit_high_cost_ceiling": 1249125,
     "fha_loan_limit_one_unit_low_cost_floor": 522000,
     "section_121_exclusion_single": 250000,
     "section_121_exclusion_mfj": 500000,
     "mortgage_interest_deduction_cap_post_tcja": 750000,
-    "salt_cap": 10000,
+    "salt_cap": 40400,
     "residential_rental_depreciation_life_years_27_5": 27.5,
     "commercial_depreciation_life_years_39": 39,
-    "bonus_depreciation_percent_2026": 0.4,
-    "section_179_expensing_limit": 1240000,
-    "section_179_phaseout_start": 3130000,
+    "bonus_depreciation_percent_2026": 1,
+    "section_179_expensing_limit": 2560000,
+    "section_179_phaseout_start": 4090000,
     "1031_like_kind_real_property_only": true,
-    "_label": "FHFA / IRS RE 2026"
+    "_label": "FHFA / IRS RE 2026",
+    "salt_cap_married_filing_separately": 20200,
+    "salt_cap_phase_down_magi_start": 505000,
+    "salt_cap_floor": 10000,
+    "_notes": "SALT cap reduced by 30% of MAGI above the phase-down start, not below the floor. Bonus depreciation 100% for qualified property acquired after Jan 19, 2025 (OBBBA; see Notice 2026-11). fha_loan_limit_one_unit_low_cost_floor not re-verified in the 2026-11 refresh — confirm via HUD before citing.",
+    "salt_cap_phase_down_magi_start_mfs": 252500,
+    "salt_cap_floor_mfs": 5000,
+    "salt_cap_phase_down_rate": 0.3
   },
   "federal_poverty_level_2026_48_states": {
-    "_source": "HHS Poverty Guidelines (annual).",
+    "_source": "HHS 2026 Poverty Guidelines, Federal Register 2026-00755 (Jan 15, 2026).",
     "_url": "https://aspe.hhs.gov/topics/poverty-economic-mobility/poverty-guidelines",
     "household_size_to_fpl": {
-      "1": 15700,
-      "2": 21250,
-      "3": 26800,
-      "4": 32350,
-      "5": 37900,
-      "6": 43450,
-      "7": 49000,
-      "8": 54550,
-      "each_additional_person": 5550
+      "1": 15960,
+      "2": 21640,
+      "3": 27320,
+      "4": 33000,
+      "5": 38680,
+      "6": 44360,
+      "7": 50040,
+      "8": 55720,
+      "each_additional_person": 5680
     },
     "aca_premium_tax_credit_eligibility_ceiling_through_2025": 4,
     "aca_premium_tax_credit_eligibility_ceiling_post_2025_unless_extended": "back to 400% FPL cliff — verify legislation",
@@ -255,7 +338,7 @@
     "_source": "IRS FEIE (Form 2555), FBAR (FinCEN 114), FATCA (Form 8938) instructions.",
     "_url_fbar": "https://www.fincen.gov/report-foreign-bank-and-financial-accounts",
     "_url_feie": "https://www.irs.gov/individuals/international-taxpayers/foreign-earned-income-exclusion",
-    "feie_max_per_qualifying_individual": 130000,
+    "feie_max_per_qualifying_individual": 132900,
     "foreign_housing_exclusion_base_percent_of_feie": 0.16,
     "fbar_filing_threshold_aggregate_usd": 10000,
     "fbar_filing_deadline": "April 15 with automatic extension to October 15",
@@ -267,6 +350,69 @@
     "bona_fide_residence_test_full_tax_year_required": true,
     "pfic_default_taxation_form_8621_required": true,
     "totalization_agreement_countries_count_approx": 30,
-    "_label": "IRS / FinCEN Expat 2026"
+    "_label": "IRS / FinCEN Expat 2026",
+    "foreign_housing_limitation_default_2026": 39870
+  },
+  "rmd_and_qcd_2026": {
+    "_source": "IRS Publication 590-B, Appendix B Table III (Uniform Lifetime); QCD limit per IRS Notice 2025-67 (408(d)(8) indexed by SECURE 2.0).",
+    "_url": "https://www.irs.gov/publications/p590b",
+    "rmd_start_age_born_1951_to_1959": 73,
+    "rmd_start_age_born_1960_or_later": 75,
+    "qcd_annual_limit_per_person": 111000,
+    "qcd_one_time_split_interest_limit": 55000,
+    "qcd_minimum_age": 70.5,
+    "uniform_lifetime_table_distribution_period": {
+      "72": 27.4,
+      "73": 26.5,
+      "74": 25.5,
+      "75": 24.6,
+      "76": 23.7,
+      "77": 22.9,
+      "78": 22,
+      "79": 21.1,
+      "80": 20.2,
+      "81": 19.4,
+      "82": 18.5,
+      "83": 17.7,
+      "84": 16.8,
+      "85": 16,
+      "86": 15.2,
+      "87": 14.4,
+      "88": 13.7,
+      "89": 12.9,
+      "90": 12.2,
+      "91": 11.5,
+      "92": 10.8,
+      "93": 10.1,
+      "94": 9.5,
+      "95": 8.9,
+      "96": 8.4,
+      "97": 7.8,
+      "98": 7.3,
+      "99": 6.8,
+      "100": 6.4,
+      "101": 6,
+      "102": 5.6,
+      "103": 5.2,
+      "104": 4.9,
+      "105": 4.6,
+      "106": 4.3,
+      "107": 4.1,
+      "108": 3.9,
+      "109": 3.7,
+      "110": 3.5,
+      "111": 3.4,
+      "112": 3.3,
+      "113": 3.1,
+      "114": 3,
+      "115": 2.9,
+      "116": 2.8,
+      "117": 2.7,
+      "118": 2.5,
+      "119": 2.3,
+      "120": 2
+    },
+    "_notes": "Use the Joint Life table (Pub 590-B Table II) instead when the sole beneficiary is a spouse more than 10 years younger. Age 120 row applies to 120 and over.",
+    "_label": "IRS RMD & QCD 2026"
   }
 }

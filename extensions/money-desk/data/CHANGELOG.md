@@ -7,6 +7,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.0] — 2026-11-17
+
+### Added
+
+- **Deterministic skills.** All 95 skills now carry a `## Determinism rules`
+  section (input keys, assumptions, calculation method, decision rules,
+  output template) so the same inputs give the same numbers, the same
+  recommendation, and the same report shape on any model or host.
+  Standard: `docs/SKILL_DETERMINISM.md`. Every assumption is either asked
+  for or tied to an `md_facts` key; thresholds are numeric; ties have
+  fixed tie-breakers; stress tests use fixed paths instead of random draws.
+- **`tests/skill-determinism.test.mjs`** — enforces the section and its
+  five subsections on every SKILL.md and bans placeholder assumptions.
+- **`tests/tool-references.test.mjs`** — every `md_*` tool id mentioned in
+  shipped markdown must be a registered tool.
+- **`md_facts` → `rmd_and_qcd_2026`** — IRS Uniform Lifetime Table (Pub
+  590-B Table III), RMD start ages, 2026 QCD limit ($111,000) and the
+  one-time split-interest QCD limit ($55,000).
+- **`md_facts`** — single-filer ordinary brackets; single and HoH LTCG
+  brackets; Part D IRMAA adjustments; SALT phase-down keys; MFS
+  dependent-care FSA limit; 2026 foreign housing limitation; GST exemption.
+
+### Fixed
+
+- **Stale / incorrect 2026 figures in `md_facts`** (re-verified 2026-11-17
+  against IRS Rev. Proc. 2025-32, CMS, SSA, FHFA, HHS, IRS Pub 505 / 15-B):
+  MFJ ordinary brackets (every threshold), 0% / 15% LTCG ceilings
+  ($98,900 / $613,700), AMT exemptions ($140,200 / $90,100), QBI
+  thresholds ($403,500–$553,500 MFJ; $201,750–$276,750 other), estate
+  exemption ($15M, no sunset under OBBBA), non-citizen-spouse gift
+  exclusion ($194,000), SALT cap ($40,400 with phase-down above $505,000
+  MAGI), dependent-care FSA ($7,500), bonus depreciation (100%), §179
+  ($2.56M / $4.09M), Social Security COLA (2.8%), earnings-test limits
+  ($24,480 / $65,160), max benefit at FRA ($4,152), Medicare Part B
+  premium ($202.90), Part B deductible ($283), Part A deductible ($1,736),
+  all IRMAA tiers, FEIE ($132,900), conforming loan limits
+  ($832,750 / $1,249,125), and 2026 HHS poverty guidelines.
+- **Dead tool references** — skills and role files pointed at tools that
+  don't exist (`md_ir_*`, `md_cr_*`, `md_dc_*`, `md_es_role`,
+  `md_bc_skill_cash_flow_audit`, `md_pc_skill_coverage_audit`); all now
+  point at the real specialists' tools, and stale specialist names
+  ("Credit Coach", "Debt Coach", "Estate Planner") are corrected.
+- **Hard-coded 2024/2025 figures** in skill prose (contribution limits, QCD
+  $108k, gift exclusion, exemption $13.99M, FEIE $130k, mileage, §179,
+  bonus %, NIIT thresholds, SS wage base) replaced with `md_facts` keys.
+- **Math and logic errors** found during the rollout: Teach a Kid's
+  "$3,000 at 16 ≈ $100k at 67" (actually ≈ $58,600 at 6% real); QBI wage
+  limit formula; depreciation recapture and NIIT base in Sell vs Hold;
+  rental analyzer capex/NOI treatment and defaults now match its workbook
+  and `md_facts`; emergency-fund and subscription-audit rules that
+  contradicted themselves; Iowa removed from inheritance-tax states.
+
+### Changed
+
+- **Docs** — `docs/SKILL_DETERMINISM.md` (new standard); `CONTRIBUTING.md`
+  requires the Determinism rules section and bans hard-coded year figures;
+  `.github/copilot-instructions.md` adds conventions 14–16 (deterministic
+  skills, `md_facts`-only figures with source verification, valid tool ids);
+  `README.md` What's New (v0.21.0), table of contents, and Repository
+  Structure (new tests, `docs/`, `facts-2026.json`; removed the stale
+  `insurance-reviewer` entry).
+
 ## [0.20.0] — 2026-11-17
 
 ### Added

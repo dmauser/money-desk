@@ -31,9 +31,9 @@ description: Compare 12-month spending trend against income trend to find where 
 - Recompute excluding stated one-offs.
 
 ### 3. The savings-rate test
-- **Savings rate** = (income − total spending) ÷ income.
+- **Savings rate** = (net income − total spending) ÷ net income.
 - Compare current 12-month savings rate to prior 12-month savings rate.
-- If income grew but savings rate did NOT grow proportionally → lifestyle inflation is happening, regardless of feel.
+- If income grew but less than 50% of the net raise was saved → lifestyle inflation is happening, regardless of feel.
 - Healthy rule of thumb: 50% of every net raise goes to savings before the new lifestyle bakes in.
 
 ### 4. The categories most prone to creep (typical)
@@ -73,6 +73,93 @@ For each flagged category, the prescription is one of three:
 
 Analysis only. Recommendations to "cut" a category are suggestions, not prescriptions — what matters is conscious choice. Pair this with `decision_journal` for any pre-committed cut so future-self can audit whether the cut held.
 
+## Determinism rules
+
+### Input keys
+
+- `current_12m_spending` — list of `{ category, amount_usd }` (most recent 12 months)
+- `prior_12m_spending` — list of `{ category, amount_usd }` (the 12 months before that; same category names)
+- `current_12m_gross_usd`, `prior_12m_gross_usd` — numbers
+- `current_12m_net_usd`, `prior_12m_net_usd` — numbers (after tax, 401(k), HSA/FSA, premiums)
+- `one_offs` — list of `{ category, period: current | prior, amount_usd, label }` to exclude
+- `next_raise_net_monthly_usd` — number or null (expected increase in monthly take-home)
+- `user_category_choices` — optional map `{ category: keep | cut | automate }`
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Spending and income for both 12-month windows | **Ask — no default** (no trend without the prior year) | — |
+| One-off exclusions | None excluded unless the user lists them | `[USER-PROVIDED]` |
+| Ratchet split of the incremental net raise (50% investments / 25% joint goals / 25% checking) | Skill convention stated in this file | `[ASSUMPTION]` |
+| 401(k) auto-escalation step | Plan's own feature; **Ask** the plan — no default | — |
+
+### Calculation method
+
+1. Subtract `one_offs` from the matching category and period before any other step.
+2. `gross_change_pct = (current_gross − prior_gross) / prior_gross × 100`; same for net.
+3. **Raise capture rate** = `(current_net − prior_net) / (current_gross − prior_gross) × 100`; if gross change ≤ 0, report "Not applicable — no raise".
+4. Per category: `Δ$ = current − prior`; `Δ% = Δ$ / prior × 100` (prior = 0 → "new category"). Unmatched category names → listed as new / dropped.
+5. **Creep candidates** = categories with `Δ%` > 15 or "new category"; sort by `Δ$` descending; tie → category A–Z. Top 5 go in the report.
+6. **Savings rate** (net basis) = `(net_income − total_spending) / net_income × 100` for each window; `Δ savings rate` in percentage points.
+7. **Share of net raise saved** = `((current_net − current_spending) − (prior_net − prior_spending)) / (current_net − prior_net) × 100`.
+8. **Ratchet amounts** (if `next_raise_net_monthly_usd` given, else use `(current_net − prior_net)/12`): investments 50%, joint goals 25%, checking 25%; round to whole dollars.
+9. Re-audit date = today + 6 months.
+
+### Decision rules
+
+Evaluate top to bottom; first match wins.
+
+| # | Overall verdict | Result |
+|---|---|---|
+| 1 | `current_net − prior_net` ≤ 0 | No raise to leak — report category drift only; no ratchet |
+| 2 | Share of net raise saved < 0 (savings fell while income rose) | **Lifestyle inflation — severe**; ratchet + cut review on top 5 |
+| 3 | Share of net raise saved < 50 | **Lifestyle inflation**; set up the ratchet |
+| 4 | Otherwise (≥ 50) | **Healthy** — raise mostly captured; ratchet optional |
+
+| # | Per-category prescription | |
+|---|---|---|
+| 1 | User chose a prescription in `user_category_choices` | Use it |
+| 2 | Category is Housing or Cars | Conscious keep or conscious cut — user decides; no automate option (contracted costs) |
+| 3 | Otherwise | Automate around (default) |
+
+### Output template
+
+```markdown
+# Lifestyle Inflation Audit — {current window} vs {prior window}
+
+## Verdict
+**{Healthy | Lifestyle inflation | Lifestyle inflation — severe | No raise}** (rule #{n})
+
+## Income vs spending trend
+| Metric | Prior 12 mo | Current 12 mo | Δ $ | Δ % |
+|---|---|---|---|---|
+| Gross income | | | | |
+| Net income | | | | |
+| Total spending | | | | |
+| Savings rate (net) | | | {pp} | |
+| Raise capture rate | | | | |
+| Share of net raise saved | | | | |
+
+## Top 5 creep categories
+| Category | Prior | Current | Δ $ | Δ % | Prescription |
+|---|---|---|---|---|---|
+{or "None — no category rose more than 15%"}
+
+## Excluded one-offs
+{list — or "None"}
+
+## Automation
+| Transfer | $ / month | Destination |
+|---|---|---|
+| Investments (50%) | | |
+| Joint goals (25%) | | |
+| Stays in checking (25%) | | |
+- 401(k) auto-escalation: {plan's step, or "Ask plan"}
+
+## Re-audit date
+{date}
+```
 
 ## Report Quality
 

@@ -4,7 +4,7 @@ description: Evaluate refinancing a mortgage, auto loan, or personal loan: break
 
 ## When to use
 
-- Rate environment moved (>~50–75 bps lower than current loan).
+- An offered rate is below the current loan's rate (break-even vs hold period decides — see Determinism rules).
 - Credit score has improved materially.
 - User's mortgage PMI removal is in sight (refi can drop it).
 - ARM is approaching reset.
@@ -55,6 +55,102 @@ description: Evaluate refinancing a mortgage, auto loan, or personal loan: break
 - Watch for "no closing cost" loans — the cost is usually baked into a higher rate. Model both options.
 - "Not professional financial advice."
 
+## Determinism rules
+
+### Input keys
+
+- `loan_type` — `mortgage` | `auto` | `personal` | `heloc`
+- `current` — `{ balance_usd, rate_pct, months_remaining, monthly_pi_usd, pmi_monthly_usd, prepayment_penalty_usd, is_arm (bool), arm_reset_yyyy_mm?, reset_rate_pct? }`
+- `proposed` — `{ rate_pct, term_months, closing_costs_usd, lender_credits_usd, pmi_monthly_usd, cash_out_usd, cash_in_usd, is_variable (bool) }`
+- `hold_months` — integer; how long the user expects to keep the loan / home / car
+- `discount_rate_pct` — number (optional)
+- `itemizes` — bool; `marginal_federal_rate_pct` — number (only if itemizing)
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Current loan terms | **Ask — no default** (most recent statement) | — |
+| Proposed terms and closing costs | **Ask — no default** (Loan Estimate) | — |
+| Hold period | **Ask — no default** | — |
+| Discount rate | The current loan's `rate_pct` | `[ASSUMPTION]` |
+| Mortgage-rate sanity check | `md_facts` → `behavioral_assumptions_safe_defaults.mortgage_rate_assumption_check_freddie_pmms` (compare the quote to the current PMMS via `md_sources`) | `[UNSOURCED]` until fetched |
+| Tax effect of interest | Ignored unless `itemizes` = true (then interest × marginal rate, with the cap in `md_facts` → `mortgage_and_real_estate_2026.mortgage_interest_deduction_cap_post_tcja`) | `[IRS 2026 limits]` |
+| ARM reset rate | **Ask — no default** | — |
+
+### Calculation method
+
+1. **New principal** = `current.balance_usd + cash_out_usd − cash_in_usd` (closing costs paid in cash, not rolled in, unless the Loan Estimate says otherwise — then add them here and set out-of-pocket to 0).
+2. **New P&I** by standard amortization, `r = rate_pct/100/12`, `n = term_months`.
+3. **Monthly saving** = `(current.monthly_pi_usd + current.pmi_monthly_usd) − (new P&I + proposed.pmi_monthly_usd)`.
+4. **Net upfront cost** = `closing_costs_usd − lender_credits_usd + prepayment_penalty_usd`.
+5. **Break-even months** = `ceil(net upfront cost ÷ monthly saving)`; if monthly saving ≤ 0, "No break-even".
+6. **Hold-period cost** (the primary test): `old = Σ old payments for min(hold_months, months_remaining) + old balance at hold_months`; `new = net upfront cost + Σ new payments for min(hold_months, n) + new balance at hold_months − cash_out_usd + cash_in_usd`. `hold_saving = old − new`. ARM: old-loan payments switch to `reset_rate_pct` at `arm_reset_yyyy_mm`.
+7. **Lifetime interest:** old = Σ interest to maturity on the current schedule; new = Σ interest over `n`. `lifetime_delta = old − new`.
+8. **NPV** = −net upfront cost + Σ `monthly saving ÷ (1 + d/12)^t`, t = 1..min(hold_months, n), `d = discount_rate_pct/100`.
+9. **Term-match check:** if `term_months` > `months_remaining` + 12, rerun steps 2–8 with the shortest standard term ≥ `months_remaining` (mortgage: 180, 240, 300, 360; auto/personal: 36, 48, 60, 72) and show it alongside.
+10. **Sensitivity:** proposed rate −0.25 pp; closing costs +20%.
+11. **Rounding:** compute in cents; report whole dollars; months as integers.
+
+### Decision rules
+
+Evaluate top to bottom; the first match is the verdict.
+
+| # | Condition | Verdict |
+|---|---|---|
+| 1 | Federal student loan → private | Route to Student Loan Review (federal protections would be lost) |
+| 2 | `hold_saving` ≤ 0 | Don't refinance |
+| 3 | Monthly saving > 0 and break-even months > `hold_months` | Don't refinance |
+| 4 | Monthly saving > 0 and break-even months > `hold_months` − 12 | Wait — marginal; re-quote if rates fall another 0.25 pp or costs drop |
+| 5 | `term_months` > `months_remaining` + 12 and `lifetime_delta` < 0 | Refinance with the matched term from step 9 (if it still passes rows 1–2), else Don't |
+| 6 | `proposed.is_variable` = true | Refinance only with the rate-cap / reset path shown; flag variable-rate risk |
+| 7 | Otherwise | Refinance now — shop ≥ 3 Loan Estimates |
+
+### Output template
+
+```markdown
+# Refinance Analysis — {loan_type} — {YYYY-MM-DD}
+
+## Headline verdict
+**{Refinance now / Refinance with matched term / Wait / Don't refinance}** — rule #{n}: {strongest reason}.
+
+## Side-by-side
+| Item | Current | Proposed | Matched term |
+|---|---|---|---|
+| Balance / principal | | | |
+| Rate | | | |
+| Term remaining (months) | | | |
+| Monthly P&I | | | |
+| PMI | | | |
+| Monthly total | | | |
+
+## Break-even
+Net upfront cost ${cost} ÷ monthly saving ${saving} = **{months} months** vs hold **{hold_months} months**.
+
+## Hold-period cost
+| Scenario | Cost over hold | Saving |
+|---|---|---|
+
+## Lifetime interest
+| Scenario | Total interest |
+|---|---|
+| Current | |
+| Proposed | |
+| Delta | |
+
+## NPV
+{value at {d}%}
+
+## Sensitivity
+| Case | Break-even | Hold saving | Verdict |
+|---|---|---|---|
+| Base | | | |
+| Rate −0.25 pp | | | |
+| Closing costs +20% | | | |
+
+## Action list
+- {get ≥ 3 Loan Estimates, lock timing, document checklist}
+```
 
 ## Report Quality
 

@@ -25,7 +25,7 @@ description: Line-by-line decode of a pay stub. Names every deduction (FIT / FIC
    - **Post-tax deductions** (Roth 401(k), ESPP, after-tax life, garnishments, union dues).
 3. **Verify each tax line.** Use 2026 rates (call `md_facts` for current limits).
 4. **Flag anything that looks off.** See "Common red flags" below.
-5. **Compute the take-home rate.** Net ÷ Gross = take-home %. Quick gut check: most W-2 employees land 60-75% net depending on state / contributions / income.
+5. **Compute the take-home rate.** Net ÷ Gross = take-home %. Quick gut check: most W-2 employees land 60-75% net depending on state / contributions / income `[UNSOURCED]` — context only, not a red-flag trigger.
 6. **Hand off if action needed.** Withholding looks wrong → **Withholding Check** (Tax Planner). 401(k) contribution % feels low → **Contribution Optimizer** (Retirement Planner). HSA available but not maxed → **Concept Explainer** for "HSA triple tax advantage", then **Health Plan Selector** (Health & Medicare).
 
 ## Common red flags to check for
@@ -41,43 +41,7 @@ description: Line-by-line decode of a pay stub. Names every deduction (FIT / FIC
 
 ## Output template
 
-```
-# Paycheck walkthrough — pay period {dates}, frequency {weekly/bi-weekly/etc.}
-
-## Top-line
-- Gross: ${X}
-- Pre-tax deductions: ${Y}
-- Taxable wages: ${X - Y}
-- Total taxes: ${Z}
-- Post-tax deductions: ${W}
-- Net (take-home): ${X - Y - Z - W}
-- Take-home rate: {N}%
-
-## Line-by-line
-
-### Gross
-- {line}: ${amount} — {one-sentence what it is}
-
-### Pre-tax deductions
-- {line}: ${amount} — {what it does + tax savings}
-
-### Taxes
-- FIT: ${amount} — withheld based on W-4; reconciles at tax filing. {Flag if YTD looks off relative to annualized projection.}
-- FICA OASDI (6.2%): ${amount} — funds Social Security retirement / disability / survivor benefits. {Flag if YTD > 6.2% × wage base.}
-- FICA Medicare (1.45%): ${amount} — funds Medicare Part A. {+ 0.9% Additional Medicare over $200k YTD if applicable.}
-- State {ST}: ${amount} — {state-specific notes}.
-- {SDI / local / etc. as applicable}
-
-### Post-tax deductions
-- {line}: ${amount} — {what it is}
-
-## Red flags I'm flagging
-- {issue 1, with the specific fix}
-- {issue 2}
-
-## Recommended next step
-{ONE thing — usually either: (a) run **Withholding Check** in Tax Planner, (b) update W-4 with payroll, or (c) you're all set, nothing to do}
-```
+Use the skeleton in **Determinism rules → Output template** below — it is the single source of truth for this skill's report shape.
 
 ## Citations
 
@@ -89,6 +53,100 @@ description: Line-by-line decode of a pay stub. Names every deduction (FIT / FIC
 
 This explains the stub; it doesn't recommend a new W-4. For a personal withholding recommendation, hand off to **Withholding Check** in **Tax Planner**.
 
+## Determinism rules
+
+### Input keys
+
+- `pay_frequency` — `weekly` | `biweekly` | `semimonthly` | `monthly`
+- `period_start`, `period_end` — `YYYY-MM-DD`
+- `lines` — list of `{ label, amount_usd, ytd_usd?, family: gross | pretax | tax | posttax }` (family filled by the skill if absent)
+- `gross_usd`, `net_usd` — numbers (current period), `ytd_gross_usd` — number
+- `filing_status` — `single` | `mfj` | `mfs` | `hoh` (from W-4)
+- `residence_state`, `work_state` — two-letter codes
+- `hdhp_enrolled` — boolean or null
+- `elected_401k_pct` — number or null (what the user believes they elected)
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Stub lines, frequency, filing status, states | **Ask — no default** | — |
+| Social Security wage base | `md_facts` → `social_security_2026.wage_base` | `[SSA 2026]` |
+| OASDI and Medicare employee rates | `md_facts` → `social_security_2026.fica_employee_rate`, `medicare_employee_rate` | `[SSA 2026]` |
+| Additional Medicare rate | `md_facts` → `social_security_2026.additional_medicare_rate_above_threshold_mfj_250k` | `[SSA 2026]` |
+| Employer Additional-Medicare withholding trigger ($200,000 wages, any filing status) | Not in md_facts — IRS (Form 8959 / Pub 15) via `md_sources`, else `[UNSOURCED]` | `[UNSOURCED]` |
+| Federal supplemental withholding rate (22%) | Not in md_facts — IRS Pub 15 via `md_sources`, else `[UNSOURCED]` | `[UNSOURCED]` |
+| State / local withholding rates | Not in md_facts — state DOR via `md_sources`, else `[UNSOURCED]` | `[UNSOURCED]` |
+
+### Calculation method
+
+1. **Periods per year**: weekly 52, biweekly 26, semimonthly 24, monthly 12. Annualized = period amount × periods.
+2. **Classify lines** into the four families and present them in this fixed order: Gross → Pre-tax deductions → Taxes → Post-tax deductions. Within Taxes, fixed order: FIT, OASDI, Medicare, Additional Medicare, State, Local, SDI/PFL, other.
+3. **Taxable wages** = gross − pre-tax deductions (note: 401(k) traditional reduces FIT wages but not FICA wages; Section 125 premiums/HSA reduce both).
+4. **OASDI check**: expected = `min(FICA wages, max(0, wage_base − prior YTD FICA wages)) × fica_employee_rate`. Flag if `|actual − expected|` > $1.00, or if YTD OASDI > `wage_base × fica_employee_rate` + $1.00.
+5. **Medicare check**: expected = FICA wages × `medicare_employee_rate` (+ Additional rate on YTD wages over the employer trigger). Flag if off by > $1.00.
+6. **401(k) check**: implied % = 401(k) line / gross × 100; flag if `elected_401k_pct` given and `|implied − elected|` > 0.5.
+7. **Take-home rate** = `net_usd / gross_usd × 100`, one decimal.
+8. **Arithmetic tie-out**: gross − pre-tax − taxes − post-tax must equal net within $0.01; otherwise flag "stub does not tie" with the difference.
+
+### Decision rules
+
+Red-flag checks — evaluate **every** row; list each that fires. Then the next step is chosen from the second table (first match wins).
+
+| # | Red flag condition | Flag text |
+|---|---|---|
+| 1 | YTD FICA wages > wage_base and OASDI > $0 this period | OASDI over-withheld past wage base |
+| 2 | OASDI or Medicare off by > $1.00 (steps 4–5) | FICA calculation mismatch |
+| 3 | State tax line for a state ≠ `residence_state` and ≠ `work_state` | Wrong state — payroll not updated |
+| 4 | 401(k) mismatch > 0.5 points | 401(k) election miscoded |
+| 5 | `hdhp_enrolled = true` and no HSA line | HSA not set up |
+| 6 | A bonus line withheld at the supplemental rate | Bonus at flat supplemental rate — may under-withhold |
+| 7 | Stub does not tie (step 8) | Arithmetic error on stub |
+| 8 | Otherwise | No red flags |
+
+| # | Next step | |
+|---|---|---|
+| 1 | Flag 3, 4, 5 or 7 fired | Contact payroll / HR with the specific fix |
+| 2 | Flag 1, 2 or 6 fired, or FIT annualized looks inconsistent with filing status | **Withholding Check** (Tax Planner) |
+| 3 | Otherwise | "You're all set — nothing to do" |
+
+### Output template
+
+```markdown
+# Paycheck walkthrough — pay period {period_start}–{period_end}, frequency {pay_frequency}
+
+## Top-line
+| Item | This period | Annualized |
+|---|---|---|
+| Gross | | |
+| Pre-tax deductions | | |
+| Taxable wages (FIT) | | |
+| Total taxes | | |
+| Post-tax deductions | | |
+| Net (take-home) | | |
+| Take-home rate | {N}% | |
+
+## Line-by-line
+### Gross
+| Line | Amount | What it is |
+|---|---|---|
+### Pre-tax deductions
+| Line | Amount | What it does |
+|---|---|---|
+### Taxes
+| Line | Amount | Expected | Check |
+|---|---|---|---|
+### Post-tax deductions
+| Line | Amount | What it is |
+|---|---|---|
+{"None" where a family is empty}
+
+## Red flags I'm flagging
+- {flag text + specific fix — or "No red flags"}
+
+## Recommended next step
+{ONE item from the Next-step table}
+```
 
 ## Report Quality
 

@@ -35,13 +35,13 @@ The "right" answer integrates all four. The naive "brokerage → Trad → Roth" 
 
 ## Workflow
 
-1. **Compute the early-FIRE bracket room.** With no W-2, the standard deduction + 10% + 12% brackets are large — for MFJ in 2026, ~$120k+ of taxable income at ≤12% federal. Plus 0% LTCG up to a similar ceiling for the bottom of the 12% bracket. This is the gift.
+1. **Compute the early-FIRE bracket room.** With no W-2, the standard deduction + 10% + 12% brackets are large — for MFJ, income up to `md_facts` → `income_tax_brackets_mfj_2026.standard_deduction_mfj` plus the top of the 12% bracket in `.brackets` is taxed at ≤ 12% federal, and qualified gains are taxed at 0% up to `.ltcg_qualified_dividend_brackets_mfj[0].max` of taxable income. This is the gift.
 2. **Constrain by ACA-MAGI ceiling.** Conversions and realized gains both push MAGI up. The user's pre-65 healthcare plan sets the MAGI ceiling. Conversion + realization total must fit under it (or accept higher healthcare cost as the trade-off — explicitly).
 3. **Sequence the years:**
-   - **Years 1 to (59.5−FIRE age):** the bridge period. Spend from taxable + Roth contributions; do Roth conversions up to MAGI ceiling AND 12%-bracket ceiling.
-   - **Years (59.5) to (73):** full account access. Continue conversion strategy if RMDs ahead loom large; otherwise default to lowest-tax bucket.
-   - **Years 73+:** RMDs force Trad withdrawals. Less optimization room. Pre-emptive conversions during 59.5–72 are the lever to reduce RMD-driven over-withdrawal.
-4. **Surface the RMD pressure point.** Project Trad balance at 73. If RMDs will exceed actual spend need, the user is being forced to take ordinary income they don't want — convert more, earlier.
+   - **Years 1 to (59.5−FIRE age):** the bridge period. Spend from taxable + Roth contributions; do Roth conversions up to the MAGI ceiling AND the target-bracket ceiling (Decision rules B).
+   - **Years (59.5) to RMD age (73, or 75 if born 1960+):** full account access. Continue conversion strategy if RMDs ahead loom large; otherwise default to lowest-tax bucket.
+   - **RMD age+:** RMDs force Trad withdrawals. Less optimization room. Pre-emptive conversions between 59.5 and RMD age are the lever to reduce RMD-driven over-withdrawal.
+4. **Surface the RMD pressure point.** Project Trad balance at RMD age. If RMDs will exceed actual spend need, the user is being forced to take ordinary income they don't want — convert more, earlier.
 5. **Layer HSA.** Reimburse against accumulated qualified medical receipts tax-free at any age. Roth-equivalent in retirement.
 6. **Surface state-tax interaction.** Some states tax retirement income, some don't. Some tax Roth conversions at ordinary rates. State move pre-FIRE has multi-year tax implications.
 7. **Output: year-by-year sequenced plan** with annual conversion target, annual realized-gain budget, and bucket pulls.
@@ -49,61 +49,7 @@ The "right" answer integrates all four. The naive "brokerage → Trad → Roth" 
 
 ## Output template
 
-```
-# Withdrawal order plan — FIRE {age} → {planning age}
-
-## Constraints
-- Annual spend (post-tax, today's $): ${X}  [USER-PROVIDED]
-- ACA-MAGI ceiling: ${M}  [from Pre-65 Healthcare Plan]
-- IRMAA ceiling (post-65): ${I}  [CMS Medicare 2026]
-- Filing status: {...}
-- State: {...} (state-tax notes)
-
-## Bucket inventory
-| Bucket | Balance | Notes |
-|--------|---------|-------|
-| Taxable | ${...} | cost basis ${...}; LTCG bracket interaction |
-| Trad | ${...} | RMD at 73; project to ${...} by 73 if unconverted |
-| Roth contributions | ${...} | accessible anytime |
-| Roth earnings | ${...} | qualified at 59.5 + 5y |
-| HSA | ${...} | qualified medical anytime; reimburse accumulated receipts |
-| Cash | ${...} | bridge |
-
-## Year-by-year sequence (annual snapshot — full table in handoff)
-
-### Bridge years (FIRE → 59.5)
-- Spend from: taxable ${A} + Roth contributions ${B}
-- Roth conversion: ${C}/yr (filling 10–12% bracket up to MAGI ceiling)
-- Realized cap gains budget: ${D}/yr (0% LTCG capture)
-- Total annual MAGI: ${C + D + dividends + interest} → under ${M} ✓
-
-### Mid years (59.5 → SS claim, ~65/67/70)
-- Continue conversion strategy if RMD projection still high
-- Begin Trad withdrawals if no further conversion room
-- HSA reimbursement of accumulated medical receipts
-
-### Late years (post-RMD, 73+)
-- RMD-driven Trad pulls (forced); residual spend from Roth or taxable
-- IRMAA ceiling now binding (replaces ACA-MAGI)
-
-## Lever you're pulling
-**Primary:** {bracket-filling conversions / 0% LTCG capture / RMD pressure relief / spread-the-tax-bill}
-**Quantified benefit:** approximate sustainable WR uplift {0.3–0.7%} vs naive brokerage-first default.
-
-## RMD pressure check
-- Current Trad balance: ${...}
-- Projected to age 73 (no conversions): ${...} → RMD-1 ≈ ${...}/yr
-- Projected to age 73 (with ${C}/yr conversion): ${...} → RMD-1 ≈ ${...}/yr
-- → Conversions reduce age-73 RMD by ${...}.
-
-## Coordination
-- ACA: confirms ${C} + ${D} ≤ MAGI ceiling
-- Pre-59½ bridge: confirms taxable + Roth contributions cover spend during conversion-ladder wait
-- IRMAA: not yet binding pre-65
-
-## Recommended next step
-**Tax Planner** owns the year-by-year execution. Hand off: "Build full year-by-year tax model for {N}-year FIRE horizon, ${C}/yr Trad-to-Roth conversion, ${D}/yr realized LTCG, MAGI ceiling ${M}, filing {MFJ/single}, state {ST}."
-```
+The canonical report skeleton is the `### Output template` under **Determinism rules** below — use it exactly.
 
 ## Common mistakes to flag
 
@@ -119,7 +65,7 @@ The "right" answer integrates all four. The naive "brokerage → Trad → Roth" 
 - **IRC §401(a)(9)** — RMD rules.
 - **IRC §1(h)** — LTCG / qualified dividends bracket structure.
 - **IRC §36B** — ACA premium tax credit (MAGI definition).
-- 2026 brackets, LTCG thresholds, IRMAA brackets, RMD divisors → `md_facts` (cite [IRS 2026 limits], [CMS Medicare 2026]).
+- 2026 brackets, LTCG thresholds, IRMAA brackets → `md_facts` (cite [IRS 2026 brackets], [CMS Medicare 2026]). RMD divisors → `md_facts` → `rmd_and_qcd_2026.uniform_lifetime_table_distribution_period` (cite [IRS Pub 590-B]).
 - Kitces / White Coat Investor / Bogleheads literature on withdrawal sequencing.
 
 ## Disclaimer
@@ -130,6 +76,117 @@ Withdrawal-order optimization is a year-by-year tax problem, not a one-time plan
 
 **Next step → Tax Planner:** "Build year-by-year tax model: {N}-year horizon, ${C}/yr Trad→Roth conversion, ${D}/yr realized LTCG, MAGI ceiling ${M}, filing {status}, state {ST}, target spend ${X}/yr."
 
+## Determinism rules
+
+### Input keys
+
+Names match the `md_fi_skill_withdrawal_order_optimizer` intake schema; extra keys follow.
+
+- `current_age`, `fire_age`, `planning_to_age` — integers
+- `target_spend_post_tax` — number, $ per year, today's dollars
+- `taxable_balance`, `taxable_cost_basis`, `trad_balance`, `roth_contributions`, `roth_earnings`, `hsa_balance`, `cash_balance` — numbers, $
+- `aca_magi_ceiling` — number, $ per year (0 = not using ACA)
+- `irmaa_ceiling` — number, $ per year (0 = use the md_facts tier-1 ceiling)
+- `spouse_income_post_fire`, `other_income_post_fire` — numbers, $ per year
+- `ss_pia_monthly` — number, $ per month at FRA; `ss_claim_age` — integer
+- `filing_status` — `Single` | `Married Filing Jointly` | `Married Filing Separately` | `Head of Household`
+- `state` — two-letter code
+- `expected_real_return_pct` — number
+- `hsa_unreimbursed_receipts_usd` — number
+- `birth_year` — integer (RMD age)
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Ages, spend, filing status, state | **Ask — no default** (intake requires them) | — |
+| Balances, incomes, SS | 0 | `[USER-PROVIDED]` / `[ASSUMPTION: 0]` |
+| Real return | **Ask — no default** | — |
+| SS benefit at claim age | `ss_pia_monthly` × the statutory claim-age factor (see Social Security Review) × 12 | — |
+| Standard deduction, ordinary brackets, 0% LTCG ceiling | `md_facts` → `income_tax_brackets_mfj_2026.standard_deduction_*`, `.brackets`, `.ltcg_qualified_dividend_brackets_mfj` (MFJ only; other statuses not in md_facts — `md_sources`, else `[UNSOURCED]`) | `[IRS 2026 brackets]` |
+| IRMAA ceiling | `irmaa_ceiling`; if 0 → `md_facts` → `medicare_2026.irmaa_brackets_*_part_b_total_monthly[0].magi_max` | `[CMS Medicare 2026]` |
+| RMD age | Statutory: born 1951–1959 → 73; 1960+ → 75 | — |
+| RMD divisors | `md_facts` → `rmd_and_qcd_2026.uniform_lifetime_table_distribution_period` (IRS Pub 590-B Table III; Joint Life table via `md_sources` when a spouse > 10 years younger is sole beneficiary) | `[IRS Pub 590-B]` |
+| State tax | Not modelled numerically — state DOR via `md_sources` for notes | `[UNSOURCED]` |
+| Thresholds over time | Held at today's values in real dollars (assumed indexed) | `[ASSUMPTION]` |
+
+### Calculation method
+
+Real dollars, annual compounding, end-of-year growth, federal tax only. Run the loop twice: **Optimized** (rules below) and **Naive** (cash → taxable → traditional → Roth, no conversions).
+
+1. **Each year, age `a` from `fire_age` to `planning_to_age`:**
+   1. Fixed ordinary income `F` = spouse + other income + taxable SS (Pub 915) + RMD (if `a ≥` RMD age; balance ÷ sourced divisor).
+   2. Ordinary ceiling `C` = standard deduction + top of the target bracket (Decision rules B), then `C = min(C, aca_magi_ceiling)` if `a < 65` and ACA is used, and `C = min(C, irmaa ceiling)` if `a ≥ 63`.
+   3. `room = max(0, C − F − realized gains planned)`.
+   4. Spending sources, in order, until `target_spend_post_tax` is met: cash → if `a ≥ 59.5`: traditional up to `room` → taxable (gain = sale × (1 − basis/value)) → Roth contributions → HSA receipts → Roth earnings (only if `a ≥ 59.5`) → traditional above `room` (last resort; if `a < 59.5`, note 10% penalty / route to Pre-59½ Bridge).
+   5. **Roth conversion** = `room` left after step 4 (Optimized only), capped at the traditional balance.
+   6. **Realized-gain budget:** harvest additional long-term gains only while taxable income + gains ≤ the 0% LTCG ceiling and MAGI ≤ `C`.
+   7. Federal tax = ordinary tax on (ordinary income − standard deduction) + LTCG tax on gains (md_facts tables). Taxes paid from taxable, then cash.
+   8. Grow every bucket × `(1 + r)`; converted dollars move to Roth contributions basis (5-year clock noted).
+2. **Comparison metric:** `score = Σ federal tax over the horizon + traditional balance at planning_to_age × marginal rate of the final year`. Lower is better. Also report the trad balance and first RMD at RMD age for both runs.
+3. **Sustainable-WR uplift:** not estimated as a percentage unless computed — report the $ difference in `score` and in ending after-tax wealth.
+4. Rounding: cents internally; whole dollars.
+
+### Decision rules
+
+**A. Plan headline** — first match wins.
+
+| # | Condition | Recommendation |
+|---|---|---|
+| 1 | `trad_balance = 0` | No conversions — spend taxable → Roth contributions → HSA; no bracket lever |
+| 2 | Optimized `score` < Naive `score` | Adopt the Optimized sequence; lever = the largest contributor (conversions, 0% LTCG, or RMD reduction) |
+| 3 | Otherwise | Naive order is as good — keep it simple |
+
+**B. Target bracket for conversions** — first match wins.
+
+| # | Condition | Fill ordinary income to the top of… |
+|---|---|---|
+| 1 | Age ≥ RMD age | Nothing beyond the RMD |
+| 2 | Naive-run marginal rate in the first RMD year ≤ this year's marginal rate before conversions | No conversion (converting adds no value) |
+| 3 | Otherwise | The highest bracket whose rate is strictly below the Naive-run first-RMD-year marginal rate (lowest bracket → standard deduction only) |
+
+### Output template
+
+```markdown
+# Withdrawal order plan — FIRE {fire_age} → {planning_to_age}
+
+## Headline
+**{rule A recommendation}** — lifetime federal tax ${opt} vs ${naive} naive (difference ${diff}).
+
+## Constraints
+| Constraint | Value | Source |
+|---|---|---|
+| Spend (post-tax, today's $) | | [USER-PROVIDED] |
+| Target bracket (rule B) | | [IRS 2026 brackets] |
+| ACA-MAGI ceiling | | [from Pre-65 Healthcare Plan] |
+| IRMAA ceiling | | [CMS Medicare 2026] |
+| Filing status / state | | |
+
+## Bucket inventory
+| Bucket | Balance | Access rule |
+|---|---|---|
+
+## Year-by-year sequence (first 10 years; then every 5th year)
+| Year | Age | Spend sources | Trad withdrawal | Roth conversion | Realized LTCG | MAGI | Fed tax | Binding ceiling |
+|---|---|---|---|---|---|---|---|---|
+
+## Lever you're pulling
+{conversions / 0% LTCG / RMD relief — quantified in $}
+
+## RMD pressure check
+| Run | Trad balance at RMD age | First RMD | Marginal bracket |
+|---|---|---|---|
+| Naive | | | |
+| Optimized | | | |
+
+## Coordination
+- ACA: {…or "Not applicable — not using ACA"}
+- Pre-59½ bridge: {…}
+- IRMAA: {…}
+
+## Recommended next step
+**Tax Planner** owns the year-by-year execution: "{hand-off sentence}"
+```
 
 ## Report Quality
 

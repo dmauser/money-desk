@@ -51,7 +51,7 @@ Universal sections:
 Verify:
 - Employer match captured fully — call payroll if your contribution % is below the match threshold.
 - Vesting schedule matches the SPD (Summary Plan Description).
-- True-up: if you front-load contributions and hit the $23,500 limit mid-year, your match should "true up" at year-end if your plan has that feature — most do but not all.
+- True-up: if you front-load contributions and hit the employee deferral limit (`md_facts` → `irs_contribution_limits.401k_employee_deferral`) mid-year, your match should "true up" at year-end if your plan has that feature — most do but not all.
 - Beneficiary (annual check — federal ERISA preempts state; spouse is default beneficiary regardless of will).
 
 Common gotcha:
@@ -101,28 +101,7 @@ Common gotcha:
 
 ## Output template
 
-```
-# {Statement type} walkthrough — {provider} statement dated {date}
-
-## Top-line read
-{1-paragraph summary of what this statement says happened}
-
-## Section-by-section
-
-### {Section 1 name}
-{plain-language decode of what each line means}
-**Verify:** {specific things to check}
-
-### {Section 2}
-...
-
-## Red flags I'd push back on
-- {issue 1, with the specific ask}
-- {issue 2}
-
-## What to do next
-{ONE specific next step — usually either: (a) action with custodian/provider, (b) hand off to a diagnostic specialist}
-```
+Use the skeleton in **Determinism rules → Output template** below — it is the single source of truth for this skill's report shape.
 
 ## Citations
 
@@ -136,6 +115,73 @@ Common gotcha:
 
 Document literacy only. Whether your portfolio allocation is right, your withholding is correct, your mortgage rate should be refinanced, or your insurance plan is the right one — those are the diagnostic specialists' calls. Hand off after the document makes sense.
 
+## Determinism rules
+
+### Input keys
+
+- `statement_type` — `brokerage` | `401k` | `mortgage` | `eob` | `other` (required)
+- `provider` — string; `statement_date` — `YYYY-MM-DD`
+- `confusing_lines` — list of strings, or empty
+- `statement_lines` — list of `{ section, label, value }` (masked), or null
+- Optional by type: `home_value_usd` and `loan_balance_usd` (mortgage, for LTV); `provider_bill_usd` (EOB, to reconcile); `ytd_employee_deferral_usd` (401(k))
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Statement type | **Ask — no default** | — |
+| Statement contents | Walk the generic sections; mark each value "not provided" | — |
+| 401(k) employee deferral limit (true-up check) | `md_facts` → `irs_contribution_limits.401k_employee_deferral` (+ catch-up keys by age) | `[IRS 2026 limits]` |
+| Home value for LTV | **Ask — no default** (appraisal or lender BPO; not an online estimate) | — |
+| PMI removal LTV (80% request / 78% automatic) | Statutory — Homeowners Protection Act; cite CFPB | — |
+
+### Calculation method
+
+1. Select the section list for `statement_type` and walk it in the fixed order given in this file (brokerage: summary → holdings → activity → realized G/L → fees; 401(k): summary → by source → by fund → loans → vesting; mortgage: payment → balance → escrow → PMI → year-end; EOB: provider → date → billed → discount → allowed → deductible → coinsurance/copay → plan paid → patient responsibility). `other` → summary → body sections in statement order → fees → footer.
+2. For each section: plain-language decode of each line present, then the **Verify** items listed for that section.
+3. Address every item in `confusing_lines` explicitly, in the order given.
+4. **Type checks** (only when the needed values are present):
+   - Mortgage LTV = `loan_balance_usd / home_value_usd × 100`, one decimal.
+   - EOB reconciliation: `provider_bill_usd − patient_responsibility`; > $0.00 → flag.
+   - 401(k): `ytd_employee_deferral_usd` ≥ deferral limit before December → ask whether the plan has a match true-up.
+   - Brokerage: any position with basis "noncovered" or blank → flag.
+5. Red flags = every check that fired, in the step-4 order; then one next step from the Decision rules.
+
+### Decision rules
+
+Next step — evaluate top to bottom; first match wins.
+
+| # | Condition | Next step |
+|---|---|---|
+| 1 | EOB reconciliation > $0 or out-of-network classification at an in-network facility | Call provider billing; cite No Surprises Act dispute process if unresolved |
+| 2 | Mortgage LTV ≤ 80 and PMI > $0 | Written PMI-removal request to servicer |
+| 3 | Missing/noncovered cost basis or missing beneficiary | Contact custodian with the specific fix |
+| 4 | `statement_type` ∈ {brokerage, 401k} and no flags | **Portfolio Review** (Investing Advisor) |
+| 5 | `statement_type = mortgage` and no flags | **Mortgage Strategy Review** (Real Estate Investor) |
+| 6 | Otherwise | "Nothing to fix — file it" |
+
+### Output template
+
+```markdown
+# {Statement type} walkthrough — {provider} statement dated {statement_date}
+
+## Top-line read
+{1 paragraph}
+
+## Section-by-section
+### {Section name, in fixed order}
+{decode of each line — or "not provided"}
+**Verify:** {items for this section}
+
+## Your questions
+{each confusing line answered — or "None asked"}
+
+## Red flags I'd push back on
+- {flag + specific ask — or "No red flags"}
+
+## What to do next
+{ONE item from the Decision rules}
+```
 
 ## Report Quality
 

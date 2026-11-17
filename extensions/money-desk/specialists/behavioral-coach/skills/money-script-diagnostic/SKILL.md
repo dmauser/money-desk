@@ -50,7 +50,7 @@ A short 12-item questionnaire (three items per script). Ask the user to rate eac
 
 1. Run the questionnaire.
 2. Sum each script's score (3 questions × 1-5 = 3-15 per script).
-3. Identify the **dominant** script (highest score) AND any **secondary** script within 2 points.
+3. Identify the **dominant** script (highest score) AND any **secondary** script within 2 points that also scores ≥ 9.
 4. Match the dominant script to the characteristic pitfalls below.
 5. Match to specific pre-commitment guardrails (see "Output").
 6. If the user has a partner, run for both and produce a comparison.
@@ -59,7 +59,7 @@ A short 12-item questionnaire (three items per script). Ask the user to rate eac
 
 **Money Avoidance dominant:**
 - Pitfalls: under-charging for work, sub-optimal salary negotiation, hoarding cash from guilt about success, missing tax-advantaged accounts because investing "feels greedy".
-- Guardrails: automate retirement contributions to current legal max; set fee-for-services with a coach BEFORE the next pricing decision; pre-commit charitable giving as a % of income rather than ad-hoc.
+- Guardrails: automate retirement contributions to current legal max (`md_facts` → `irs_contribution_limits`); set fee-for-services with a coach BEFORE the next pricing decision; pre-commit charitable giving as a % of income rather than ad-hoc.
 
 **Money Worship dominant:**
 - Pitfalls: lifestyle inflation that erases raises, "next milestone" thinking, susceptibility to get-rich-quick pitches, FOMO on hot assets.
@@ -89,6 +89,85 @@ When run for both partners, compare scripts. Common high-friction combos:
 
 Analysis only. This is a triage proxy — not the validated full KMSI instrument. For deeper work, refer to a Financial Therapy Association (FTA) member therapist. Not a psychiatric diagnosis; not a substitute for therapy when therapy is indicated.
 
+## Determinism rules
+
+### Input keys
+
+- `responses` — object of 12 integers 1–5 keyed `avoid_1`, `avoid_2`, `avoid_3`, `worship_1`, `worship_2`, `worship_3`, `status_1`, `status_2`, `status_3`, `vigil_1`, `vigil_2`, `vigil_3` (items in the order listed under "Inputs needed")
+- `partner_responses` — same shape, or null (couples mode)
+- `gross_income_annual_usd` — number or null (only to personalize Status guardrails)
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Any of the 12 item scores | **Ask — no default** (never infer a score from conversation) | — |
+| Retirement contribution "legal max" (Avoidance guardrail) | `md_facts` → `irs_contribution_limits.401k_employee_deferral`, `ira_traditional_or_roth` | `[IRS 2026 limits]` |
+| Status guardrail percentages (28% PITI; new car < 35% of gross) | Skill convention stated in this file | `[ASSUMPTION]` |
+| Raise allocation default (50% savings / 50% lifestyle) | Skill convention stated in this file | `[ASSUMPTION]` |
+
+### Calculation method
+
+1. Validate: all 12 items present and integers 1–5; otherwise ask for the missing ones and stop.
+2. Script score = sum of its three items (range 3–15).
+3. Sort scripts by score descending; ties break in the fixed list order Avoidance → Worship → Status → Vigilance.
+4. **Dominant** = first in sorted order. **Secondary** = every other script with score ≥ dominant − 2 and ≥ 9.
+5. **Intensity band** per script: 3–6 Low, 7–10 Moderate, 11–15 High.
+6. Pull pitfalls + guardrails for the dominant script verbatim from "Output (per script)"; add the secondary script's guardrails as a second list.
+7. Couples mode: score both; the pair label = both dominants; look up the combination in "Couples comparison"; if not listed → "No common-friction pattern listed".
+8. Personalize Status guardrails in dollars only if `gross_income_annual_usd` is given: max PITI/mo = `0.28 × income / 12`; max new-car price = `0.35 × income`.
+9. If Vigilance is dominant with score ≥ 13, add the "anxiety-driven under-investment" warning line.
+
+### Decision rules
+
+Evaluate top to bottom; first match wins.
+
+| # | Condition | Result |
+|---|---|---|
+| 1 | Every script ≤ 6 | No dominant script — "Low endorsement across all four"; skip guardrails, offer re-test in 6 months |
+| 2 | Dominant score − next-highest score ≥ 3 | Single dominant script; no secondary |
+| 3 | Dominant and one or more scripts within 2 points (and ≥ 9) | Blended profile — report dominant + secondary guardrails |
+| 4 | Otherwise | Report dominant only |
+
+| # | Next step | Route |
+|---|---|---|
+| 1 | Couples mode and the pair appears in "Couples comparison" | **Couples Money Alignment** (Behavioral Coach) |
+| 2 | Dominant = Worship or Status | **Lifestyle Inflation Audit** (Behavioral Coach) |
+| 3 | Dominant = Vigilance | **Investment Policy Statement** (Investing Advisor) |
+| 4 | Dominant = Avoidance | **Decision Journal** (Behavioral Coach) for the next pricing / salary decision |
+| 5 | Otherwise (no dominant) | Re-test in 6 months; no hand-off |
+
+### Output template
+
+```markdown
+# Money Script Diagnostic — {date}
+
+## Scores
+| Script | Items | Score (3–15) | Band |
+|---|---|---|---|
+| Avoidance | | | |
+| Worship | | | |
+| Status | | | |
+| Vigilance | | | |
+
+## Your profile
+Dominant: **{script}** — Secondary: {script(s) or "None"} (rule #{n})
+
+## Characteristic pitfalls
+- {verbatim from the script's list}
+
+## Pre-commitment guardrails
+- {dominant guardrails, with $ where personalized}
+- {secondary guardrails — or "None"}
+
+## Couples comparison
+| Partner | Dominant | Secondary |
+|---|---|---|
+{pattern + friction note — or "Not applicable — single-person run"}
+
+## Next step
+{ONE route from the Next-step table}
+```
 
 ## Report Quality
 

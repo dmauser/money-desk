@@ -101,6 +101,25 @@ Keep the plugin / marketplace / manifest versions equal to `package.json`
     mirror directly — edit the repo-root `CHANGELOG.md` and let the
     sync script update the mirror; `tests/changelog-sync.test.mjs` will
     fail if they drift apart.
+14. **Every skill is deterministic.** Each `SKILL.md` carries a
+    `## Determinism rules` section immediately before `## Report Quality`
+    with `### Input keys`, `### Assumptions`, `### Calculation method`,
+    `### Decision rules`, `### Output template` in that order (standard:
+    `docs/SKILL_DETERMINISM.md`; enforced by
+    `tests/skill-determinism.test.mjs`). Thresholds are numbers, decision
+    tables end in an "Otherwise" row, and when you edit a skill's prose
+    keep it consistent with its rules (and with any `template.xlsx.json`).
+15. **Never hard-code year-specific figures in skills.** Limits, brackets,
+    IRMAA tiers, RMD divisors, etc. are referenced by `md_facts` topic and
+    key. Every assumption is either "Ask — no default" or an `md_facts` key
+    (`behavioral_assumptions_safe_defaults` for modelling defaults). When
+    adding or changing a value in `data/facts-2026.json`, verify it against
+    the primary source (IRS / SSA / CMS / FHFA / HHS), update `_source`,
+    and bump `_meta.last_verified`.
+16. **Only reference tools that exist.** Every `md_*` tool id written in
+    markdown or registry text must be registered;
+    `tests/tool-references.test.mjs` fails on unknown ids (CHANGELOGs are
+    exempt as history).
 
 ## File layout
 
@@ -112,7 +131,10 @@ extensions/money-desk/
 └── specialists/<name>/
     ├── agents/<name>.md                         # role markdown
     └── skills/<slug>/SKILL.md                   # one per skill
-tests/{manifest-consistency,routes,installer}.test.mjs
+├── mcp-server.mjs                               # thin MCP entry (Claude)
+├── data/facts-2026.json                         # md_facts source data
+docs/SKILL_DETERMINISM.md                        # skill determinism standard
+tests/*.test.mjs                                 # incl. skill-determinism, tool-references, claude-plugin
 .github/workflows/ci.yml
 ```
 

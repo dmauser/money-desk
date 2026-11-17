@@ -51,6 +51,89 @@ description: Audit beneficiary designations on every retirement account, life po
 - Don't change beneficiaries to "estate" by default — usually slower and worse than naming a person/trust.
 - "NOT legal advice. Trust language and complex family situations require an attorney."
 
+## Determinism rules
+
+### Input keys
+
+- `accounts` — list of `{ account_type (401k | 403b | 457 | trad_ira | roth_ira | hsa | life | annuity | tod_brokerage | pod_bank), custodian, last4, erisa_plan (bool), primaries: [{ name, relationship, share_pct, is_minor, living }], contingents: [same], spousal_consent_on_file (bool), last_updated (YYYY-MM), source (form / portal / statement / memory) }`
+- `marital_status` — `single` | `married` | `divorced` | `widowed`
+- `spouse_name` — string; `ex_spouse_names` — list
+- `life_events` — list of `{ event, date (YYYY-MM) }`
+- `will_intent` — list of `{ beneficiary, share_pct }` (from will / trust); optional
+- `review_date` — YYYY-MM-DD; default today
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Named beneficiaries per account | **Ask — no default** (the custodian's beneficiary page is the source) | — |
+| Designations recalled from memory | Accepted but tagged; re-verify with custodian | `[UNSOURCED]` |
+| Unknown `last_updated` | Treated as older than every life event | `[ASSUMPTION]` |
+| ERISA status | 401(k)/403(b) = ERISA unless the user says governmental/church plan; IRAs/HSA/TOD = not ERISA | `[ASSUMPTION]` |
+| State divorce-revocation statute | Not relied on — flagged regardless (this skill's rule) | — |
+
+None of the analysis needs year-specific figures.
+
+### Calculation method
+
+1. **Inventory** every account; sort by account type in the Input-keys order, then custodian A–Z.
+2. **Run checks per account**, in this fixed order, each with a fixed severity:
+   - **C1** No primary named — Critical
+   - **C2** A primary is in `ex_spouse_names` — Critical
+   - **C3** A primary has `living = false` — Critical
+   - **H1** Primary `share_pct` total ≠ 100 (tolerance ±0.01) — High
+   - **H2** `erisa_plan` and `marital_status = married` and spouse is not sole primary and `spousal_consent_on_file = false` — High
+   - **H3** A primary or contingent `is_minor` with no trust / UTMA custodian named — High
+   - **H4** Designation contradicts `will_intent` (a person in one but not the other) — High
+   - **M1** No contingent named — Medium
+   - **M2** Contingent shares total ≠ 100 — Medium
+   - **M3** `last_updated` is before the latest `life_events` date — Medium
+   - **M4** Primary is "estate" — Medium
+   - **M5** A trust is named (SECURE Act see-through review needed) — Medium (attorney)
+   - **L1** `last_updated` more than 12 months before `review_date` — Low
+3. **Account severity** = highest severity triggered (Critical > High > Medium > Low > None).
+4. **Counts:** accounts, accounts per severity, missing contingents (M1), stale primaries (C2 + C3 + M3).
+5. **Action rows** sorted by severity, then the step-1 order; each names the custodian form / portal path.
+
+### Decision rules
+
+Applied to the household's highest account severity; evaluate top to bottom; the first match wins.
+
+| # | Condition | Recommendation |
+|---|---|---|
+| 1 | No accounts supplied | No audit — ask for the account list |
+| 2 | Any Critical | Update those designations within 7 days; Critical items listed first |
+| 3 | Any High | Update within 30 days; trust / minor / ERISA consent items to attorney |
+| 4 | Any Medium | Update within 90 days |
+| 5 | Any Low | Re-confirm at the custodian at the next annual review |
+| 6 | Otherwise | No changes — re-audit in 12 months or after any life event |
+
+### Output template
+
+```markdown
+# Beneficiary Audit — {review_date}
+
+## Headline
+{N} accounts · {critical} Critical · {high} High · {M1_count} missing contingents · {stale_count} stale primaries. Recommendation: **{rule # action}**.
+
+## Per-account table
+| Account | Custodian (last-4) | Primary (share %) | Contingent (share %) | Last updated | Severity | Checks triggered |
+|---|---|---|---|---|---|---|
+
+## Red flags
+| Check | Account | Detail | Severity |
+|---|---|---|---|
+{or "None"}
+
+## Action list
+| Priority | Account | Change | Form / portal path | Deadline |
+|---|---|---|---|---|
+
+## Hand-off to attorney
+{trust-as-beneficiary, minor structures, ERISA consent — or "Not applicable — no attorney items"}
+
+NOT legal advice. Trust language and complex family situations require an attorney.
+```
 
 ## Report Quality
 

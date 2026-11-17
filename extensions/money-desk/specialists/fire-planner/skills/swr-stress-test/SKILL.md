@@ -23,9 +23,9 @@ description: Pressure-test a candidate withdrawal rate against the user's specif
 ## Workflow
 
 1. **State the horizon honestly.** The 4% rule was studied for 30 years. At 40 years, historical success drops; at 50 years, lower again. Cite Kitces / Pfau.
-2. **Run the 4-rate grid.** Show portfolio survival probability at 3% / 3.5% / 4% / 4.5% across the chosen horizon, given the user's allocation. Cite the source (Trinity, Kitces, or Cfiresim / Portfolio Visualizer — flag if you don't have a primary source).
+2. **Run the 4-rate grid.** Run the three fixed return paths (base / stressed / bad first decade) in **Determinism rules** at 3% / 3.5% / 4% / 4.5%. Quote historical survival rates only from a cited source (Trinity, Kitces, or cFIREsim / Portfolio Visualizer) — otherwise say "not computed".
 3. **Surface the SEQUENCE-OF-RETURNS RISK.** This is the headline. A bad first decade matters MORE than average return.
-   - Show: "If the first 5 years return -2% real, your 4% WR plan fails ~X% of the time vs ~Y% in the average case."
+   - Show: the bad-first-decade path (−1% real for years 1–10, then the base return) vs the base path — depletion year or ending balance for each WR.
    - Name the specific worst start years (1929, 1966, 2000) and how a 4% WR plan starting in those years fared at 30 and 40 years.
 4. **Present the three SWR camps honestly:**
    - **Bengen fixed-real (4% rule):** withdraw 4% of starting balance, adjust for inflation each year. Simple; ignores actual market.
@@ -42,50 +42,7 @@ description: Pressure-test a candidate withdrawal rate against the user's specif
 
 ## Output template
 
-```
-# Safe-withdrawal stress test — {horizon} years, ${spend}/yr target
-
-## Inputs
-- Horizon: {N} years ({current age} → {planning to age})  [USER-PROVIDED]
-- Spend: ${X}/yr today's dollars  [USER-PROVIDED]
-- Portfolio: ${P} ({stock}% / {bond}% / {cash}%)  [USER-PROVIDED]
-- SS / pension floor: ${F}/yr starting age {claim}  [USER-PROVIDED]
-- Real return assumption: {R}%  [USER-PROVIDED]
-- Spend flexibility: {Yes / No, can trim {X}% in down years}
-
-## Withdrawal-rate grid (horizon = {N} years)
-| WR  | Initial $ withdrawal | Historical survival | Recommended? |
-|-----|----------------------|---------------------|--------------|
-| 3.0% | ${0.03 × P}         | ~{cite}             | Defensive    |
-| 3.5% | ${0.035 × P}        | ~{cite}             | Solid for {N}y |
-| 4.0% | ${0.04 × P}         | ~{cite}             | Calibrated for 30y, marginal for {N}y |
-| 4.5% | ${0.045 × P}        | ~{cite}             | Requires Kitces-style guardrails |
-
-→ At your ${spend}/yr target, you need a portfolio of ${spend/WR} at each WR. Today: ${P}. Gap: ${...}.
-
-## Sequence-of-returns risk
-- Average case: ~{X}% portfolio survival.
-- Bad-first-decade case (real returns -2% avg years 1–5): ~{Y}% survival.
-- Historical worst starts (1929 / 1966 / 2000), {N}-yr horizon at 4% WR: {survived? / failed when?}.
-- **What this means for you:** the next 5 years matter MORE than the next 30 years' average.
-
-## The three SWR camps — pick one consciously
-- **Bengen fixed-real (4%)**: simple, ignores market. Use if you want predictable spending and accept lower starting %.
-- **Kitces guardrails (4.5% + cut rules)**: higher initial spend; requires you to cut 10–20% in a triggered down year.
-- **Bogleheads VPW**: never runs out mechanically; spending varies. Use if you have very high spending flexibility.
-
-## The four killers — your specific mitigations
-- Bad first decade: {cash buffer / bond tent / dynamic WR}
-- Inflation spike: {TIPS / I-Bonds / variable spend}
-- Healthcare blow-up: {see Pre-65 Healthcare Plan}
-- Longevity tail: {SS optimization / lower WR / QLAC}
-
-## Recommendation
-Given your {horizon}-year horizon, {allocation}, and {flexibility}, defensible range: **{X}–{Y}% WR**. This translates to ${...}–${...}/yr from the portfolio, plus ${F}/yr SS at age {claim}.
-
-## Recommended next step
-{ONE thing — most often: Withdrawal Order Optimizer in FIRE Planner, OR Pre-65 Healthcare Plan if MAGI cap is binding, OR Glide-Path / Portfolio Review in Investing Advisor if allocation looks wrong for the horizon.}
-```
+The canonical report skeleton is the `### Output template` under **Determinism rules** below — use it exactly.
 
 ## Common mistakes to flag
 
@@ -113,6 +70,126 @@ Historical SWR research is a *historical envelope*, not a forecast. The future c
 
 **Next step → FIRE Planner:** "Run Withdrawal Order Optimizer for $X/yr spend with $A taxable, $B Traditional, $C Roth, $D HSA, ACA-MAGI ceiling $E."
 
+## Determinism rules
+
+### Input keys
+
+Names match the `md_fi_skill_swr_stress_test` intake schema (template named range in brackets); extra keys follow.
+
+- `horizon_years` — integer [`horizon_yrs`]
+- `target_annual_spend` — number, $ per year, today's dollars [`initial_withdrawal`]
+- `portfolio_total` — number, $ [`portfolio_start`]
+- `stock_pct`, `bond_pct`, `cash_pct` — numbers summing to 100
+- `spend_pattern` — `Flat real (constant inflation-adjusted)` | `Rising real (lifestyle creep)` | `Declining real (retirement smile)` | `Variable / lumpy`
+- `income_floor_annual` — number, SS + pension $ per year, today's dollars
+- `income_floor_start_age` — integer
+- `expected_real_return_pct` — number [`expected_real_return`]
+- `spend_flexibility` — `Could cut 0–5%` | `Could cut 5–15%` | `Could cut 15–25%` | `Could cut 25%+`
+- `current_age` — integer (needed when `income_floor_annual > 0`)
+- `spend_real_change_pct_per_year` — number (needed for rising / declining patterns; + rising, − declining)
+- `lumpy_expenses` — list of `{ year, amount_usd }` (variable pattern)
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Horizon, spend, portfolio, allocation, real return, flexibility | **Ask — no default** (intake requires them) | — |
+| `current_age` when an income floor is given | **Ask — no default** | — |
+| Annual real spend change (rising / declining) | **Ask — no default**; flat pattern = 0 | — |
+| Stressed real return [`stress_real_return`] | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_bond_real_return_percent` (fraction — × 100): "the whole portfolio earns only bond-like real returns" | `[ASSUMPTION]` |
+| Bad-first-decade real return [`bad_first_decade_return`] | −1.0% real per year for years 1–10, then `expected_real_return_pct` (fixed path, same as the template) | `[ASSUMPTION]` |
+| Guardrail starting WR (for reference) | `md_facts` → `behavioral_assumptions_safe_defaults.guyton_klinger_initial_withdrawal_percent` (× 100) | `[ASSUMPTION]` |
+| SS haircut scenario | Income floor × 75% | `[ASSUMPTION]` |
+| Historical survival rates | Cite a primary study (Trinity 1998/2011, Bengen 1994, Kitces/Pfau) or a historical-sequence tool via `md_sources`; otherwise the column reads "Not computed — no primary source retrieved" | `[UNSOURCED]` |
+
+### Calculation method
+
+Real dollars, annual compounding, **end-of-year withdrawals** (matches the template's `NPER` / annuity formulas). No random sampling — only the three fixed paths below.
+
+1. **Grid:** `WR ∈ {3.0, 3.5, 4.0, 4.5}`; `W₁(WR) = portfolio_total × WR / 100`. The user's own rate `WR_user = target_annual_spend / portfolio_total × 100`.
+2. **Year-t withdrawal:** `W_t = W₁ × (1 + g)^(t−1) + lumpy_t − floor_t`, floor 0, where `g = spend_real_change_pct_per_year / 100` (0 if flat) and `floor_t = income_floor_annual` from the year in which `current_age + t − 1 ≥ income_floor_start_age`.
+3. **Paths** (each for every WR and for `WR_user`):
+   - Base: `r_t = expected_real_return_pct` all years.
+   - Stressed: `r_t = stress return` all years.
+   - Bad first decade: `r_t = −1.0%` for t = 1–10, then base.
+   - Loop: `B_t = B_{t−1} × (1 + r_t) − W_t`, `B_0 = portfolio_total`. Depletion year = first `t` with `B_t < 0`. "Lasts" = no depletion through `horizon_years`.
+4. **Template cross-check** (flat spend, no floor): coverage years `= NPER(r, −W, P)` (∞ if `r × P ≥ W`); after-bad-decade balance `= P(1 + d)^10 − W((1 + d)^10 − 1) / d`; implied WR after bad decade `= W / that balance`. Report these exactly as the template does.
+5. **Income-floor variants:** pre-floor WR = `W₁ / P`; post-floor WR = `(W₁ − floor) / balance at floor start (base path)`. Repeat the base and bad-decade paths with `floor × 0.75`.
+6. **Required portfolio** at each WR: `target_annual_spend / (WR / 100)`; gap = required − `portfolio_total`.
+7. Rounding: cents internally; whole dollars; years as integers; rates to two decimals.
+
+### Decision rules
+
+**A. User's current WR status** (template Summary!D8) — first match wins.
+
+| # | Condition | Status |
+|---|---|---|
+| 1 | `WR_user ≤ 3.5` | OK |
+| 2 | `WR_user ≤ 4.0` | WATCH (3.5–4%) |
+| 3 | Otherwise | AGGRESSIVE |
+
+**B. Defensible range** — a WR *passes* if it lasts the full horizon on **both** the stressed path and the bad-first-decade path (with the full income floor). First match wins.
+
+| # | Condition | Recommendation |
+|---|---|---|
+| 1 | No grid WR passes | Below 3% — spend is too high for this portfolio; required portfolio at 3% = `spend / 0.03` |
+| 2 | `spend_flexibility` is `Could cut 15–25%` or `Could cut 25%+` | Range = highest passing WR → highest WR that lasts on the base path (guardrails required; cut rule stated) |
+| 3 | Highest passing WR passes only with the full floor but fails with the 75% floor | Range = next lower grid WR → highest passing WR |
+| 4 | Otherwise | Range = (highest passing WR − 0.5) → highest passing WR, floor 3.0 |
+
+### Output template
+
+```markdown
+# Safe-withdrawal stress test — {horizon_years} years, ${spend}/yr target
+
+## Headline
+Your rate **{WR_user}%** — **{rule A status}**. Defensible range: **{X}–{Y}%** (rule B#{n}) = ${X·P}–${Y·P}/yr from the portfolio, plus ${floor}/yr from age {start}.
+
+## Inputs
+| Input | Value | Tag |
+|---|---|---|
+
+## Withdrawal-rate grid (horizon = {N} years)
+| WR | Year-1 $ | Base path | Stressed path ({s}% real) | Bad-first-decade path | Historical survival (cited) | Passes? |
+|---|---|---|---|---|---|---|
+| 3.0% | | lasts / depletes yr {t} | | | | |
+| 3.5% | | | | | | |
+| 4.0% | | | | | | |
+| 4.5% | | | | | | |
+
+## Required portfolio at your spend
+| WR | Required | Gap vs today |
+|---|---|---|
+
+## Sequence-of-returns risk
+| Metric | Value |
+|---|---|
+| Coverage years @ base (template) | |
+| Coverage years @ stressed (template) | |
+| Balance after bad first decade | |
+| Implied WR after bad decade | |
+
+## Income floor
+| Scenario | Pre-floor WR | Post-floor WR | Lasts? |
+|---|---|---|---|
+| 100% floor | | | |
+| 75% floor | | | |
+{or "Not applicable — no SS / pension floor entered"}
+
+## The three SWR camps — pick one consciously
+- **Bengen fixed-real**: …
+- **Guardrails (Guyton-Klinger / Kitces)**: …
+- **Bogleheads VPW**: …
+
+## The four killers — your mitigations
+- Bad first decade: {…}
+- Inflation spike: {…}
+- Healthcare blow-up: {…}
+- Longevity tail: {…}
+
+## Recommended next step
+{ONE thing}
+```
 
 ## Report Quality
 

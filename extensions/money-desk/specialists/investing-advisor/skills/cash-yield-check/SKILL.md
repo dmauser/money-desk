@@ -68,7 +68,7 @@ description: Survey current **high-yield savings (HYSA)**, **money-market (MMA)*
    - Access mechanics (ACH only, debit card, ATM network, checks, mobile deposit).
    - Membership / eligibility friction (credit-union field-of-membership, state restriction, employer affiliation).
    - Notable gotchas (teaser-rate cliff, requires checking-account relationship, slow ACH, $X early-withdrawal penalty for CDs).
-5. **Annualized dollar impact.** For the user's parked amount, compute `amount × (best-shortlist APY − current APY)` in dollars/year. Then `× (1 − marginal_tax_rate)` for after-tax, since interest is taxed as ordinary income (cite `[USER-PROVIDED]` for the marginal rate, or `[ASSUMPTION: 22%]` if the user hasn't said).
+5. **Annualized dollar impact.** For the user's parked amount, compute `amount × (best-shortlist APY − current APY)` in dollars/year. Then `× (1 − marginal_tax_rate)` for after-tax, since interest is taxed as ordinary income (cite `[USER-PROVIDED]` for the marginal rate; if the user hasn't said, derive it from income with `md_facts` brackets or report after-tax as "Not applicable" — never assume a rate; see Determinism rules).
 6. **Tax-aware alternatives (only if the user opted them in at intake step 7).** Briefly contrast:
    - **Money-market mutual funds** at the user's brokerage (often slightly higher 7-day yield than top HYSAs, SIPC-not-FDIC, $1 NAV not guaranteed but historically extremely stable).
    - **Short-term Treasuries / T-bill ETFs (SGOV, BIL)** or direct TreasuryDirect bills: federally taxed but **state-tax-free** — for a CA / NY / OR resident in a high bracket this can beat the top HYSA after tax.
@@ -80,7 +80,7 @@ description: Survey current **high-yield savings (HYSA)**, **money-market (MMA)*
 - Every APY cites the **depositaccounts.com URL** of the product page (or category page row) AND the **as-of timestamp** shown on that page. Rates change daily — a number without an as-of date is a stale number.
 - FDIC / NCUA insurance status cites either the bank's FDIC certificate page (<https://banks.data.fdic.gov/api/>) or the credit union's NCUA page; if the source page on depositaccounts.com already lists the FDIC/NCUA cert, cite that row.
 - The user's current APY cites `[USER-PROVIDED]` or a screenshot/statement.
-- Marginal tax rate for the after-tax calc cites `[USER-PROVIDED]` or `[ASSUMPTION: <rate>]`; for the standard bracket lookup, call `md_facts` first and cite `[IRS 2026 limits]` if you derive it from income.
+- Marginal tax rate for the after-tax calc cites `[USER-PROVIDED]`, or — if derived from income — `md_facts` → `income_tax_brackets_mfj_2026` cited `[IRS 2026 brackets]`. Never an assumed rate.
 
 ## Deliverable shape
 
@@ -91,11 +91,11 @@ Markdown report `./money-desk/investing-advisor/cash-yield-check-<YYYYMMDD>.md`:
 - **Shortlist table** — 3–6 rows. **Required columns:**
   - Institution + Product
   - APY (as-of) — tagged `[UNSOURCED — verify on issuer page]`
-  - **Expense ratio / net-expense** — `n/a` for deposit accounts (HYSA / MMA / CD); for MMFs use the prospectus net expense ratio (e.g. SPAXX 0.42%, VMFXX 0.11%, SWVXX 0.34%); for T-bill ETFs the ETF's net expense ratio (SGOV 0.09%, BIL 0.135%). Cite the fund-issuer page.
+  - **Expense ratio / net-expense** — `n/a` for deposit accounts (HYSA / MMA / CD); for MMFs use the current prospectus net expense ratio; for T-bill ETFs the ETF's current net expense ratio. Cite the fund-issuer page and as-of date.
   - **Fed tax** — always "Ordinary income, Form 1099-INT (deposits) or 1099-DIV (MMFs) or 1099-INT box 3 (Treasuries)". For deposits and most prime MMFs: 100% federally taxable. For Treasury MMFs / T-bill ETFs / direct T-bills: 100% federally taxable.
   - **State tax** — the column that often flips the decision:
     - HYSA / MMA / CD / reward checking → **fully state-taxable** (ordinary income).
-    - Prime / corporate MMFs (SPAXX, SWVXX, SPRXX) → **mostly state-taxable**; a partial state exemption may apply for the portion in US-government obligations (issuer publishes a year-end "% from US government" breakdown — typically 30–55% for SPAXX, varies annually).
+    - Prime / corporate MMFs (SPAXX, SWVXX, SPRXX) → **mostly state-taxable**; a partial state exemption may apply for the portion in US-government obligations (issuer publishes a year-end "% from US government" breakdown that varies annually — use the current published figure).
     - Treasury MMFs (VUSXX, FDLXX, SNSXX), T-bill ETFs (SGOV, BIL), and direct T-bills → **state-tax-free** (interest from direct US Treasury obligations is exempt from state and local tax — IRC §103). Note: CA, NY, CT require ≥50% USGO holdings in a fund for the state exemption to pass through; check the fund's USGO % each year.
     - Municipal money-market funds (if surfaced) → federally tax-free; state-tax-free only if single-state and matches the user's state of residence. Out of scope for most users; flag only if the user is in a high state-tax bracket with a large taxable cash bucket.
   - Insurance — FDIC / NCUA / SIPC (with coverage limits)
@@ -109,7 +109,7 @@ Markdown report `./money-desk/investing-advisor/cash-yield-check-<YYYYMMDD>.md`:
   - Deposits: `APY × (1 − fed_marginal − state_marginal)`
   - Treasury MMF / T-bill ETF / direct T-bill: `(yield − net_expense_ratio) × (1 − fed_marginal)` (no state-tax subtraction)
   - Prime MMF with partial USGO%: `(yield − net_expense_ratio) × (1 − fed_marginal − state_marginal × (1 − usgo_pct))`
-  - Cite `[USER-PROVIDED]` or `[ASSUMPTION: <rate>]` for both fed and state marginal rates; for bracket lookup, call `md_facts` and cite `[IRS 2026 limits]`.
+  - Cite `[USER-PROVIDED]` for both fed and state marginal rates, or `[IRS 2026 brackets]` for a federal rate derived from income via `md_facts`. Never an assumed rate.
   - Tabulate side-by-side so the user sees the **after-tax winner**, which is often DIFFERENT from the headline-APY winner in CA / NY / OR / HI / NJ / MN brackets.
 - **Annualized dollar pickup** — `amount × ΔAPY` pre-tax and after-tax, vs the user's current APY.
 - **CD ladder option** (only if horizon allows) — sample 3/6/12-mo ladder with current top APYs (each citing its DepositAccounts row + issuer page) and total blended yield. Show pre- and after-tax.
@@ -135,6 +135,111 @@ Markdown report `./money-desk/investing-advisor/cash-yield-check-<YYYYMMDD>.md`:
 - **FDIC limit**: $250k per depositor per insured bank per ownership category — for emergency funds above that, either spread across institutions or use a network-sweep program (e.g. IntraFi / ICS / CDARS) — depositaccounts.com lists some of these.
 - Analysis only. Not professional financial advice. Verify all APYs, fees, and terms on the institution's site before opening any account.
 
+## Determinism rules
+
+### Input keys
+
+- `cash_bucket` — `emergency_fund` | `short_term_goal` | `sinking_fund` | `waiting_to_invest`
+- `amount_usd` — number, amount to park
+- `horizon_months` — integer, months until the money may be needed
+- `withdrawals_per_month` — integer
+- `access_needs` — list of `ach` | `debit_card` | `atm` | `checks` | `mobile_deposit`
+- `max_min_balance_usd` — number, largest minimum balance the user accepts
+- `rejected_hoops` — list, e.g. `debit_swipes`, `direct_deposit`, `membership_restricted`
+- `institution_preference` — `any` | `bank_only` | `credit_union_only` | `online_ok` | `branch_required`
+- `state` — two-letter state code
+- `non_deposit_ok` — boolean; money-market mutual funds / T-bill ETFs / direct T-bills in scope
+- `current_apy_pct` — number, what the cash earns today
+- `federal_marginal_rate_pct` — number
+- `state_marginal_rate_pct` — number
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Amount, horizon, access needs | **Ask — no default** | — |
+| Every APY / 7-day yield / expense ratio / USGO % | Live lookup per the Source policy (DepositAccounts.com via `web_search`, issuer pages, fund-issuer pages, TreasuryDirect); never from memory | `[UNSOURCED — verify on issuer page]` |
+| Current APY | **Ask — no default** | — |
+| Federal marginal rate | Derive from taxable income with `md_facts` → `income_tax_brackets_mfj_2026.brackets` (MFJ only); otherwise **Ask — no default** | `[IRS 2026 brackets]` |
+| State marginal rate | **Ask — no default** | — |
+| Insurance limit | FDIC / NCUA standard maximum deposit insurance amount — statutory (12 U.S.C. §1821(a)), not year-indexed | — |
+| `non_deposit_ok` | `false` (deposit accounts only) | `[ASSUMPTION]` |
+
+If either marginal rate is not provided, after-tax columns are reported as "Not applicable — marginal rate not provided" and ranking uses pre-tax yield.
+
+### Calculation method
+
+1. **Eligible product types by horizon:** `horizon_months ≤ 3` → HYSA, MMA, (if `non_deposit_ok`) MMF and T-bill ETF; `4–12` → add CDs and T-bills with term ≤ `horizon_months`; `> 12` → add CD ladders and Treasuries with maturity ≤ `horizon_months`.
+2. **Filter** (drop the product if any is true): minimum to earn APY > `max_min_balance_usd` or > `amount_usd`; requires a hoop in `rejected_hoops`; membership not available to the user's `state`; access doesn't cover `access_needs`; transaction limits < `withdrawals_per_month`.
+3. **Effective APY** per product, over `h = max(1, min(horizon_months, 12))` months:
+   - Tiered: `blended = Σ(tier_amount × tier_apy) / amount_usd` using the user's amount.
+   - Teaser: `effective = (min(promo_months, h) × promo_apy + max(0, h − promo_months) × post_promo_apy) / h`.
+   - MMF / ETF: `yield − net_expense_ratio` (if the quoted yield is already net of expenses, do not subtract twice — state which).
+4. **After-tax yield** (`f` = federal, `s` = state, as decimals):
+   - Deposits: `effective × (1 − f − s)`
+   - Treasury MMF / T-bill ETF / direct T-bill: `effective × (1 − f)`
+   - Prime MMF: `effective × (1 − f − s × (1 − usgo_share))`
+5. **Rank** by after-tax yield (pre-tax if rates missing) descending → tie: lower minimum → tie: institution name A–Z. Shortlist = top 6 (fewer only if fewer pass the filter; if fewer than 3 pass, say so).
+6. **Dollar pickup** vs current: `amount_usd × (best − current) / 100`, pre-tax and after-tax (current APY taxed as a deposit). Compute in cents, report whole dollars; APYs to two decimals.
+7. **Insurance check.** If a deposit product's balance would exceed the per-depositor, per-institution, per-ownership-category limit, flag the excess and list the split needed.
+8. If no rate source is reachable, stop before step 1 — report "no live rates available" (never estimate APYs).
+
+### Decision rules
+
+The skill presents a ranked shortlist; it never picks an institution. Evaluate top to bottom; first match wins.
+
+| # | Condition | Output |
+|---|---|---|
+| 1 | No live rate source reachable | Stop — tell the user; no figures |
+| 2 | Fewer than 1 product passes the filter | Relax constraints list: show which filter removed the most products; ask the user which to relax |
+| 3 | After-tax $ pickup of the #1 ranked option < $100/yr | "Current account is within $100/yr of the best eligible option — switching is optional" |
+| 4 | `amount_usd` > insured limit and #1 is a deposit product | Shortlist + "split across institutions or use a network-sweep program" |
+| 5 | Otherwise | Shortlist ranked by after-tax yield; #1 flagged as highest after-tax yield, user chooses |
+
+### Output template
+
+```markdown
+# Cash Yield Check — {as_of_date}
+
+## Source
+Primary source: DepositAccounts.com ({category URL}), as-of {timestamp}. Cross-checked on issuer pages. [UNSOURCED — verify on issuer page]
+
+## Bucket & constraints
+| Item | Value |
+|---|---|
+| Bucket | |
+| Amount | |
+| Horizon (months) | |
+| Access needs | |
+| Max minimum balance | |
+| Eligible product types | |
+
+## Shortlist (ranked by after-tax yield)
+| Rank | Institution + product | APY / yield (as-of, URL) | Net expense ratio | Fed tax | State tax | Insurance | Min to earn APY | Fee / waiver | Tier cap & blended APY | Access | Eligibility | After-tax yield | Gotchas |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+
+## Annualized dollar pickup vs current {current_apy}%
+| Option | Pre-tax $/yr | After-tax $/yr |
+|---|---|---|
+
+## CD ladder option
+{ladder table — or "Not applicable — horizon ≤ 3 months"}
+
+## Non-deposit alternatives
+{MMF / T-bill rows — or "Not applicable — user kept scope to insured deposits"}
+
+## Considerations
+- {tax treatment, liquidity, insurance, reinvestment risk, 1099 form, behavioral fit}
+
+## Decision
+{decision rule # and its output}
+
+## What this is NOT
+This is a rate survey, not a recommendation to open any specific account. Verify rates, fees, terms, and current USGO% on the institution's own site before applying.
+
+## Next step
+{friendly skill name + specialist}
+```
 
 ## Report Quality
 

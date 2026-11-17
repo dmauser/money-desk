@@ -12,7 +12,7 @@ PDF renderer.
 """
 from __future__ import annotations
 
-__renderer_version__ = "0.20.0"
+__renderer_version__ = "0.21.0"
 def _warn_on_drift() -> None:
     """Soft-warn if our sibling RENDERERS_MANIFEST.json declares a different version.
 

@@ -1,12 +1,20 @@
 {
   "name": "money-desk",
   "description": "Your personal-finance AI team — 20 specialists (budget, tax, investing, retirement, debt, credit, health & Medicare, property & casualty, life & disability, estate, purchase decisions, education / 529, net worth & goals, self-employed / 1099, life events, real-estate investing, behavioral coaching, international / expat, financial literacy, FIRE). Analysis only; not professional advice.",
-  "version": "0.20.0",
+  "version": "0.21.0",
   "author": {
     "name": "dmauser"
   },
   "homepage": "https://github.com/dmauser/money-desk",
   "repository": "https://github.com/dmauser/money-desk",
   "license": "MIT",
-  "keywords": ["personal-finance", "budgeting", "tax-planning", "investing", "retirement", "debt", "credit"]
+  "keywords": [
+    "personal-finance",
+    "budgeting",
+    "tax-planning",
+    "investing",
+    "retirement",
+    "debt",
+    "credit"
+  ]
 }

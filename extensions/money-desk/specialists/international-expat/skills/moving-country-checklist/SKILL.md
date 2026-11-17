@@ -32,7 +32,7 @@ description: Pre-move runbook for someone changing countries — ideally 6-12 mo
 - [ ] **Surrender / retain US driver's license** decision based on state.
 - [ ] **Voting strategy**: federal voting from abroad via FVAP (Federal Voting Assistance Program); state voting depends on last state of residence.
 - [ ] **Health-insurance bridge** for the gap between US coverage ending and destination coverage starting. International medical insurance (e.g., Cigna Global, IMG, Allianz) for the gap if needed.
-- [ ] **Real estate**: sell, rent out, or keep vacant? Tax implications differ; sell triggers §121 ($250k/$500k) primary-residence exclusion if 2 of 5 owner-occupied — clock matters.
+- [ ] **Real estate**: sell, rent out, or keep vacant? Tax implications differ; sell triggers §121 primary-residence exclusion (`mortgage_and_real_estate_2026.section_121_exclusion_single` / `_mfj`) if 2 of 5 owner-occupied — clock matters (last eligible sale date in Determinism rules step 5).
 - [ ] **Inventory and consolidate retirement accounts**. Old 401(k)s often easier to manage as rollover IRAs from abroad than employer plans (employer may force-distribute if account address goes foreign).
 - [ ] **Update beneficiary designations** to reflect new family / dependent situation BEFORE leaving.
 
@@ -59,7 +59,7 @@ description: Pre-move runbook for someone changing countries — ideally 6-12 mo
 
 - [ ] **First-year US return** with split FEIE + Form 1116, plus state-final return.
 - [ ] **First foreign tax return** in destination — use that filing to plan next year's FEIE-vs-FTC.
-- [ ] **First FBAR** if aggregate non-US accounts > $10,000.
+- [ ] **First FBAR** if aggregate non-US accounts > `expat_quick_reference_2026.fbar_filing_threshold_aggregate_usd`.
 - [ ] **First Form 8938** if applicable thresholds met.
 - [ ] **First PFIC clean-up** if any foreign mutual funds picked up.
 - [ ] **Beneficiary, will, POA** review — does the US-drafted will conform to destination-country succession law? Often not; consider a parallel destination-country will.
@@ -69,10 +69,10 @@ description: Pre-move runbook for someone changing countries — ideally 6-12 mo
 
 - [ ] **Section 877A exit-tax screening** for "covered expatriate" status:
   - Net worth ≥ $2,000,000, OR
-  - Average annual US income tax > ~$201,000 for 5 prior years (2024 figure; check current year), OR
+  - Average annual US income tax for the 5 prior years > the indexed threshold for the expatriation year (not in md_facts — look up via `md_sources`), OR
   - Failure to certify 5-year compliance on Form 8854.
-- [ ] If covered → mark-to-market deemed sale of worldwide assets on the day before expatriation. Tax owed on net gain > exclusion (~$821,000 for 2024). Specific deferred-comp and IRA rules apply.
-- [ ] Renunciation appointment at US consulate; $2,350 renunciation fee.
+- [ ] If covered → mark-to-market deemed sale of worldwide assets on the day before expatriation. Tax owed on net gain > the indexed §877A exclusion for the expatriation year (not in md_facts — look up via `md_sources`). Specific deferred-comp and IRA rules apply.
+- [ ] Renunciation appointment at US consulate; renunciation fee per the current State Department fee schedule (look up via `md_sources`).
 - [ ] Effects on US-source income post-expatriation: subject to 30% withholding on most US-source FDAP income (unless treaty applies); real-estate FIRPTA on US-real-property dispositions.
 - [ ] Visa-return restrictions: Reed Amendment can bar former US citizens (rarely enforced but legally on the books).
 
@@ -96,6 +96,97 @@ description: Pre-move runbook for someone changing countries — ideally 6-12 mo
 
 Educational. Cross-border moves with significant assets, business interests, or covered-expatriate status must be planned with a cross-border CPA + immigration attorney + (for citizenship change) US-State-Department-experienced attorney. Mistakes here are expensive and frequently irreversible.
 
+## Determinism rules
+
+### Input keys
+
+- `today` — YYYY-MM-DD
+- `move_date` — YYYY-MM-DD
+- `origin_country`, `destination_country` — strings; `origin_us_state` — two-letter code or none
+- `household` — list of `{ name, citizenships, us_person (bool) }`
+- `visa_status` — string
+- `employer_arrangement` — `same_employer` | `new_foreign_employer` | `self_employed` | `not_working`
+- `filing_status` — `single` | `mfj` | `mfs` | `hoh`
+- `net_worth_usd` — number
+- `renouncing_or_surrendering` — `none` | `renounce_citizenship` | `surrender_green_card`
+- `green_card_years_in_last_15` — integer; only for surrender
+- `avg_annual_us_income_tax_5yr_usd` — number; only if expatriating
+- `form_8854_compliance_5yr` — bool; only if expatriating
+- `us_home` — `{ owned (bool), occupied_months_ending_at_move_out (continuous principal-residence months), move_out_date (YYYY-MM-DD), estimated_gain_usd }`; optional
+- `accounts` — list of `{ institution, type, country, balance_usd }`
+- `done_items` — list of item ids already completed (see step 2)
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Move date | **Ask — no default** | — |
+| §121 exclusion | `md_facts` → `mortgage_and_real_estate_2026.section_121_exclusion_single` / `section_121_exclusion_mfj` | `[FHFA / IRS RE 2026]` |
+| §121 use test | 24 months owner-occupied in the 5 years before sale (statutory, this skill's "2 of 5") | — |
+| FBAR threshold | `md_facts` → `expat_quick_reference_2026.fbar_filing_threshold_aggregate_usd` | `[IRS / FinCEN Expat 2026]` |
+| Form 8938 thresholds (abroad) | `md_facts` → `expat_quick_reference_2026.fatca_form_8938_threshold_single_abroad_end_of_year` / `_mfj_abroad_end_of_year` | `[IRS / FinCEN Expat 2026]` |
+| Covered-expatriate net-worth test | $2,000,000 (statutory, not indexed) | — |
+| Covered-expatriate average-tax test and §877A exclusion amount | Not in md_facts — look up via `md_sources` (IRS Form 8854 instructions for the expatriation year), else tag `[UNSOURCED]` and treat the screen as "unknown" | `[UNSOURCED]` |
+| Renunciation fee | Not in md_facts — look up via `md_sources` (State Department fee schedule), else tag `[UNSOURCED]` | `[UNSOURCED]` |
+| Long-term resident (green card) | Held in ≥ 8 of the last 15 tax years (this skill) | — |
+| Item completion | Items not in `done_items` are open | `[ASSUMPTION]` |
+
+### Calculation method
+
+1. **Days to move** `d = move_date − today` (calendar days; negative after the move).
+2. **Items and due dates.** Every checkbox in the runbook above is an item, id-numbered in document order within its phase (A1…, B1…, C1…, D1…, E1… for the expatriation section). Due dates are fixed offsets from `move_date`: phase A (T-12 to T-6) → `move_date − 182 days`; phase B (T-6 to T-1) → `move_date − 30 days`; phase C (T-0 to T+90) → `move_date + 90 days`; phase D → April 15 after the move year (FBAR: per `md_facts` → `fbar_filing_deadline`); phase E → before the renunciation / surrender appointment.
+3. **Applicability filters** (item removed with reason, not silently dropped): state-tax items only if `origin_us_state` is set; US-account items only if any household member is `us_person`; real-estate item only if `us_home.owned`; phase E only if `renouncing_or_surrendering ≠ none` (and, for green cards, `green_card_years_in_last_15 ≥ 8` — otherwise E is replaced by "not a long-term resident — exit tax not applicable").
+4. **Status per item:** `done` if in `done_items`; `overdue` if open and due date < `today`; `due_soon` if open and due within 30 days; `open` otherwise.
+5. **§121 window** (if applicable): if `occupied_months_ending_at_move_out ≥ 24`, last eligible sale date = `move_out_date + 3 years`; else "use test not met — partial-exclusion rules, CPA". Show the date, `estimated_gain_usd`, and the md_facts exclusion for `filing_status` (MFJ key for `mfj`, single key otherwise).
+6. **Exit-tax screen** (phase E only): `covered = net_worth_usd ≥ $2,000,000` OR `avg_annual_us_income_tax_5yr_usd > sourced threshold` OR `form_8854_compliance_5yr = false`. If the threshold is unsourced and the other tests are false, result = `unknown`.
+7. **First-year filing tests:** FBAR if `Σ foreign balance_usd > threshold`; Form 8938 if over the abroad year-end threshold for `filing_status`.
+
+### Decision rules
+
+Headline; evaluate top to bottom; the first match wins. The full item table is always shown.
+
+| # | Condition | Recommendation |
+|---|---|---|
+| 1 | `move_date` missing | No timeline — ask |
+| 2 | Phase E applies and exit-tax screen is `covered` or `unknown` | Stop — cross-border CPA + attorney before any expatriation step |
+| 3 | Any item `overdue` | Clear overdue items first (listed by due date, then item id) |
+| 4 | `d > 0` | Work the current phase's `due_soon` then `open` items |
+| 5 | Otherwise (`d ≤ 0`) | Post-move: phase C items, then phase D first-year filing items |
+
+### Output template
+
+```markdown
+# Moving Country Checklist — {origin_country} → {destination_country}, move {move_date}
+
+## Headline
+{d} days to move · {overdue} overdue · {due_soon} due in 30 days. Recommendation: **{rule # action}**.
+
+## Personalized timeline
+| ID | Phase | Item | Due date | Status |
+|---|---|---|---|---|
+
+## Tax-residency disengagement audit
+{state items and status — or "Not applicable — no US state of origin"}
+
+## Brokerage / account migration plan
+| Institution | Type | Action | By date |
+|---|---|---|---|
+
+## US home (§121)
+{eligibility, last eligible sale date, exclusion amount — or "Not applicable — no US home owned"}
+
+## Insurance bridge
+{gap dates and coverage plan}
+
+## First cross-border filing year
+| Form | Required? | Test | Due date |
+|---|---|---|---|
+
+## Exit-tax screen
+{covered / not covered / unknown with each test — or "Not applicable — not expatriating"}
+
+Educational. Plan with a cross-border CPA and immigration attorney.
+```
 
 ## Report Quality
 

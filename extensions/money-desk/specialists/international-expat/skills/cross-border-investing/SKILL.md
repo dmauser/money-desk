@@ -55,7 +55,7 @@ description: Map the cross-border investing landscape for US persons abroad and 
 
 ### 5. Currency exposure of the portfolio
 - US person abroad earning in local currency, spending in local currency, retiring in [TBD] — the "home" currency for portfolio purposes is debated.
-- Default: hold core equities in USD via US-domiciled funds; hold local-currency cash for 6-12 month expense reserve; rebalance to currency exposure annually as part of portfolio review.
+- Default: hold core equities in USD via US-domiciled funds; hold local-currency cash for a 6-month expense reserve (12 if income is variable — Determinism rules); rebalance to currency exposure annually as part of portfolio review.
 
 ## Output
 
@@ -75,6 +75,87 @@ description: Map the cross-border investing landscape for US persons abroad and 
 
 Educational. Cross-border investment positions can create significant penalty exposure if mis-classified. Strongly recommend a cross-border CPA + (for foreign-trust / 3520-A issues) a specialist with that explicit experience.
 
+## Determinism rules
+
+### Input keys
+
+Names match this skill's Inputs needed.
+
+- `us_person_status` — `citizen` | `green_card` | `non_us_person_in_us` | `former_us_person` (required)
+- `country_of_residence` — string (required)
+- `investment_accounts` — list of `{ name, country, custodian, account_type (brokerage | isa | sipp | rrsp | tfsa | superannuation | eu_pension | other_pension | us_ira | us_401k | other), balance_usd }` (required)
+- `fund_holdings` — list of `{ account, ticker_or_isin, domicile (us | non_us), type (fund | etf | stock | bond | cash), value_usd }`
+- `currency_mix` — map of currency → percent of total assets
+- `planned_move` — `{ country, date (YYYY-MM) }` or none
+- `employer_retirement_plan` — `{ country, type }` or none
+- `local_law_blocks_us_funds` — bool; default false
+- `monthly_local_expenses_usd` — number; optional (cash-reserve sizing)
+- `income_variable` — bool; default false
+
+### Assumptions
+
+| Assumption | If the user doesn't supply it | Tag |
+|---|---|---|
+| Accounts, balances, fund domicile | **Ask — no default**; a fund with unknown domicile is treated as `non_us` (PFIC risk) until confirmed | `[ASSUMPTION]` |
+| PFIC default regime / Form 8621 | `md_facts` → `expat_quick_reference_2026.pfic_default_taxation_form_8621_required` | `[IRS / FinCEN Expat 2026]` |
+| Treaty treatment of a foreign plan | Per the table in Workflow step 4; plans not listed → treaty article lookup via `md_sources` (IRS Treaties Resource Center), else `[UNSOURCED]` and CPA | `[UNSOURCED]` |
+| US broker policy for foreign addresses | Broker's current published policy via `md_sources` / broker site; the broker list in Workflow step 3 is a starting point | `[UNSOURCED]` |
+| Local-currency cash reserve | 6 months of `monthly_local_expenses_usd` (12 if `income_variable`) — the ends of this skill's 6–12 month range | `[ASSUMPTION]` |
+| Tax cost of liquidating a PFIC | Not computed — CPA computes the excess-distribution tax before any sale | — |
+
+### Calculation method
+
+1. **Scope.** If `us_person_status = non_us_person_in_us`, only the W-8BEN / treaty-withholding note and US-broker items apply; PFIC and foreign-plan rules do not.
+2. **Inventory** every account; sort by country A–Z, then balance descending.
+3. **Holding classification:** `PFIC` = `domicile = non_us` and `type ∈ {fund, etf}`; `OK` otherwise. `pfic_value = Σ value_usd of PFIC holdings` per account and in total.
+4. **Account treatment** by `account_type`, fixed mapping: `sipp` → treaty pension (keep); `rrsp` → treaty-deferred (keep); `isa` → US-taxable account; `tfsa` → US-taxable + possible foreign-trust forms (3520 / 3520-A); `superannuation` → position required with cross-border CPA (no default); `eu_pension` / `other_pension` → treaty-article lookup; `brokerage` → taxable; `us_ira` / `us_401k` → US-qualified (check custodian residency policy).
+5. **Broker residency check:** for each US custodian, status = `restricts foreign address` / `serves expats` / `unknown` from the step-4 assumption source; `at_risk` if `restricts` and (`country_of_residence ≠ US` or `planned_move` within 24 months).
+6. **Cash reserve** target (step-4 assumption) in the residence currency, compared with current local-currency cash.
+
+### Decision rules
+
+Per account; evaluate top to bottom; the first match wins.
+
+| # | Condition | Action |
+|---|---|---|
+| 1 | `account_type = superannuation` or TFSA, or a pension with no treaty article found | **Restructure — CPA position first** (no default treatment) |
+| 2 | `pfic_value > 0` and `local_law_blocks_us_funds = false` | **Liquidate PFIC holdings → replace with US-domiciled funds** after the CPA computes the tax cost; file Form 8621 for the year held |
+| 3 | `pfic_value > 0` and `local_law_blocks_us_funds = true` | **Keep with Form 8621 compliance**, or switch to individual stocks |
+| 4 | US custodian `at_risk` | **Move** to an expat-serving broker before the move / restriction date |
+| 5 | US custodian status `unknown` and resident abroad or moving within 24 months | **Confirm broker policy** in writing |
+| 6 | Otherwise | **Keep** |
+
+### Output template
+
+```markdown
+# Cross-Border Investing Review — {date}
+
+## Headline
+{N} accounts · PFIC exposure **${pfic_value}** in {k} accounts · {at_risk_count} US accounts at residency risk.
+
+## Account cleanup checklist
+| Account | Country | Type | Balance | US treatment | PFIC value | Action (rule #) |
+|---|---|---|---|---|---|---|
+
+## Recommended brokerage architecture
+- US-domiciled funds at an expat-serving US broker + local-currency bank for spending
+- Local-currency cash reserve: target ${reserve_target} vs current ${local_cash}
+
+## Foreign retirement-account treatment
+| Account | Treaty / article | Position required on the return | CPA needed? |
+|---|---|---|---|
+{or "Not applicable — no foreign retirement accounts"}
+
+## PFIC inventory
+| Account | Holding | Domicile | Value | Recommendation |
+|---|---|---|---|---|
+{or "None"}
+
+## Assumptions & flags
+- {unknown domiciles, broker-policy sources, [UNSOURCED] items}
+
+Educational. Confirm positions with a cross-border CPA.
+```
 
 ## Report Quality
 
