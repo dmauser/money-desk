@@ -1,6 +1,6 @@
 # Retirement Projection
 
-description: Project savings trajectory to a target retirement age using user inputs (current balances, contribution rate, expected return, inflation, target spend). Outputs success probability, gap-to-goal, and the levers that close the gap. Use for "am I on track?" questions and for FIRE planning.
+description: Project savings trajectory to a target retirement age using user inputs (current balances, contribution rate, expected return, inflation, target spend). Outputs the balance at retirement, the age the money runs out (if it does), the gap to goal, a sensitivity grid, a stress test, and the levers that close the gap. Deterministic — it does not compute a success probability. Use for "am I on track?" questions and for FIRE planning.
 
 ## When to use
 

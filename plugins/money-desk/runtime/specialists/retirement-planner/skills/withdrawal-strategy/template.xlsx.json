@@ -193,10 +193,10 @@
         {"ref": "C5", "value": "<= 4%", "style": "threshold"},
         {"ref": "D5", "formula": "=IF(annual_spending/starting_total<=0.035,\"OK\",IF(annual_spending/starting_total<=0.04,\"At 4% rule\",\"Above 4% - higher risk\"))", "style": "status"},
 
-        {"ref": "A6", "value": "PV of spending (nominal annuity)", "style": "metric"},
-        {"ref": "B6", "formula": "=PV(nominal_return_rate, withdrawal_yrs, -annual_spending)", "style": "value_highlight", "number_format": "$#,##0"},
+        {"ref": "A6", "value": "PV of spending (real, inflation-adjusted)", "style": "metric"},
+        {"ref": "B6", "formula": "=PV(real_return_rate, withdrawal_yrs, -annual_spending)", "style": "value_highlight", "number_format": "$#,##0"},
         {"ref": "C6", "value": "<= portfolio", "style": "threshold"},
-        {"ref": "D6", "formula": "=IF(PV(nominal_return_rate, withdrawal_yrs, -annual_spending)<=starting_total,\"Covered\",\"Underfunded\")", "style": "status"},
+        {"ref": "D6", "formula": "=IF(PV(real_return_rate, withdrawal_yrs, -annual_spending)<=starting_total,\"Covered\",\"Underfunded\")", "style": "status"},
 
         {"ref": "A7", "value": "Surplus / shortfall vs starting", "style": "metric"},
         {"ref": "B7", "formula": "=starting_total-B6", "style": "value_highlight", "number_format": "$#,##0"},
@@ -220,13 +220,13 @@
         {"ref": "C11", "value": "vs spend", "style": "threshold"},
         {"ref": "D11", "value": "Tax-free", "style": "status"},
 
-        {"ref": "A12", "value": "Lowest-tax-cost source first", "style": "metric"},
-        {"ref": "B12", "formula": "=IF(roth_balance_start>=annual_spending, \"Roth\", IF(taxable_balance_start>=annual_spending, \"Taxable\", \"Traditional\"))", "style": "value_highlight"},
+        {"ref": "A12", "value": "Draw first after bracket-filling", "style": "metric"},
+        {"ref": "B12", "formula": "=IF(taxable_balance_start>0, \"Taxable\", IF(traditional_balance_start>0, \"Traditional\", \"Roth\"))", "style": "value_highlight"},
         {"ref": "C12", "value": "", "style": "threshold"},
-        {"ref": "D12", "value": "Capacity check this year", "style": "status"},
+        {"ref": "D12", "value": "Traditional to target bracket, then Taxable; Roth last", "style": "status"},
 
         {"ref": "A14", "value": "Headline verdict", "style": "section_banner"},
-        {"ref": "A15", "formula": "=\"Initial WR \"&TEXT(annual_spending/starting_total,\"0.00%\")&\". \"&IF(starting_total>=PV(nominal_return_rate, withdrawal_yrs, -annual_spending),\"Plan covers PV of spending.\",\"PV of spending exceeds starting portfolio - tighten plan.\")&\" Pull from \"&IF(roth_balance_start>=annual_spending, \"Roth\", IF(taxable_balance_start>=annual_spending, \"Taxable\", \"Traditional\"))&\" first this year.\"", "style": "callout"}
+        {"ref": "A15", "formula": "=\"Initial WR \"&TEXT(annual_spending/starting_total,\"0.00%\")&\". \"&IF(starting_total>=PV(real_return_rate, withdrawal_yrs, -annual_spending),\"Plan covers PV of spending.\",\"PV of spending exceeds starting portfolio - tighten plan.\")&\" Draw order: bracket-filling Traditional, then \"&IF(taxable_balance_start>0, \"Taxable\", IF(traditional_balance_start>0, \"Traditional\", \"Roth\"))&\"; Roth last.\"", "style": "callout"}
       ]
     }
   ]

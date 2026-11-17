@@ -28,7 +28,7 @@ description: Compute the user's FIRE *number* — the asset base at which their 
 3. **Layer in healthcare.** Pre-65 (FIRE-age to 65): add the pre-65 cost above the post-65 cost as an annuity over the years to 65 (Determinism rules step 3). For >10-year pre-65 gap, healthcare is often the single biggest line. Post-65: add the Medicare + Medigap layer at the WR multiple.
 4. **Compute each FIRE flavor's target.**
    - **Lean FIRE** — at the user's lean spend (`lean_annual_spend`); not applicable if none given.
-   - **Coast FIRE** — current portfolio compounded at the real return for (FI-age − current-age) years should equal the FIRE number. Solve for whether the user is *already* coast.
+   - **Coast FIRE** — current portfolio compounded at the real return, with no further contributions, until normal retirement age (default 65, not the early FI age) should equal the FIRE number. Solve for whether the user is *already* coast.
    - **Barista FIRE** — FIRE number reduced by the present value of part-time income over `part_time_years` (cite the haircut explicitly).
    - **Chubby FIRE** — 1.5× the lean target (loose convention; cite).
    - **Fat FIRE** — typically $5M+ household or ≥$200k/yr spend; cite the convention you're using.
@@ -83,6 +83,7 @@ Names match the `md_fi_skill_fire_number_calculator` intake schema; extra keys f
 - `ss_claim_age` — integer 62–70 (needed when `ss_monthly_estimate > 0`)
 - `part_time_years` — integer (needed when `part_time_income_annual > 0`)
 - `annual_savings_usd` — number, $ saved per year until FI
+- `coast_retirement_age` — integer, optional; the normal retirement age used for the Coast FIRE test (default 65)
 
 ### Assumptions
 
@@ -95,6 +96,7 @@ Names match the `md_fi_skill_fire_number_calculator` intake schema; extra keys f
 | Annual savings | **Ask — no default**; without it, years-to-close is "Not applicable" | — |
 | Withdrawal-rate grid | 4.0% / 3.5% / 3.0% (fixed); 4.0% is `md_facts` → `behavioral_assumptions_safe_defaults.safe_withdrawal_rate_30yr_horizon_percent` | `[ASSUMPTION]` |
 | Chubby multiple | 1.5 × lean (community convention) | `[ASSUMPTION]` |
+| Normal retirement age for Coast FIRE (`coast_retirement_age`) | 65 (community convention; same rule as the FIRE flavor classifier) | `[ASSUMPTION]` |
 | Fat-FIRE spend floor | $200,000 / yr (community convention) | `[ASSUMPTION]` |
 
 ### Calculation method
@@ -114,7 +116,7 @@ Real dollars, annual compounding, `r = expected_real_return_pct / 100`, savings 
    - Chubby: `1.5 × lean target`; not applicable if lean missing.
    - Fat: `max(target_annual_spend, 200000) × M`.
    - Barista: `FIRE(WR) − part_time_income_annual × AF(r, part_time_years)`; not applicable if part-time income is 0.
-   - Coast: `coast_needed_today = FIRE(headline WR) / (1 + r)^(target_fi_age − current_age)`; coast = `P ≥ coast_needed_today`, where `P = Σ buckets`.
+   - Coast: `coast_needed_today = FIRE(headline WR) / (1 + r)^(coast_retirement_age − current_age)` (not `target_fi_age`: Coast means no more saving and retiring at a normal age); coast = `P ≥ coast_needed_today`, where `P = Σ buckets`.
 6. **Gap:** `gap(WR) = FIRE(WR) − P` (≤ 0 = reached).
 7. **Years to close** (needs `annual_savings_usd`): smallest integer `n ≥ 0` with `P × (1 + r)^n + S × ((1 + r)^n − 1) / r ≥ FIRE` (`S × n` if `r = 0`); cap 60 → "> 60 years".
 8. **Sensitivity:** years to close at `r − 1 pp`; FIRE number with spend × 1.20 (all layers recomputed).
@@ -135,7 +137,7 @@ Real dollars, annual compounding, `r = expected_real_return_pct / 100`, savings 
 | # | Condition | Status |
 |---|---|---|
 | 1 | `gap(headline WR) ≤ 0` | FI reached at the headline WR |
-| 2 | Coast = true | Coast FI — current portfolio compounds to the target by FI age without new savings |
+| 2 | Coast = true | Coast FI — current portfolio compounds to the target by `coast_retirement_age` without new savings |
 | 3 | Years to close ≤ `target_fi_age − current_age` | On pace for the target FI age |
 | 4 | Otherwise | Behind pace — route to Savings-Rate Optimizer |
 

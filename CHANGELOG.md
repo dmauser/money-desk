@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.1] — 2026-11-17
+
+### Fixed
+
+- **Withdrawal Strategy workbook contradicted its skill.**
+  `template.xlsx.json` Summary!B6 discounted a level nominal spend at the
+  nominal rate (as if spending never rose with inflation); it now computes
+  the real present value the skill uses. Summary!B12 and the headline
+  named Roth as the first account to draw from; they now follow the
+  skill's order (bracket-filling Traditional, then Taxable, Roth last).
+- **Two definitions of Coast FIRE.** FIRE Number Calculator tested coasting
+  to the early `target_fi_age`; the FIRE flavor classifier tested coasting
+  to 65. Both now use the conventional definition — no further saving,
+  growing to the comfortable number by normal retirement age — through one
+  shared optional input, `coast_retirement_age` (default 65).
+- **Retirement Projection** no longer promises a "success probability" in
+  its description; the projection is deterministic and says so.
+
 ## [0.23.0] — 2026-11-17
 
 ### Added

@@ -27,7 +27,7 @@ description: Help the user decide which flavor of FIRE actually fits — lean / 
 
 1. **Run the 5 flavor definitions cleanly.** Each has a numerical convention AND a lifestyle stance:
    - **Lean FIRE** — ~$25–50k/yr household spend; tight budget; high geographic flexibility usually required; very high savings rate (50–70%); FI in ~10–15 years from a normal income; identity-tight ("we live small").
-   - **Coast FIRE** — current portfolio is large enough that, without ANY more contributions, it'll compound to a normal-retirement number by 65; user keeps working but only to cover current expenses; flexibility to switch to lower-paid / fulfilling work.
+   - **Coast FIRE** — current portfolio is large enough that, without ANY more contributions, it'll compound to a normal-retirement number by normal retirement age (default 65); user keeps working but only to cover current expenses; flexibility to switch to lower-paid / fulfilling work.
    - **Barista FIRE** — full FI not yet hit; user covers ~50% of expenses with portfolio WR and 50% with part-time work that often provides healthcare; typical post-50, popular pre-Medicare.
    - **Chubby FIRE** — ~1.5× lean; comfortable middle-class retirement spend (typically $80–140k/yr household; this skill's naming band is $50,001–$199,999); moderate frugality not extreme; the "we don't want to count every dollar" version.
    - **Fat FIRE** — $200k+/yr spend; $5M+ household; typically high-income professionals or business exits; geographic flexibility optional; lifestyle preserved or expanded post-retirement.
@@ -87,6 +87,7 @@ FIRE flavor is a working hypothesis, not a contract. Most users shift flavors at
 - `expected_real_return_pct` — number
 - `part_time_income_annual_usd` — number (0 = none); `part_time_years` — integer
 - `effective_tax_rate_pct` — number, for the "+20% income" path
+- `coast_retirement_age` — integer, optional; the normal retirement age used for the Coast FIRE test (default 65)
 
 ### Assumptions
 
@@ -95,7 +96,7 @@ FIRE flavor is a working hypothesis, not a contract. Most users shift flavors at
 | Income, spend, savings rate, portfolio, floor and comfortable spend, quit age, planning age, real return | **Ask — no default** | — |
 | Lifestyle priorities, career attachment, spouse alignment | **Ask — no default** | — |
 | Withdrawal rate | Horizon rule shared with FIRE Number Calculator: `H = planning_to_age − earliest_quit_age`; H ≤ 30 → 4.0%, 31–49 → 3.5%, ≥ 50 → 3.0% | `[ASSUMPTION]` |
-| Normal retirement age for Coast FIRE | 65 | `[ASSUMPTION]` |
+| Normal retirement age for Coast FIRE (`coast_retirement_age`) | 65 (community convention; same rule as FIRE Number Calculator) | `[ASSUMPTION]` |
 | Spend bands for naming | Lean ≤ $50,000; Chubby $50,001–$199,999; Fat ≥ $200,000 (household, today's $; community convention) | `[ASSUMPTION]` |
 | Chubby multiple | 1.5 × lean target | `[ASSUMPTION]` |
 | Part-time income / years | 0 | `[ASSUMPTION: 0]` |
@@ -107,7 +108,7 @@ Real dollars, annual compounding, `r = expected_real_return_pct / 100`, savings 
 
 1. `P = Σ balances`; `S = gross_income_annual_usd × savings_rate_pct / 100`; `M = 100 / WR`; `quit_gap = earliest_quit_age − current_age`.
 2. **Targets:** Lean `= hard_floor × M`; Comfortable `= comfortable × M`; Chubby `= 1.5 × Lean`; Fat `= max(comfortable, 200000) × M`; Barista `= Comfortable − part_time_income × AF(r, part_time_years)` with `AF = (1 − (1 + r)^−n)/r`.
-3. **Coast:** `coast_need_today = Comfortable / (1 + r)^(65 − current_age)`; coast = `P ≥ coast_need_today`.
+3. **Coast:** `coast_need_today = Comfortable / (1 + r)^(coast_retirement_age − current_age)`; coast = `P ≥ coast_need_today`.
 4. **Years to each target:** smallest integer `n` with `P(1 + r)^n + S((1 + r)^n − 1)/r ≥ target`; cap 60 → "> 60".
 5. **Paths for the recommended flavor:** spend −10% (`S + 0.10 × current_spend`, target × 0.90); income +20% (`S + 0.20 × gross × (1 − effective_tax_rate/100)`).
 6. **Lifestyle-fit stars:** start at 3 per flavor, apply each matching signal, clamp 1–5:
@@ -149,7 +150,7 @@ Recommended: **{flavor}** (rule #{k}). Number: **${T}** at {WR}%; gap ${T − P}
 | Flavor | Annual spend | Target portfolio | Years at current savings | Lifestyle fit (stars) |
 |---|---|---|---|---|
 | Lean | | | | |
-| Coast | n/a (target at 65) | need ${coast_need_today} today | {coast now / not yet} | |
+| Coast | n/a (target at {coast_retirement_age}) | need ${coast_need_today} today | {coast now / not yet} | |
 | Barista | | | | |
 | Chubby | | | | |
 | Fat | | | | |

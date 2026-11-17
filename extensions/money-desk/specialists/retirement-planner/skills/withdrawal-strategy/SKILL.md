@@ -103,7 +103,7 @@ Keys map 1:1 to the `template.xlsx.json` named ranges where one exists (shown in
 Real dollars, annual compounding, end-of-year growth; bracket and IRMAA thresholds held at today's values (assumed to index with inflation).
 
 1. **Template headline metrics** (same formulas as `template.xlsx.json`): `starting_total = taxable + traditional + roth`; `initial_wr_pct = annual_spending / starting_total × 100`; gross-ups: traditional `= spend / (1 − effective_tax_rate)`, taxable `= spend / (1 − ltcg_rate × (1 − cost_basis_pct))`, Roth `= spend`.
-2. **Funding check (real):** `PV_real = spend × (1 − (1 + r)^−n) / r` (`r` = real return, `n = withdrawal_years`; if `r = 0`, `spend × n`); surplus = `starting_total − PV_real`. The template's Summary!B6 discounts a **level nominal** spend at the nominal rate; report the template value labelled "level-nominal annuity (template)" alongside `PV_real`, and use `PV_real` for the decision.
+2. **Funding check (real):** `PV_real = spend × (1 − (1 + r)^−n) / r` (`r` = real return, `n = withdrawal_years`; if `r = 0`, `spend × n`); surplus = `starting_total − PV_real`. The template's Summary!B6 computes the same real present value.
 3. **Yearly loop** for each of the next 5 years (then every 5th year to `withdrawal_years` as directional):
    1. Fixed income: SS (if age ≥ `ss_claim_age`; taxable portion per Pub 915), pension, RMD (if age ≥ RMD age).
    2. **Ordinary room** = (top of the Decision-rules target bracket + standard deduction) − fixed ordinary income; then reduce so that MAGI ≤ every binding ceiling: ACA ceiling (age < 65 and `aca_household_size > 0`), the current IRMAA tier ceiling (age ≥ 63), NIIT threshold.
@@ -132,7 +132,7 @@ Real dollars, annual compounding, end-of-year growth; bracket and IRMAA threshol
 | 2 | Projected first-RMD marginal rate (step 4) ≤ current-year marginal rate before conversions | No conversion |
 | 3 | Otherwise | The highest bracket whose rate is strictly below the projected first-RMD marginal rate (lowest bracket → standard deduction only) |
 
-Sequencing is always: fixed income → bracket-filling traditional (+ conversion) → taxable → Roth → HSA (medical). The template's "Lowest-tax-cost source first" cell (Summary!B12) is a one-year capacity check and does not override this order.
+Sequencing is always: fixed income → bracket-filling traditional (+ conversion) → taxable → Roth → HSA (medical). The template's "Draw first after bracket-filling" cell (Summary!B12) follows the same order: Taxable, then Traditional, with Roth last.
 
 ### Output template
 
