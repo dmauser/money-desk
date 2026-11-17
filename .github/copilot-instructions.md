@@ -150,6 +150,12 @@ skill/role prompts referring to tools by their full id so both modes work.
     each entry as ``- `key` — type, description`` (several keys may share a
     line); `tests/intake-gate.test.mjs` fails if a skill's list can't be
     parsed.
+19. **Generated docs.** `docs/CAPABILITIES.md` (`npm run docs:capabilities`)
+    and `docs/FINANCE_REVIEW.md` (`npm run docs:review`, also in `pretest`)
+    are generated from the registry and the skills — never edit them by
+    hand. `FINANCE_REVIEW.md` lists every Decision-rules table and
+    `[ASSUMPTION]` default for professional review; those values are
+    unreviewed judgment calls, so don't present them as vetted advice.
 
 ## File layout
 

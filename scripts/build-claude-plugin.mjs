@@ -63,6 +63,10 @@ function expected() {
     const skillsSrc = join(REPO, "claude-plugin", "skills");
     for (const rel of listFiles(skillsSrc)) files.set(join("skills", rel), readFileSync(join(skillsSrc, rel)));
 
+    // Listing icon (square PNG) — the plugin validator looks for it here.
+    const icon = join(REPO, "claude-plugin", "icon.png");
+    if (existsSync(icon)) files.set(join(".claude-plugin", "icon.png"), readFileSync(icon));
+
     files.set(
         "README.md",
         Buffer.from(
@@ -83,7 +87,7 @@ function diff(files) {
     for (const [rel, buf] of files) {
         const p = join(OUT, rel);
         if (!existsSync(p)) problems.push(`missing: ${rel}`);
-        else if (norm(readFileSync(p)) !== norm(buf)) problems.push(`stale: ${rel}`);
+        else if (/\.png$/.test(rel) ? !readFileSync(p).equals(buf) : norm(readFileSync(p)) !== norm(buf)) problems.push(`stale: ${rel}`);
         actual.delete(rel);
     }
     for (const rel of actual) problems.push(`extra: ${rel}`);

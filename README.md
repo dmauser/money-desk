@@ -35,6 +35,10 @@
 
 ## 🆕 What's New
 
+### v0.26.1 — Review sheet and plugin icon
+
+[docs/FINANCE_REVIEW.md](./docs/FINANCE_REVIEW.md) collects every skill's decision rules and assumed defaults in one place, with a sign-off table, so a finance professional can check the judgment calls. The plugin also has an icon now.
+
 ### v0.26.0 — Social Security, FIRE number and stress-test calculators
 
 `md_calc` now has twelve calculators. New: `social_security` (benefit by claim age, breakevens, spousal and survivor amounts, claim-age recommendation), `fire_number` (FIRE number by withdrawal rate with healthcare layers, gap and status), and `swr_stress_test` (three fixed return paths and a defensible withdrawal range). `refinance` now handles an adjustable-rate reset.
@@ -877,7 +881,7 @@ All 147 tools are derived from a single declarative `SPECIALISTS` table in [`ext
 money-desk/
 ├── .claude-plugin/
 │   └── marketplace.json                       # one-plugin marketplace → ./plugins/money-desk
-├── claude-plugin/                             # Claude plugin sources: plugin.json + skills/ (router skill)
+├── claude-plugin/                             # Claude plugin sources: plugin.json, icon.png, skills/ (router skill)
 ├── plugins/money-desk/                        # GENERATED Claude plugin (npm run build:plugin) — don't edit
 ├── manifest.json                              # MCPB Desktop Extension manifest (Claude Desktop chat)
 ├── bin/
@@ -906,6 +910,7 @@ money-desk/
 │   └── tool-references.test.mjs               # every md_* tool id in markdown is a real tool
 ├── docs/
 │   ├── SKILL_DETERMINISM.md                   # the skill determinism standard
+│   ├── FINANCE_REVIEW.md                      # auto-generated: every decision rule and default, for professional review
 │   └── CAPABILITIES.md                        # auto-generated specialist / skill / tool map
 ├── .github/
 │   ├── copilot-instructions.md                # conventions for AI agents working on this repo
