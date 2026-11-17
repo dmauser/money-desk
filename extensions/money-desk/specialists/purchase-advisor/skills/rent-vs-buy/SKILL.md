@@ -103,6 +103,8 @@ description: Compare renting vs buying a home on total cost over a holding horiz
 
 ### Calculation method
 
+> **Calculators:** `md_calc` → `loan_amortization` for every fixed-rate loan payment, balance and payoff time; `md_calc` → `federal_income_tax` for ordinary tax, marginal rate and bracket headroom. Use the calculator's numbers verbatim, tagged `[CALCULATED]`, instead of mental arithmetic.
+
 Model in **nominal** dollars, monthly steps, `m = 1 … 12 × max(horizon_years, 30)`. md_facts values are decimals (0.01 = 1%).
 
 1. **Nominal rates:** appreciation `g = (1 + appr_real)(1 + infl) − 1`; investment `i = (1 + inv_real)(1 + infl) − 1`; rent inflation `ri = infl`. Monthly equivalents `x_m = (1 + x)^(1/12) − 1`.

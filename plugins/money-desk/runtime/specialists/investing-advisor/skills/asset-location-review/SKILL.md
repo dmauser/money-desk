@@ -70,13 +70,15 @@ description: Place each asset class in the most tax-efficient account type. Dist
 | Assumption | If the user doesn't supply it | Tag |
 |---|---|---|
 | Holdings, account types, cost basis | **Ask — no default** | — |
-| Federal marginal rate | Derive from taxable income with `md_facts` → `income_tax_brackets_mfj_2026.brackets` (MFJ; Single uses `.brackets_single`; HoH / MFS: not in md_facts — look up via `md_sources`, else **Ask**) | `[IRS 2026 brackets]` |
+| Federal marginal rate | Derive from taxable income with `md_facts` → `income_tax_brackets_mfj_2026.brackets` (MFJ; other statuses: `.brackets_single` / `.brackets_hoh` / `.brackets_mfs`) | `[IRS 2026 brackets]` |
 | LTCG / qualified-dividend rate | `md_facts` → `income_tax_brackets_mfj_2026.ltcg_qualified_dividend_brackets_mfj` (MFJ only; else **Ask**) | `[IRS 2026 brackets]` |
 | State marginal rate | **Ask — no default** | — |
 | Distribution yield, qualified share per fund | Fund issuer page via `md_sources`; if not retrieved, `[UNSOURCED]` and exclude that holding from the drag total | `[UNSOURCED]` |
 | Future contributions | 0 per account | `[ASSUMPTION]` |
 
 ### Calculation method
+
+> **Calculator:** `md_calc` → `federal_income_tax` for ordinary tax, marginal rate and bracket headroom. Use the calculator's numbers verbatim, tagged `[CALCULATED]`, instead of mental arithmetic.
 
 1. **Current placement matrix.** Rows = asset classes, columns = account groups (`taxable`; `tax_deferred` = traditional 401k/IRA; `roth` = Roth 401k/IRA; `hsa`); cell = `value / total × 100`, one decimal. `529`/`other` are reported but excluded from relocation.
 2. **Tax-inefficiency rank** (fixed): 1 `reit`, `high_yield_bond`, `active_high_turnover` → 2 `corporate_bond` → 3 `treasury`, `tips` → 4 `cash` → 5 `us_equity_index` → 6 `intl_equity` → 7 `small_cap_em_tilt`. `muni_bond` is always placed in taxable.

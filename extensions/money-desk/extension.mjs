@@ -24,7 +24,7 @@ const announcedPrefixes = new Set();
 // paying the token cost on every turn.
 let presenceAnnounced = false;
 const PRESENCE_NOTE =
-    "[money-desk] Loaded: 20 personal-finance specialists, ~146 tools. " +
+    "[money-desk] Loaded: 20 personal-finance specialists, ~147 tools. " +
     "When the user mentions personal finance, budgeting, taxes, investing, retirement, debt, credit, " +
     "insurance (health / auto / home / life / disability / Medicare / LTC), estate, a major purchase decision, " +
     "college / 529 / FAFSA, net worth / emergency fund, self-employment / 1099 / S-corp, a life event " +

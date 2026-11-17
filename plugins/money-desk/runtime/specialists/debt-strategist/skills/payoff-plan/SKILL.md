@@ -76,6 +76,8 @@ description: Build a debt payoff plan comparing avalanche (highest APR first) vs
 
 ### Calculation method
 
+> **Calculator:** run steps 1–7 with `md_calc` → `debt_payoff` (params = the Input keys above). Use its numbers verbatim, tagged `[CALCULATED]`; the steps below define what it computes — work them by hand only if `md_calc` is unavailable.
+
 1. **Feasibility.** If `sum(min_payment_usd) > monthly_budget_usd`, stop: report the shortfall and route to Budget Coach. No schedule is produced.
 2. **Exclusions.** Debts with `forgiveness_track = true` get minimum payments only and never receive extra; flag them for Student Loan Review.
 3. **Target order** (fixed at month 0, never re-sorted):
@@ -92,7 +94,7 @@ description: Build a debt payoff plan comparing avalanche (highest APR first) vs
 5. **Totals per method:** months to debt-free, total interest (sum of step-1 interest), debt-free month (`start_yyyy_mm` + months − 1), month each debt reaches $0.
 6. **Rounding:** compute in cents; report dollars rounded to the nearest $1 and months as integers.
 7. **Verification line:** show the step-4 arithmetic for month 1 and the final month of the recommended method.
-8. Run the loop as code when a code tool is available; otherwise compute it in full and show the month-1 and final-month check.
+8. The `debt_payoff` calculator returns the step-7 verification lines for both methods; quote the recommended method's.
 
 ### Decision rules
 

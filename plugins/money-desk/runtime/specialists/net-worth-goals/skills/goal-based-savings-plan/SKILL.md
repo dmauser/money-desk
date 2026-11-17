@@ -87,6 +87,8 @@ Markdown report `./money-desk/net-worth-goals/goal-plan-<YYYYMMDD>.md`:
 
 ### Calculation method
 
+> **Calculator:** run steps 4–5 for each goal with `md_calc` → `savings_goal` (`months` = n, `annual_real_return_pct` = R × 100 from step 3). Use its numbers verbatim, tagged `[CALCULATED]`; the steps below define what it computes — work them by hand only if `md_calc` is unavailable.
+
 All math is in **real (today's) dollars**.
 
 1. `n` = months from `start_yyyy_mm` to `target_yyyy_mm` inclusive. If `n` ≤ 0, the goal is "Past due — re-date".

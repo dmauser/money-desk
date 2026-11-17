@@ -135,6 +135,8 @@ description: Day-0 through 90-day runbook for an involuntary job loss. Triages t
 
 ### Calculation method
 
+> **Calculator:** `md_calc` → `federal_income_tax` for ordinary tax, marginal rate and bracket headroom. Use the calculator's numbers verbatim, tagged `[CALCULATED]`, instead of mental arithmetic.
+
 1. **Deadlines** (from `separation_date` unless noted): OWBPA review = 21 days (45 if `group_layoff`) from receipt + 7-day revocation (only if `age` ≥ 40); spouse-plan enrollment = 30 days (verify SPD); COBRA election = 60 days from the later of loss of coverage or notice; Marketplace SEP = 60 days from loss of coverage; indirect-rollover redeposit = 60 days from distribution.
 2. **Runway months** = `(liquid_cash_usd + severance_net_usd) / (essential_monthly_expenses_usd − spouse_net_monthly_income_usd − ui_weekly_benefit_usd × 52 / 12)`, where `severance_net_usd` = net amount on the severance statement if known; else `gross_usd × (1 − supplemental_rate − fica_employee_rate − medicare_employee_rate) − state withholding` (FICA rates from `md_facts` → `social_security_2026`; state withholding **Ask**). If the denominator ≤ 0 → runway = "indefinite (income covers essentials)". Round down to one decimal.
 3. **Health cost per option** for the months until expected re-employment (use `runway months`, capped at 12): `premium_monthly_usd × months + expected_oop_annual_usd × months / 12`; COBRA premium net of `cobra_subsidy_monthly_usd`. Marketplace premium is the post-PTC quote from Healthcare.gov at `projected_magi_usd`.

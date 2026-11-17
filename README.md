@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js >= 18](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
 
-**Your personal-finance AI team for GitHub Copilot CLI and Claude (Desktop, Code, Cowork).** 20 specialist agents with 146 tools. **Every skill tool is intake-gated**: the first call returns the required-input checklist and forces the agent to ask the user the listed questions in plain language (or render a structured `ask_user` form when a schema is shipped) before re-invoking the skill with the answers — so reports get built on `[USER-PROVIDED]` values, not invented `[ASSUMPTION:]` ones. A bundled 2026 facts table (IRS limits, brackets, IRMAA, FAFSA, conforming-loan, FEIE) means figures get cited from `md_facts` instead of marked `[UNSOURCED]`. Covers budgeting, taxes, investing, retirement, debt, credit, health & Medicare, property & casualty insurance, life & disability insurance, estate hygiene, major purchase decisions, education / 529 planning, net worth & goals tracking, self-employed / 1099 planning, cross-specialist life-event playbooks (annual review, new baby, job change, home purchase, inheritance, layoff), real-estate investing, behavioral coaching, international / expat planning, financial literacy (plain-language explanations + glossary + paycheck/statement walkthroughs + beginner roadmap + teach-a-kid), and FIRE planning (financial-independence strategy, safe-withdrawal stress testing, pre-59½ bridge / pre-65 healthcare, withdrawal-order, geographic arbitrage) — routed automatically. Zero runtime dependencies.
+**Your personal-finance AI team for GitHub Copilot CLI and Claude (Desktop, Code, Cowork).** 20 specialist agents with 147 tools. **Every skill tool is intake-gated**: the first call returns the required-input checklist and forces the agent to ask the user the listed questions in plain language (or render a structured `ask_user` form when a schema is shipped) before re-invoking the skill with the answers — so reports get built on `[USER-PROVIDED]` values, not invented `[ASSUMPTION:]` ones. A bundled 2026 facts table (IRS limits, brackets, IRMAA, FAFSA, conforming-loan, FEIE) means figures get cited from `md_facts` instead of marked `[UNSOURCED]`. Covers budgeting, taxes, investing, retirement, debt, credit, health & Medicare, property & casualty insurance, life & disability insurance, estate hygiene, major purchase decisions, education / 529 planning, net worth & goals tracking, self-employed / 1099 planning, cross-specialist life-event playbooks (annual review, new baby, job change, home purchase, inheritance, layoff), real-estate investing, behavioral coaching, international / expat planning, financial literacy (plain-language explanations + glossary + paycheck/statement walkthroughs + beginner roadmap + teach-a-kid), and FIRE planning (financial-independence strategy, safe-withdrawal stress testing, pre-59½ bridge / pre-65 healthcare, withdrawal-order, geographic arbitrage) — routed automatically. Zero runtime dependencies.
 
 > [!WARNING]
 > **Analysis only — not professional advice.** Money Desk produces drafts and analysis for your review. It does **not** execute trades, move funds, file taxes, submit disputes, or sign legal documents, and it is **not** a substitute for a licensed tax professional, fiduciary advisor, attorney, or insurance broker. It is informational only — **not professional tax, legal, investment, or insurance advice**.
@@ -16,7 +16,7 @@
 
 | | Section | Description |
 |---|---------|-------------|
-| 🆕 | [What's New](#-whats-new) | v0.22.0 compact mode; v0.21.0 deterministic skills + verified 2026 facts; v0.20.0 Claude support |
+| 🆕 | [What's New](#-whats-new) | v0.23.0 calculators; v0.22.0 compact mode; v0.21.0 deterministic skills + verified 2026 facts; v0.20.0 Claude support |
 | 🚀 | [Quick Start](#quick-start) | One-command install |
 | 💡 | [What is Money Desk?](#what-is-money-desk) | Overview and key concepts |
 | 👥 | [The Team](#the-team) | All 20 specialists at a glance |
@@ -34,6 +34,22 @@
 > 📋 **Full machine-readable capability map:** [docs/CAPABILITIES.md](./docs/CAPABILITIES.md) — auto-generated from the registry, lists every specialist, skill, and tool.
 
 ## 🆕 What's New
+
+### v0.23.0 — Calculators: the math now runs in code
+
+A new `md_calc` tool does the arithmetic the skills used to leave to the model, so the same inputs give exactly the same numbers every time.
+
+| Calculator | What it computes |
+|---|---|
+| `debt_payoff` | Avalanche vs snowball month-by-month schedules, total interest, payoff dates, and the recommended method |
+| `loan_amortization` | Payment, total interest, balance at any month, effect of extra payments |
+| `refinance` | Break-even, hold-period cost, lifetime interest, NPV |
+| `rmd` | This year's required minimum distribution per account, from the IRS table |
+| `retirement_projection` | Balance at retirement, depletion age, gap, sensitivity grid, stress test, gap-closing levers |
+| `savings_goal` | Monthly amount needed to reach a target |
+| `federal_income_tax` | 2026 tax, marginal rate and bracket headroom for all four filing statuses |
+
+24 skills now call these instead of doing the math by hand. Also in this release: head-of-household and married-filing-separately brackets added, and a $25 error in two single-filer bracket thresholds (introduced in v0.21.0) corrected.
 
 ### v0.22.0 — Lighter tool list for Claude Desktop chat
 
@@ -255,7 +271,7 @@ ls ~/.copilot/extensions/money-desk/
 
 ### Option F — Claude Desktop / Claude Code / Cowork (plugin)
 
-This repo is also a **Claude plugin** and a one-plugin **marketplace**. The plugin bundles a zero-dependency MCP server (`extensions/money-desk/mcp-server.mjs`) that serves the same 146 tools as the Copilot extension, plus a `money-desk` router skill. Requires **Node.js 18+** on `PATH`.
+This repo is also a **Claude plugin** and a one-plugin **marketplace**. The plugin bundles a zero-dependency MCP server (`extensions/money-desk/mcp-server.mjs`) that serves the same 147 tools as the Copilot extension, plus a `money-desk` router skill. Requires **Node.js 18+** on `PATH`.
 
 **Claude Desktop (Cowork / Code tabs) and Claude Code:**
 
@@ -280,7 +296,7 @@ In Claude Desktop you can also add the marketplace from **Customize → Plugins 
 }
 ```
 
-Add `"MONEY_DESK_TOOLS": "compact"` to `env` to list 12 tools instead of 146 (recommended for the chat tab, which loads every tool description up front; the Desktop Extension sets it for you). Specialists are then run through a single `md_call` tool.
+Add `"MONEY_DESK_TOOLS": "compact"` to `env` to list 13 tools instead of 147 (recommended for the chat tab, which loads every tool description up front; the Desktop Extension sets it for you). Specialists are then run through a single `md_call` tool.
 
 `MONEY_DESK_WORKDIR` is optional — it pins where exported reports (`./money-desk/<specialist>/`) and the renderer cache are written. Without it, deliverables are rendered inline in chat (the default).
 
@@ -817,7 +833,7 @@ In Claude, `extensions/money-desk/mcp-server.mjs` takes the place of `extension.
 flowchart LR
     C[Claude Desktop / Claude Code] -->|plugin .mcp.json| S["mcp-server.mjs<br/>(stdio MCP)"]
     P[GitHub Copilot CLI] -->|joinSession| E[extension.mjs]
-    S --> R[registry.mjs<br/>146 tools]
+    S --> R[registry.mjs<br/>147 tools]
     E --> R
 ```
 
@@ -835,7 +851,7 @@ You don't need to call these manually — just describe what you need and the ro
 
 ### Registry as the source of truth
 
-All 146 tools are derived from a single declarative `SPECIALISTS` table in [`extensions/money-desk/registry.mjs`](extensions/money-desk/registry.mjs). That table — not `extension.mjs` or `mcp-server.mjs` — is what you edit to add or modify a specialist or skill. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full how-to.
+All 147 tools are derived from a single declarative `SPECIALISTS` table in [`extensions/money-desk/registry.mjs`](extensions/money-desk/registry.mjs). That table — not `extension.mjs` or `mcp-server.mjs` — is what you edit to add or modify a specialist or skill. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full how-to.
 
 ## Repository Structure
 
@@ -852,6 +868,7 @@ money-desk/
 │   ├── extension.mjs                          # thin Copilot SDK entry — joinSession() + hooks
 │   ├── mcp-server.mjs                         # thin Claude/MCP entry — stdio JSON-RPC
 │   ├── registry.mjs                           # SPECIALISTS table — source of truth
+│   ├── calculators.mjs                        # md_calc: deterministic math (pure, integer cents)
 │   └── specialists/
 │       ├── budget-coach/
 │       │   ├── agents/budget-coach.md         # role markdown

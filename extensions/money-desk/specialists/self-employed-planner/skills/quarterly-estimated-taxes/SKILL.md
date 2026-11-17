@@ -95,13 +95,15 @@ Markdown report `./money-desk/self-employed-planner/quarterly-tax-<YYYYMMDD>.md`
 | SE earnings factor | 92.35% (statutory, Schedule SE) | — |
 | Standard deduction | `md_facts` → `income_tax_brackets_mfj_2026.standard_deduction_mfj` / `standard_deduction_single` / `standard_deduction_hoh` | `[IRS 2026 brackets]` |
 | Brackets — MFJ | `md_facts` → `income_tax_brackets_mfj_2026.brackets` | `[IRS 2026 brackets]` |
-| Brackets — other statuses, Child Tax Credit amount | Brackets: Single: `md_facts` → `income_tax_brackets_mfj_2026.brackets_single`; HoH / MFS: not in md_facts — look up via `md_sources`, else tag `[UNSOURCED]`. CTC: not in md_facts — `md_sources`, else `[UNSOURCED]` (CTC treated as $0) | `[UNSOURCED]` |
+| Brackets — other statuses, Child Tax Credit amount | Brackets: Single / HoH / MFS: `md_facts` → `income_tax_brackets_mfj_2026.brackets_single` / `.brackets_hoh` / `.brackets_mfs`. CTC: not in md_facts — `md_sources`, else `[UNSOURCED]` (CTC treated as $0) | `[UNSOURCED]` |
 | QBI rate and threshold | `md_facts` → `qbi_section_199a_2026.deduction_percent`, `phase_in_start_mfj` / `phase_in_start_single` | `[IRS QBI 2026]` |
 | State estimated-tax rules and rates | Not in md_facts — look up via `md_sources` (state DoR), else state section reads "Not computed — [UNSOURCED]" | `[UNSOURCED]` |
 | Capital gains taxed as | Ordinary income (conservative — overstates tax) | `[ASSUMPTION]` |
 | IRS underpayment interest rate | Not in md_facts — look up via `md_sources`; quote only if sourced | `[UNSOURCED]` |
 
 ### Calculation method
+
+> **Calculator:** `md_calc` → `federal_income_tax` for ordinary tax, marginal rate and bracket headroom. Use the calculator's numbers verbatim, tagged `[CALCULATED]`, instead of mental arithmetic.
 
 Compute in cents; report whole dollars. md_facts rates are decimals.
 

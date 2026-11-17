@@ -45,7 +45,7 @@ const VERSION = (() => {
 
 // Compact mode (MONEY_DESK_TOOLS=compact): hosts that load every tool
 // description up front (e.g. the Claude Desktop chat tab) pay ~31k tokens for
-// the full 146-tool list. Compact mode lists only the discovery tools plus one
+// the full 147-tool list. Compact mode lists only the discovery tools plus one
 // dispatcher, `md_call`, which runs any specialist tool by id.
 // Hosts with tool search (Claude Code, Cowork) should keep the default.
 const COMPACT = process.env.MONEY_DESK_TOOLS === "compact";
@@ -66,6 +66,8 @@ export const INSTRUCTIONS = [
         "expat / FBAR / PFIC / moving country — call `md_capabilities` for the specialist map, or `md_route` with " +
         "the user's query to pick a specialist. Then call the specialist's `<prefix>_role`, `<prefix>_orchestrate`, " +
         "and `<prefix>_skill_<id>` tools in that order.",
+    "Math: when a skill's Calculation method names a calculator, call `md_calc` and quote its numbers verbatim " +
+        "(tag `[CALCULATED]`) instead of doing the arithmetic yourself.",
     "Before any user-facing deliverable call `md_report_quality` (defaults to markdown inline; PDF/DOCX/XLSX/HTML " +
         "are offered, never auto-written). Money Desk is analysis-only: it never moves money, executes trades, files " +
         "returns, or signs documents.",

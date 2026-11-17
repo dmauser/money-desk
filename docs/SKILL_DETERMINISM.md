@@ -31,6 +31,8 @@ Rules:
 
 ## 3. `### Calculation method`
 
+If an `md_calc` calculator covers the math, the section opens with a `> **Calculator:**` line naming it and the steps it replaces; the numbered steps stay as the specification of what the calculator computes (and as the manual fallback). A calculator in `extensions/money-desk/calculators.mjs` and the skill it mirrors must be changed together.
+
 Numbered, executable steps: formulas written out, order of operations, compounding convention, rounding (compute in cents, report whole dollars unless stated), tie-breakers, iteration caps, and what to do when a step can't be completed. Anything that could be done two ways must name the one way.
 
 ## 4. `### Decision rules`

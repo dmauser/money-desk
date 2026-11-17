@@ -100,9 +100,11 @@ description: Compare itemized vs standard deduction; identify above-the-line ded
 | HSA limits | `md_facts` → `irs_contribution_limits.hsa_self_only` / `hsa_family` / `hsa_catchup_age_55_plus` | `[IRS 2026 limits]` |
 | IRA limits | `md_facts` → `irs_contribution_limits.ira_traditional_or_roth` / `ira_catchup_age_50_plus` | `[IRS 2026 limits]` |
 | IRA deductibility phase-outs, student-loan-interest phase-outs, Saver's Credit / education / energy credit limits | Not in md_facts — look up via `md_sources`, else tag `[UNSOURCED]` and mark the item "verify" | `[UNSOURCED]` |
-| Marginal federal rate | Bracket containing `agi_estimate_usd − chosen deduction` from `md_facts` → `income_tax_brackets_mfj_2026.brackets` (MFJ) or `.brackets_single` (Single); HoH / MFS not in md_facts — `md_sources`, else `[UNSOURCED]` | `[IRS 2026 brackets]` |
+| Marginal federal rate | Bracket containing `agi_estimate_usd − chosen deduction` from `md_facts` → `income_tax_brackets_mfj_2026.brackets` (MFJ), `.brackets_single`, `.brackets_hoh` or `.brackets_mfs` | `[IRS 2026 brackets]` |
 
 ### Calculation method
+
+> **Calculator:** `md_calc` → `federal_income_tax` for ordinary tax, marginal rate and bracket headroom. Use the calculator's numbers verbatim, tagged `[CALCULATED]`, instead of mental arithmetic.
 
 Compute in cents; report whole dollars.
 

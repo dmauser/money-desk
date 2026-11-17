@@ -100,6 +100,8 @@ Names match the `md_rp_skill_retirement_projection` intake schema; extra keys fo
 
 ### Calculation method
 
+> **Calculator:** run steps 1–9 with `md_calc` → `retirement_projection` (params = the Input keys above; `expected_real_return_pct` as a percent). Use its numbers verbatim, tagged `[CALCULATED]`; the steps below define what it computes — work them by hand only if `md_calc` is unavailable.
+
 All amounts are **real (today's) dollars**, **annual compounding**, `r = expected_real_return_pct / 100`. Contributions and withdrawals occur at **end of year**. One pooled balance (accounts are summed; per-account split is shown only at retirement, each grown at `r`).
 
 1. `B₀ = Σ balances`. For each age `a` from `current_age` to `target_retire_age − 1`: `B ← B × (1 + r) + annual_contribution`. `B_ret` = balance at `target_retire_age`.

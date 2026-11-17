@@ -89,7 +89,7 @@ Keys map 1:1 to the `template.xlsx.json` named ranges where one exists (shown in
 | Real return | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_percent` × stock share + `.long_term_bond_real_return_percent` × bond share (fractions — × 100); if allocation unknown → **Ask** | `[ASSUMPTION]` |
 | Inflation | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_percent` (× 100) | `[ASSUMPTION]` |
 | Effective tax rate on traditional withdrawals | **Ask — no default** (or compute from `md_facts` brackets for the planned income) | — |
-| Ordinary brackets, standard deduction, LTCG brackets, NIIT | `md_facts` → `income_tax_brackets_mfj_2026.brackets`, `.standard_deduction_*`, `.ltcg_qualified_dividend_brackets_mfj`, `.niit_threshold_mfj` / `.niit_threshold_single` (bracket tables are MFJ only; other statuses not in md_facts — `md_sources`, else `[UNSOURCED]`) | `[IRS 2026 brackets]` |
+| Ordinary brackets, standard deduction, LTCG brackets, NIIT | `md_facts` → `income_tax_brackets_mfj_2026.brackets`, `.standard_deduction_*`, `.ltcg_qualified_dividend_brackets_mfj`, `.niit_threshold_mfj` / `.niit_threshold_single` (bracket tables are MFJ only; other statuses: `.brackets_single` / `.brackets_hoh` / `.brackets_mfs` and `.ltcg_qualified_dividend_brackets_single` / `_hoh` / `_mfs`) | `[IRS 2026 brackets]` |
 | IRMAA tiers, lookback | `md_facts` → `medicare_2026.irmaa_brackets_mfj_part_b_total_monthly` / `_single_`, `.irmaa_lookback_years` | `[CMS Medicare 2026]` |
 | ACA income ceiling (pre-65) | `md_facts` → `federal_poverty_level_2026_48_states.household_size_to_fpl` × the PTC eligibility ceiling (`aca_premium_tax_credit_eligibility_ceiling_post_2025_unless_extended` — verify current law via `md_sources`) | `[HHS FPL 2026]` |
 | RMD age | Statutory by birth year (SECURE 2.0): 1951–1959 → 73; 1960+ → 75 | — |
@@ -97,6 +97,8 @@ Keys map 1:1 to the `template.xlsx.json` named ranges where one exists (shown in
 | SS taxability | IRC §86 / IRS Pub 915 worksheet (statutory thresholds, not indexed) | — |
 
 ### Calculation method
+
+> **Calculator:** `md_calc` → `federal_income_tax` for ordinary tax, marginal rate and bracket headroom. Use the calculator's numbers verbatim, tagged `[CALCULATED]`, instead of mental arithmetic.
 
 Real dollars, annual compounding, end-of-year growth; bracket and IRMAA thresholds held at today's values (assumed to index with inflation).
 

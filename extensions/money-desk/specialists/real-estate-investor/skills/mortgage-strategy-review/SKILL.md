@@ -84,6 +84,8 @@ Core names follow the named ranges in this skill's `template.xlsx.json` (workboo
 
 ### Calculation method
 
+> **Calculators:** `md_calc` → `loan_amortization` for every fixed-rate loan payment, balance and payoff time; `md_calc` → `federal_income_tax` for ordinary tax, marginal rate and bracket headroom. Use the calculator's numbers verbatim, tagged `[CALCULATED]`, instead of mental arithmetic.
+
 Monthly rate `j = rate/100/12`. Work in cents; report whole dollars, months as integers (break-even rounded up).
 
 1. **Workbook metrics** (exactly as `template.xlsx.json`): `current_monthly_pi = PMT(current_rate/12, current_remaining_yrs × 12, −current_balance)`; `refi_monthly_pi = PMT(refi_rate/12, refi_term_yrs × 12, −current_balance)`; `current_total_interest = current_monthly_pi × current_remaining_yrs × 12 − current_balance`; `refi_total_interest = refi_monthly_pi × refi_term_yrs × 12 − current_balance`; `monthly_savings = current − refi P&I`; `breakeven_months = ceil(refi_costs / monthly_savings)` (N/A if savings ≤ 0); `net_benefit_full_term = current_total_interest − refi_total_interest − refi_costs`.

@@ -82,6 +82,8 @@ description: Compute total cost of ownership over the planned hold period for a 
 
 ### Calculation method
 
+> **Calculator:** `md_calc` → `loan_amortization` for every fixed-rate loan payment, balance and payoff time. Use the calculator's numbers verbatim, tagged `[CALCULATED]`, instead of mental arithmetic.
+
 Annual periods, end-of-year convention. Same discount rate `d` and horizon `N` for every option.
 
 1. **Year 0** = `down_payment_usd + upfront_fees_usd` (whole `price_usd` + fees if no loan).

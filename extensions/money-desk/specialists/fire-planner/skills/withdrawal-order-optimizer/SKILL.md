@@ -103,7 +103,7 @@ Names match the `md_fi_skill_withdrawal_order_optimizer` intake schema; extra ke
 | Balances, incomes, SS | 0 | `[USER-PROVIDED]` / `[ASSUMPTION: 0]` |
 | Real return | **Ask — no default** | — |
 | SS benefit at claim age | `ss_pia_monthly` × the statutory claim-age factor (see Social Security Review) × 12 | — |
-| Standard deduction, ordinary brackets, 0% LTCG ceiling | `md_facts` → `income_tax_brackets_mfj_2026.standard_deduction_*`, `.brackets`, `.ltcg_qualified_dividend_brackets_mfj` (MFJ only; other statuses not in md_facts — `md_sources`, else `[UNSOURCED]`) | `[IRS 2026 brackets]` |
+| Standard deduction, ordinary brackets, 0% LTCG ceiling | `md_facts` → `income_tax_brackets_mfj_2026.standard_deduction_*`, `.brackets`, `.ltcg_qualified_dividend_brackets_mfj` (MFJ; other statuses: `.brackets_single` / `.brackets_hoh` / `.brackets_mfs` and `.ltcg_qualified_dividend_brackets_single` / `_hoh` / `_mfs`) | `[IRS 2026 brackets]` |
 | IRMAA ceiling | `irmaa_ceiling`; if 0 → `md_facts` → `medicare_2026.irmaa_brackets_*_part_b_total_monthly[0].magi_max` | `[CMS Medicare 2026]` |
 | RMD age | Statutory: born 1951–1959 → 73; 1960+ → 75 | — |
 | RMD divisors | `md_facts` → `rmd_and_qcd_2026.uniform_lifetime_table_distribution_period` (IRS Pub 590-B Table III; Joint Life table via `md_sources` when a spouse > 10 years younger is sole beneficiary) | `[IRS Pub 590-B]` |
@@ -111,6 +111,8 @@ Names match the `md_fi_skill_withdrawal_order_optimizer` intake schema; extra ke
 | Thresholds over time | Held at today's values in real dollars (assumed indexed) | `[ASSUMPTION]` |
 
 ### Calculation method
+
+> **Calculator:** `md_calc` → `federal_income_tax` for ordinary tax, marginal rate and bracket headroom. Use the calculator's numbers verbatim, tagged `[CALCULATED]`, instead of mental arithmetic.
 
 Real dollars, annual compounding, end-of-year growth, federal tax only. Run the loop twice: **Optimized** (rules below) and **Naive** (cash → taxable → traditional → Roth, no conversions).
 

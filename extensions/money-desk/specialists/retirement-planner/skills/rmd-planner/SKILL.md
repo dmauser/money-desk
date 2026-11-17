@@ -79,13 +79,15 @@ description: Plan Required Minimum Distributions from tax-deferred accounts at a
 | RMD age | Statutory by birth year (SECURE 2.0 §107): born 1951–1959 → 73; born 1960+ → 75; born before 1951 → already in RMD status | — |
 | Uniform Lifetime Table divisors (and Joint Life Table if spouse is sole beneficiary and > 10 years younger) | `md_facts` → `rmd_and_qcd_2026.uniform_lifetime_table_distribution_period` (IRS Pub 590-B Table III; Joint Life table via `md_sources` when a spouse > 10 years younger is sole beneficiary) | `[IRS Pub 590-B]` |
 | QCD annual limit (indexed) | `md_facts` → `rmd_and_qcd_2026.qcd_annual_limit_per_person` | `[IRS 2026]` |
-| Ordinary brackets, standard deduction | `md_facts` → `income_tax_brackets_mfj_2026.brackets`, `.standard_deduction_mfj` / `.standard_deduction_single` / `.standard_deduction_hoh`, `.additional_standard_deduction_age_65_or_blind_*` (Single: `.brackets_single`; HoH / MFS ordinary brackets not in md_facts — `md_sources`, else `[UNSOURCED]`) | `[IRS 2026 brackets]` |
+| Ordinary brackets, standard deduction | `md_facts` → `income_tax_brackets_mfj_2026.brackets`, `.standard_deduction_mfj` / `.standard_deduction_single` / `.standard_deduction_hoh`, `.additional_standard_deduction_age_65_or_blind_*` (other statuses: `.brackets_single` / `.brackets_hoh` / `.brackets_mfs`) | `[IRS 2026 brackets]` |
 | IRMAA tiers | `md_facts` → `medicare_2026.irmaa_brackets_mfj_part_b_total_monthly` / `irmaa_brackets_single_part_b_total_monthly`, `medicare_2026.irmaa_lookback_years` | `[CMS Medicare 2026]` |
 | Projection real return | `projection_real_return_pct`; else `stock_pct × equity + (100 − stock_pct) × bond` using `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_percent` / `long_term_bond_real_return_percent` (fractions — × 100); if `stock_pct` missing → **Ask** | `[ASSUMPTION]` |
 | Bracket / IRMAA indexing | Thresholds held at today's values in a real-dollar projection (i.e. they rise with inflation) | `[ASSUMPTION]` |
 | Taxable portion of SS | IRS Pub 915 worksheet (IRC §86 thresholds are statutory, not indexed) | — |
 
 ### Calculation method
+
+> **Calculator:** run steps 1–2 with `md_calc` → `rmd` (`birth_year` from `birth_date`, `age_at_year_end` = `plan_year` − birth year, plus `accounts`), and step 4's bracket math with `md_calc` → `federal_income_tax`. Use its numbers verbatim, tagged `[CALCULATED]`; the steps below define what it computes — work them by hand only if `md_calc` is unavailable.
 
 1. **RMD start.** `rmd_age` from birth year; first RMD year = year the user reaches `rmd_age`. Roth IRAs and Roth 401(k)s: no lifetime RMD. A 401(k)/403(b) with `still_working_exception = true` is excluded until separation.
 2. **This year's RMD** per account: `RMD = prior_year_end_balance ÷ divisor(age attained this year)`. IRAs (traditional/rollover/SEP/SIMPLE) are summed and may be taken from any IRA; each 401(k)/403(b) is computed and taken separately; 403(b)s may be aggregated with each other.

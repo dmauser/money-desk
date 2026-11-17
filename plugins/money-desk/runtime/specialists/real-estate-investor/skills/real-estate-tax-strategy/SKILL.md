@@ -109,6 +109,8 @@ Educational. Cost-seg, §1031, and REPS all create audit risk if mis-claimed. St
 
 ### Calculation method
 
+> **Calculator:** `md_calc` → `federal_income_tax` for ordinary tax, marginal rate and bracket headroom. Use the calculator's numbers verbatim, tagged `[CALCULATED]`, instead of mental arithmetic.
+
 1. `total_basis = purchase_price_usd + closing_costs_capitalized_usd + improvements_usd`; `building_basis = total_basis × (1 − land_pct/100)`.
 2. **Straight-line schedule:** annual = `building_basis / 27.5`; year 1 = annual × (12 − placed-in-service month + 0.5) / 12 (mid-month); middle years = annual; final year = remaining basis. List every tax year until fully depreciated.
 3. **Cost segregation** (if supplied): `reclass = building_basis × reclass_pct/100`; `bonus_y1 = reclass × bonus_pct`; `extra_y1_deduction = bonus_y1 − (reclass / 27.5 × year-1 fraction)` (remaining reclass basis follows its 5/7/15-year class — list as "per study"); `y1_tax_value = extra_y1_deduction × ordinary_marginal_rate_pct/100` only if losses are usable (step 5 result ≠ "suspended"); `net_y1_benefit = y1_tax_value − study_fee_usd`.

@@ -86,6 +86,8 @@ description: General-purpose decision framework for any major purchase ($1,000+ 
 
 ### Calculation method
 
+> **Calculator:** `md_calc` → `loan_amortization` for every fixed-rate loan payment, balance and payoff time. Use the calculator's numbers verbatim, tagged `[CALCULATED]`, instead of mental arithmetic.
+
 1. **Post-purchase EF months** = `(ef_balance_usd − cash_paid_usd) ÷ monthly_essentials_usd`, 1 decimal.
 2. **Financed payment** (if financing): standard amortization `P = L × r ÷ (1 − (1+r)^−n)`, `r = apr_pct/100/12`, `L = price_usd − cash_paid_usd`. For a 0% promo: `promo_payment = L ÷ promo_months` (payment needed to clear it inside the promo).
 3. **Payment fit:** payment (or `promo_payment`) ≤ `monthly_discretionary_surplus_usd`.

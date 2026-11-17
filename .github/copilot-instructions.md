@@ -133,6 +133,13 @@ skill/role prompts referring to tools by their full id so both modes work.
     markdown or registry text must be registered;
     `tests/tool-references.test.mjs` fails on unknown ids (CHANGELOGs are
     exempt as history).
+17. **Calculators mirror skills.** `extensions/money-desk/calculators.mjs`
+    (served by `md_calc`) implements the Calculation method of the skills
+    named in its `CALCULATORS` table. It is pure — no I/O, `Date`, or
+    randomness — and computes in integer cents. Change a calculator and its
+    skill's steps together, and keep `tests/calculators.test.mjs` checking
+    against closed-form results or published figures (e.g. the IRS
+    cumulative-tax table), not against the calculator's own output.
 
 ## File layout
 
@@ -145,6 +152,7 @@ extensions/money-desk/
     ├── agents/<name>.md                         # role markdown
     └── skills/<slug>/SKILL.md                   # one per skill
 ├── mcp-server.mjs                               # thin MCP entry (Claude)
+├── calculators.mjs                              # md_calc deterministic math
 ├── data/facts-2026.json                         # md_facts source data
 docs/SKILL_DETERMINISM.md                        # skill determinism standard
 tests/*.test.mjs                                 # incl. skill-determinism, tool-references, claude-plugin

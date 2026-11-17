@@ -80,6 +80,8 @@ description: Evaluate refinancing a mortgage, auto loan, or personal loan: break
 
 ### Calculation method
 
+> **Calculator:** run steps 1–8 with `md_calc` → `refinance` (fixed-rate loans; call it again with changed inputs for steps 9–10; ARM resets by hand). Use its numbers verbatim, tagged `[CALCULATED]`; the steps below define what it computes — work them by hand only if `md_calc` is unavailable.
+
 1. **New principal** = `current.balance_usd + cash_out_usd − cash_in_usd` (closing costs paid in cash, not rolled in, unless the Loan Estimate says otherwise — then add them here and set out-of-pocket to 0).
 2. **New P&I** by standard amortization, `r = rate_pct/100/12`, `n = term_months`.
 3. **Monthly saving** = `(current.monthly_pi_usd + current.pmi_monthly_usd) − (new P&I + proposed.pmi_monthly_usd)`.

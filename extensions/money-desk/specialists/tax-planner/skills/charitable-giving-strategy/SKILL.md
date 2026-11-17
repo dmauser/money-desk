@@ -72,7 +72,7 @@ description: Optimize the tax treatment of charitable gifts. Compares cash givin
 | AGI, giving target, filing status | **Ask — no default** | — |
 | Standard deduction | `md_facts` → `income_tax_brackets_mfj_2026.standard_deduction_mfj` / `standard_deduction_single` / `standard_deduction_hoh` | `[IRS 2026 brackets]` |
 | Ordinary and LTCG brackets — MFJ | `md_facts` → `income_tax_brackets_mfj_2026.brackets` / `ltcg_qualified_dividend_brackets_mfj` | `[IRS 2026 brackets]` |
-| Ordinary and LTCG brackets — other statuses | Single: `.brackets_single`, `.ltcg_qualified_dividend_brackets_single`; HoH LTCG: `.ltcg_qualified_dividend_brackets_hoh` (all under `md_facts` → `income_tax_brackets_mfj_2026`); HoH / MFS ordinary: not in md_facts — `md_sources`, else `[UNSOURCED]` | `[IRS 2026 brackets]` / `[UNSOURCED]` |
+| Ordinary and LTCG brackets — other statuses | Single: `.brackets_single`, `.ltcg_qualified_dividend_brackets_single`; HoH LTCG: `.ltcg_qualified_dividend_brackets_hoh` (all under `md_facts` → `income_tax_brackets_mfj_2026`); HoH / MFS ordinary: `.brackets_hoh` / `.brackets_mfs` | `[IRS 2026 brackets]` |
 | NIIT threshold | `md_facts` → `income_tax_brackets_mfj_2026.niit_threshold_mfj` / `niit_threshold_single`; rate 3.8% | `[IRS 2026 brackets]` |
 | QCD annual limit | `md_facts` → `rmd_and_qcd_2026.qcd_annual_limit_per_person` | `[IRS 2026]` |
 | Non-itemizer charitable deduction (if any exists for the tax year) | Not in md_facts — look up via `md_sources`; if not confirmed, treat as $0 | `[UNSOURCED]` |
@@ -81,6 +81,8 @@ description: Optimize the tax treatment of charitable gifts. Compares cash givin
 | Lot holding period | Long-term if `acquired_date` is more than 1 year before the gift date (Dec 31 of `tax_year` unless stated) | `[ASSUMPTION]` |
 
 ### Calculation method
+
+> **Calculator:** `md_calc` → `federal_income_tax` for ordinary tax, marginal rate and bracket headroom. Use the calculator's numbers verbatim, tagged `[CALCULATED]`, instead of mental arithmetic.
 
 Compute in cents; report whole dollars. `m_ord` = federal marginal ordinary rate at `agi_estimate_usd − deduction`; `m_ltcg` = LTCG rate at that taxable income; `niit = 3.8%` if AGI > NIIT threshold else 0; `s = state_marginal_rate_pct / 100`.
 

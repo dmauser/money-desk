@@ -122,10 +122,12 @@ Educational only. Cross-border filing must be done by a CPA / EA with explicit e
 | Form 8938 year-end thresholds | `md_facts` → `expat_quick_reference_2026.fatca_form_8938_threshold_single_resident_us_end_of_year` / `_mfj_resident_us_` / `_single_abroad_` / `_mfj_abroad_end_of_year` (MFS and HoH use the single figures) | `[IRS / FinCEN Expat 2026]` |
 | Form 8938 any-time-during-year thresholds | Not in md_facts — look up via `md_sources` (Form 8938 instructions), else tag `[UNSOURCED]` and run the year-end test only | `[UNSOURCED]` |
 | Brackets — MFJ / standard deduction | `md_facts` → `income_tax_brackets_mfj_2026.brackets`, `standard_deduction_*` | `[IRS 2026 brackets]` |
-| Brackets — other statuses | Single: `md_facts` → `income_tax_brackets_mfj_2026.brackets_single`; HoH / MFS: not in md_facts — look up via `md_sources`, else tag `[UNSOURCED]` and stop the FEIE/FTC comparison | `[UNSOURCED]` |
+| Brackets — other statuses | Single / HoH / MFS: `md_facts` → `income_tax_brackets_mfj_2026.brackets_single` / `.brackets_hoh` / `.brackets_mfs` and stop the FEIE/FTC comparison | `[UNSOURCED]` |
 | Foreign-tax-year mismatch, FTC baskets, carryovers | Not modelled — single general basket, current-year only; flag for CPA | `[ASSUMPTION]` |
 
 ### Calculation method
+
+> **Calculator:** `md_calc` → `federal_income_tax` for ordinary tax, marginal rate and bracket headroom. Use the calculator's numbers verbatim, tagged `[CALCULATED]`, instead of mental arithmetic.
 
 Compute in cents; report whole dollars. md_facts rates are decimals.
 

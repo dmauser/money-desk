@@ -15,6 +15,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join, resolve, relative, basename } from "node:path";
 
 import { getIntakeSchema } from "./intake-schemas.mjs";
+import { runCalculator, listCalculators, CalcError, CALCULATORS } from "./calculators.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const SPECIALISTS_DIR = join(HERE, "specialists");
@@ -1621,6 +1622,33 @@ function buildTools() {
             parameters: { type: "object", properties: {} },
             skipPermission: true,
             handler: async () => getPreferences(),
+        },
+        {
+            name: "md_calc",
+            description:
+                "Money Desk deterministic calculators — run the math in code instead of by hand so the same inputs always give the same numbers. " +
+                "Calculators: `debt_payoff` (avalanche vs snowball schedule + recommendation), `loan_amortization` (payment, interest, payoff time, extra payments), " +
+                "`refinance` (break-even, hold-period cost, NPV), `rmd` (required minimum distribution from the IRS table), `retirement_projection` " +
+                "(balance at retirement, depletion age, gap, sensitivity, stress test), `savings_goal` (monthly amount for a target), `federal_income_tax` " +
+                "(2026 tax and marginal rate, all four filing statuses). Call with no arguments to list each calculator's params. ALWAYS use this instead of mental " +
+                "arithmetic when a skill's Calculation method names a calculator; quote its numbers verbatim.",
+            parameters: {
+                type: "object",
+                properties: {
+                    calculator: { type: "string", enum: Object.keys(CALCULATORS), description: "Which calculator to run. Omit to list calculators and their params." },
+                    params: { type: "object", description: "Inputs for the calculator (USD numbers, percents as 6.5 = 6.5%, dates as YYYY-MM)." },
+                },
+            },
+            skipPermission: true,
+            handler: async (args = {}) => {
+                if (!args.calculator) return listCalculators();
+                try {
+                    return runCalculator(args.calculator, args.params, await loadFacts());
+                } catch (err) {
+                    if (err instanceof CalcError) return { resultType: "failure", textResultForLlm: `md_calc: ${err.message}` };
+                    throw err;
+                }
+            },
         },
         {
             name: "md_facts",

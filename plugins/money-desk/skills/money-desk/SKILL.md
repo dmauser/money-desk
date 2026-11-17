@@ -12,8 +12,9 @@ Money Desk is a team of 20 personal-finance specialists served by the `money-des
 1. **Route.** Call `md_route` with the user's request (or `md_capabilities` for the full specialist map when the user asks what Money Desk can do).
 2. **Load the specialist.** Call the specialist's `<prefix>_role`, then `<prefix>_orchestrate`.
 3. **Run skills.** Call `<prefix>_skill_<id>`. Skills are **intake-gated**: the first call returns the questions only. Ask the user those questions (use a structured question tool such as AskUserQuestion if you have one; where the result mentions `ask_user`, that is what it means), then call the skill again with an `inputs` object holding their answers. Never invent inputs.
-4. **Facts and sources.** Use `md_facts` for 2026 tax / benefit limits and `md_sources` before quoting any live number; tag unsourced figures `[UNSOURCED]`.
-5. **Deliverables.** Call `md_report_quality` before a user-facing report. Default to markdown inline; *offer* PDF / DOCX / XLSX / HTML and only write files if the user accepts and you have filesystem access.
+4. **Math.** When a skill's Calculation method names a calculator, call `md_calc` (debt payoff, loan amortization, refinance, RMD, retirement projection, savings goal, federal income tax) and quote its numbers verbatim, tagged `[CALCULATED]`. Do not redo that arithmetic by hand.
+5. **Facts and sources.** Use `md_facts` for 2026 tax / benefit limits and `md_sources` before quoting any live number; tag unsourced figures `[UNSOURCED]`.
+6. **Deliverables.** Call `md_report_quality` before a user-facing report. Default to markdown inline; *offer* PDF / DOCX / XLSX / HTML and only write files if the user accepts and you have filesystem access.
 
 ## Guardrails
 

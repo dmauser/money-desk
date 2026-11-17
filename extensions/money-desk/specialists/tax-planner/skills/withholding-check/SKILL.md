@@ -85,7 +85,7 @@ Names match the `md_tx_skill_withholding_check` intake schema; extra optional ke
 | Pay periods per year | Read from pay-stub frequency; if unknown, **Ask — no default** | `[USER-PROVIDED]` |
 | Standard deduction | `md_facts` → `income_tax_brackets_mfj_2026.standard_deduction_mfj` / `standard_deduction_single` / `standard_deduction_hoh` (MFS = `standard_deduction_single`) | `[IRS 2026 brackets]` |
 | Ordinary brackets — MFJ | `md_facts` → `income_tax_brackets_mfj_2026.brackets` | `[IRS 2026 brackets]` |
-| Ordinary brackets — Single / MFS / HoH | Single: `md_facts` → `income_tax_brackets_mfj_2026.brackets_single`; HoH / MFS: not in md_facts — look up via `md_sources`, else tag `[UNSOURCED]`; stop at step 5 if unsourced | `[UNSOURCED]` |
+| Ordinary brackets — Single / MFS / HoH | Single / HoH / MFS: `md_facts` → `income_tax_brackets_mfj_2026.brackets_single` / `.brackets_hoh` / `.brackets_mfs` | `[UNSOURCED]` |
 | Additional Medicare Tax rate | `md_facts` → `social_security_2026.additional_medicare_rate_above_threshold_mfj_250k`; thresholds $250,000 MFJ / $125,000 MFS / $200,000 other (statutory, not indexed) | `[SSA 2026]` |
 | NIIT threshold | `md_facts` → `income_tax_brackets_mfj_2026.niit_threshold_mfj` / `niit_threshold_single`; rate 3.8% (statutory) | `[IRS 2026 brackets]` |
 | Child Tax Credit per child | Not in md_facts — look up via `md_sources`, else tag `[UNSOURCED]` and use $0 (overstates tax; conservative) | `[UNSOURCED]` |
@@ -94,6 +94,8 @@ Names match the `md_tx_skill_withholding_check` intake schema; extra optional ke
 | Prior-year total tax | If absent, the prior-year safe harbor is skipped and only the 90%-of-current-year test is used | `[ASSUMPTION]` |
 
 ### Calculation method
+
+> **Calculator:** `md_calc` → `federal_income_tax` for ordinary tax, marginal rate and bracket headroom. Use the calculator's numbers verbatim, tagged `[CALCULATED]`, instead of mental arithmetic.
 
 Compute in cents; report whole dollars. md_facts rates are decimals (0.009 = 0.9%).
 

@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.0] — 2026-11-17
+
+### Added
+
+- **`md_calc` — deterministic calculators** (`extensions/money-desk/calculators.mjs`).
+  The math the skills describe now runs in code (pure functions, integer
+  cents, no dates or randomness), so identical inputs give identical
+  numbers: `debt_payoff`, `loan_amortization`, `refinance`, `rmd`,
+  `retirement_projection`, `savings_goal`, `federal_income_tax`. Call with
+  no arguments to list each calculator's params. Listed in compact mode too.
+- **24 skills wired to calculators** via a `> **Calculator:**` line at the
+  top of their Calculation method (Payoff Plan, Refinance Analysis, RMD
+  Planner, Retirement Projection, Goal-Based Savings Plan, and every skill
+  that amortizes a loan or derives a marginal rate).
+- **`md_facts`** — head-of-household and married-filing-separately ordinary
+  brackets, MFS standard deduction and LTCG brackets (Rev. Proc. 2025-32
+  Tables 2 and 4). Skills no longer send those statuses to `md_sources`.
+- **`tests/calculators.test.mjs`** — checks against closed-form results and
+  published figures, including the IRS cumulative-tax amounts for all four
+  filing statuses.
+
+### Fixed
+
+- **Single-filer brackets (introduced in 0.21.0).** The 24% and 32%
+  bracket tops were stored as $201,750 / $256,200 (the head-of-household
+  values); the single values are **$201,775 / $256,225**. Found by the new
+  calculator test, which reproduces the IRS table's cumulative figures.
+
+### Changed
+
+- Tool count 146 → 147 (compact mode 12 → 13). Docs: README What's New and
+  structure, `docs/SKILL_DETERMINISM.md`, `CONTRIBUTING.md`,
+  `.github/copilot-instructions.md` (convention 17), MCP server
+  instructions and the Claude router skill.
+
 ## [0.22.0] — 2026-11-17
 
 ### Added

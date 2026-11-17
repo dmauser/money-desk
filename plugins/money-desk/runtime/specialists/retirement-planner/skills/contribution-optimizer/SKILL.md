@@ -99,13 +99,15 @@ Names match the `md_rp_skill_contribution_optimizer` intake schema; extra keys f
 | IRA limit and catch-up | `md_facts` → `irs_contribution_limits.ira_traditional_or_roth`, `.ira_catchup_age_50_plus` | `[IRS 2026 limits]` |
 | HSA limit and catch-up | `md_facts` → `irs_contribution_limits.hsa_self_only` / `.hsa_family`, `.hsa_catchup_age_55_plus` | `[IRS 2026 limits]` |
 | Roth IRA income phase-out range; traditional-IRA deductibility phase-out | Not in md_facts — look up via `md_sources` (IRS Pub 590-A / annual COLA notice), else tag `[UNSOURCED]` | `[UNSOURCED]` |
-| Federal marginal rate | Derive from taxable income with `md_facts` → `income_tax_brackets_mfj_2026.brackets` (MFJ) or `.brackets_single` (Single); HoH / MFS not in md_facts — `md_sources`, else **Ask** | `[IRS 2026 brackets]` |
+| Federal marginal rate | Derive from taxable income with `md_facts` → `income_tax_brackets_mfj_2026.brackets` (MFJ), `.brackets_single`, `.brackets_hoh` or `.brackets_mfs` | `[IRS 2026 brackets]` |
 | Expected retirement marginal rate | `unknown` | `[ASSUMPTION]` |
 | Pay periods | **Ask — no default** | — |
 | True-up | `false` (conservative: pace contributions) | `[ASSUMPTION]` |
 | Election increment | Whole percent of pay | `[ASSUMPTION]` |
 
 ### Calculation method
+
+> **Calculator:** `md_calc` → `federal_income_tax` for ordinary tax, marginal rate and bracket headroom. Use the calculator's numbers verbatim, tagged `[CALCULATED]`, instead of mental arithmetic.
 
 1. **Limits for this age.** `deferral_limit = base` + catch-up: age 60–63 → the 60–63 catch-up key; age ≥ 50 otherwise → the 50+ catch-up key; else 0. IRA limit + IRA catch-up if age ≥ 50. HSA limit by `hsa_coverage` + HSA catch-up if age ≥ 55; HSA = 0 if not `hdhp_enrolled`.
 2. **Match.** Parse `"M% up to C%"`: `match_cap_pct = C`; `match_usd = annual_salary × C/100 × M/100`. Tiered formulas: apply each tier in order. `"none"` → 0.

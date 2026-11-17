@@ -60,6 +60,12 @@ follow-up questions. Each one should cover:
   [`docs/SKILL_DETERMINISM.md`](./docs/SKILL_DETERMINISM.md);
   `tests/skill-determinism.test.mjs` enforces the structure.
 
+If a skill's math is more than a couple of arithmetic steps, back it with a
+calculator in `extensions/money-desk/calculators.mjs` (pure, integer cents,
+no dates or randomness), served through `md_calc`, and name it in a
+`> **Calculator:**` line at the top of the skill's Calculation method. Add
+closed-form or published-figure checks to `tests/calculators.test.mjs`.
+
 Never hard-code year-specific limits or thresholds in a skill; reference
 the `md_facts` topic and key instead (add the figure to
 `extensions/money-desk/data/facts-2026.json` with its primary source if

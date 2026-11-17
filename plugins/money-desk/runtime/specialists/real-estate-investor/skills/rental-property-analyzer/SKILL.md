@@ -100,6 +100,8 @@ md_facts stores percentages as fractions (`0.05` = 5%); convert before use.
 
 ### Calculation method
 
+> **Calculators:** `md_calc` → `loan_amortization` for every fixed-rate loan payment, balance and payoff time; `md_calc` → `federal_income_tax` for ordinary tax, marginal rate and bracket headroom. Use the calculator's numbers verbatim, tagged `[CALCULATED]`, instead of mental arithmetic.
+
 Year-1 metrics mirror the workbook (`template.xlsx.json`) exactly:
 
 1. `loan = purchase_price × (1 − down_payment_pct/100)`; `monthly_pi = PMT(interest_rate/100/12, loan_term_years × 12, −loan)`; `debt_service = 12 × monthly_pi`.

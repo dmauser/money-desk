@@ -85,6 +85,8 @@ description: Review federal and private student loans — repayment plan choice 
 
 ### Calculation method
 
+> **Calculator:** `md_calc` → `loan_amortization` for every fixed-rate loan payment, balance and payoff time. Use the calculator's numbers verbatim, tagged `[CALCULATED]`, instead of mental arithmetic.
+
 1. **Split** loans into federal and private; totals and balance-weighted average rate for each (2 decimals).
 2. **Standard 10-year** per federal loan: amortize `balance` over 120 months at `rate_pct/100/12`; total paid = payment × 120 (last payment adjusted to the cent).
 3. **IDR** (only with sourced plan parameters): `discretionary = max(0, agi_usd − multiple × FPL(household_size))`; `monthly = pct/100 × discretionary ÷ 12`, capped where the plan caps it; project 12-month steps with AGI grown by `income_growth_pct`; balance accrues interest at the weighted rate (unpaid-interest rules per the sourced plan); stop at payoff or at the plan's forgiveness month. Total paid = Σ payments; forgiven = balance at that month.

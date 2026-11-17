@@ -35,6 +35,7 @@
     "standard_deduction_mfj": 32200,
     "standard_deduction_single": 16100,
     "standard_deduction_hoh": 24150,
+    "standard_deduction_mfs": 16100,
     "additional_standard_deduction_age_65_or_blind_mfj_per_qualifier": 1650,
     "additional_standard_deduction_age_65_or_blind_unmarried": 2050,
     "brackets": [
@@ -112,6 +113,43 @@
       {
         "rate": 0.24,
         "min": 105700,
+        "max": 201775
+      },
+      {
+        "rate": 0.32,
+        "min": 201775,
+        "max": 256225
+      },
+      {
+        "rate": 0.35,
+        "min": 256225,
+        "max": 640600
+      },
+      {
+        "rate": 0.37,
+        "min": 640600,
+        "max": null
+      }
+    ],
+    "brackets_hoh": [
+      {
+        "rate": 0.1,
+        "min": 0,
+        "max": 17700
+      },
+      {
+        "rate": 0.12,
+        "min": 17700,
+        "max": 67450
+      },
+      {
+        "rate": 0.22,
+        "min": 67450,
+        "max": 105700
+      },
+      {
+        "rate": 0.24,
+        "min": 105700,
         "max": 201750
       },
       {
@@ -127,6 +165,43 @@
       {
         "rate": 0.37,
         "min": 640600,
+        "max": null
+      }
+    ],
+    "brackets_mfs": [
+      {
+        "rate": 0.1,
+        "min": 0,
+        "max": 12400
+      },
+      {
+        "rate": 0.12,
+        "min": 12400,
+        "max": 50400
+      },
+      {
+        "rate": 0.22,
+        "min": 50400,
+        "max": 105700
+      },
+      {
+        "rate": 0.24,
+        "min": 105700,
+        "max": 201775
+      },
+      {
+        "rate": 0.32,
+        "min": 201775,
+        "max": 256225
+      },
+      {
+        "rate": 0.35,
+        "min": 256225,
+        "max": 384350
+      },
+      {
+        "rate": 0.37,
+        "min": 384350,
         "max": null
       }
     ],
@@ -157,7 +232,22 @@
         "rate": 0.2,
         "max": null
       }
-    ]
+    ],
+    "ltcg_qualified_dividend_brackets_mfs": [
+      {
+        "rate": 0,
+        "max": 49450
+      },
+      {
+        "rate": 0.15,
+        "max": 306850
+      },
+      {
+        "rate": 0.2,
+        "max": null
+      }
+    ],
+    "_notes": "Ordinary brackets for all four filing statuses from Rev. Proc. 2025-32 Tables 1–4; each table was checked against the cumulative-tax figures printed in the same table."
   },
   "social_security_2026": {
     "_source": "SSA 2026 COLA fact sheet; SSA earnings-test exempt amounts (ssa.gov/oact/cola/rtea.html); SSA FAQ KA-01897.",
