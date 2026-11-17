@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js >= 18](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
 
-**Your personal-finance AI team for GitHub Copilot CLI.** 20 specialist agents with 146 tools. **Every skill tool is intake-gated**: the first call returns the required-input checklist and forces Copilot to ask the user the listed questions in plain language (or render a structured `ask_user` form when a schema is shipped) before re-invoking the skill with the answers — so reports get built on `[USER-PROVIDED]` values, not invented `[ASSUMPTION:]` ones. A bundled 2026 facts table (IRS limits, brackets, IRMAA, FAFSA, conforming-loan, FEIE) means figures get cited from `md_facts` instead of marked `[UNSOURCED]`. Covers budgeting, taxes, investing, retirement, debt, credit, health & Medicare, property & casualty insurance, life & disability insurance, estate hygiene, major purchase decisions, education / 529 planning, net worth & goals tracking, self-employed / 1099 planning, cross-specialist life-event playbooks (annual review, new baby, job change, home purchase, inheritance, layoff), real-estate investing, behavioral coaching, international / expat planning, financial literacy (plain-language explanations + glossary + paycheck/statement walkthroughs + beginner roadmap + teach-a-kid), and FIRE planning (financial-independence strategy, safe-withdrawal stress testing, pre-59½ bridge / pre-65 healthcare, withdrawal-order, geographic arbitrage) — routed automatically. Zero runtime dependencies.
+**Your personal-finance AI team for GitHub Copilot CLI and Claude (Desktop, Code, Cowork).** 20 specialist agents with 146 tools. **Every skill tool is intake-gated**: the first call returns the required-input checklist and forces the agent to ask the user the listed questions in plain language (or render a structured `ask_user` form when a schema is shipped) before re-invoking the skill with the answers — so reports get built on `[USER-PROVIDED]` values, not invented `[ASSUMPTION:]` ones. A bundled 2026 facts table (IRS limits, brackets, IRMAA, FAFSA, conforming-loan, FEIE) means figures get cited from `md_facts` instead of marked `[UNSOURCED]`. Covers budgeting, taxes, investing, retirement, debt, credit, health & Medicare, property & casualty insurance, life & disability insurance, estate hygiene, major purchase decisions, education / 529 planning, net worth & goals tracking, self-employed / 1099 planning, cross-specialist life-event playbooks (annual review, new baby, job change, home purchase, inheritance, layoff), real-estate investing, behavioral coaching, international / expat planning, financial literacy (plain-language explanations + glossary + paycheck/statement walkthroughs + beginner roadmap + teach-a-kid), and FIRE planning (financial-independence strategy, safe-withdrawal stress testing, pre-59½ bridge / pre-65 healthcare, withdrawal-order, geographic arbitrage) — routed automatically. Zero runtime dependencies.
 
 > [!WARNING]
 > **Analysis only — not professional advice.** Money Desk produces drafts and analysis for your review. It does **not** execute trades, move funds, file taxes, submit disputes, or sign legal documents, and it is **not** a substitute for a licensed tax professional, fiduciary advisor, attorney, or insurance broker. It is informational only — **not professional tax, legal, investment, or insurance advice**.
@@ -16,6 +16,7 @@
 
 | | Section | Description |
 |---|---------|-------------|
+| 🆕 | [What's New](#-whats-new) | v0.20.0: Money Desk now runs in Claude |
 | 🚀 | [Quick Start](#quick-start) | One-command install |
 | 💡 | [What is Money Desk?](#what-is-money-desk) | Overview and key concepts |
 | 👥 | [The Team](#the-team) | All 20 specialists at a glance |
@@ -32,6 +33,22 @@
 
 > 📋 **Full machine-readable capability map:** [docs/CAPABILITIES.md](./docs/CAPABILITIES.md) — auto-generated from the registry, lists every specialist, skill, and tool.
 
+## 🆕 What's New
+
+### v0.20.0 — Money Desk now runs in Claude
+
+Money Desk is no longer Copilot-only. The repo is now a **Claude plugin**, so the same 20 specialists and 146 tools work in **Claude Desktop** (Cowork and Code tabs, plus the chat tab via MCP), **Claude Code**, and **Copilot CLI**.
+
+| What | Details |
+|---|---|
+| 🔌 **Claude plugin + marketplace** | Install with `/plugin marketplace add dmauser/money-desk` → `/plugin install money-desk@money-desk`. |
+| 🧠 **MCP server** | `extensions/money-desk/mcp-server.mjs`: zero-dependency stdio server that serves the exact tools in `registry.mjs`. One source of truth for both hosts. |
+| 🧭 **Router skill** | `skills/money-desk/SKILL.md` makes Claude use the Money Desk specialists for any personal-finance request. |
+| 🖥️ **Claude Desktop chat** | Desktop Extension (`npm run build:mcpb`) or a `claude_desktop_config.json` entry, with an optional reports folder (`MONEY_DESK_WORKDIR`). |
+| 📝 **Intake forms in Claude** | Gated skills ask their intake questions with Claude's question tool (or in chat), then run with your answers. Same `[USER-PROVIDED]` guarantee as in Copilot. |
+
+See [Option F](#option-f--claude-desktop--claude-code--cowork-plugin) to install, and [CHANGELOG.md](./CHANGELOG.md) for the full history.
+
 ---
 
 ## Quick Start
@@ -41,6 +58,15 @@ npx github:dmauser/money-desk init
 ```
 
 That's it. Launch Copilot CLI with experimental mode (`copilot --experimental`) in any repo and start asking personal-finance questions.
+
+**Using Claude instead?** In Claude Desktop or Claude Code:
+
+```text
+/plugin marketplace add dmauser/money-desk
+/plugin install money-desk@money-desk
+```
+
+See [Option F](#option-f--claude-desktop--claude-code--cowork-plugin) for Claude Desktop chat and manual MCP setup.
 
 > _New to Copilot CLI?_ Install it from the [GitHub Copilot CLI docs](https://docs.github.com/copilot/concepts/agents/about-copilot-cli) first, then come back here.
 
@@ -732,7 +758,7 @@ Use `md_renderers_ensure` once (no args) if a render fails with `ImportError` or
 
 ### Discoverability
 
-Money Desk is designed so the host agent (Copilot CLI) finds and uses it on the **first turn**, without the user having to prove it exists. Three mechanisms work together:
+Money Desk is designed so the host agent (Copilot CLI or Claude) finds and uses it on the **first turn**, without the user having to prove it exists. Three mechanisms work together:
 
 1. **Keyword-rich entry-point tools.** `md_capabilities` and `md_route` are eagerly registered in the initial tool manifest and their descriptions include every domain keyword — `money-desk`, `@money-desk`, `personal finance`, `budget`, `taxes`, `investing`, `retirement`, `debt`, `credit`, `insurance`, `estate`, `purchase`, `buy vs lease`, `rent vs buy` — plus an explicit "**Call this FIRST**" instruction.
 2. **Keyword-rich `*_role` tools.** Each of the 13 `<prefix>_role` tools starts with `"Money Desk specialist: <domain>."` and lists trigger phrases a user might say. This lets the agent's tool-search surface the right specialist directly.
@@ -763,6 +789,21 @@ flowchart TD
     TOOLS -. registered with joinSession() .-> H
 ```
 
+### Running in Claude (MCP)
+
+In Claude, `extensions/money-desk/mcp-server.mjs` takes the place of `extension.mjs`. It is a thin, zero-dependency stdio MCP adapter that imports the same `tools` from `registry.mjs`, so every tool, intake gate, and facts lookup behaves identically. Claude has no Copilot-style prompt hooks, so discovery comes from two other places instead:
+
+- **Server `instructions`** sent at MCP start-up: the presence note plus host-adaptation rules (`ask_user` becomes Claude's question tool or chat; `web_search` / `web_fetch` mean Claude's web tools; files are written only with filesystem access and an accepted export offer).
+- **The `money-desk` router skill** (`skills/money-desk/SKILL.md`), which Claude loads whenever a request is about personal finance.
+
+```mermaid
+flowchart LR
+    C[Claude Desktop / Claude Code] -->|plugin .mcp.json| S["mcp-server.mjs<br/>(stdio MCP)"]
+    P[GitHub Copilot CLI] -->|joinSession| E[extension.mjs]
+    S --> R[registry.mjs<br/>146 tools]
+    E --> R
+```
+
 The routing hook fires **once per specialist per session** — subsequent matching prompts don't re-inject the same hint, so context doesn't fill up with duplicate routing blocks. The presence note also fires only once.
 
 ### Typical workflow
@@ -777,16 +818,23 @@ You don't need to call these manually — just describe what you need and the ro
 
 ### Registry as the source of truth
 
-All 146 tools are derived from a single declarative `SPECIALISTS` table in [`extensions/money-desk/registry.mjs`](extensions/money-desk/registry.mjs). That table — not `extension.mjs` — is what you edit to add or modify a specialist or skill. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full how-to.
+All 146 tools are derived from a single declarative `SPECIALISTS` table in [`extensions/money-desk/registry.mjs`](extensions/money-desk/registry.mjs). That table — not `extension.mjs` or `mcp-server.mjs` — is what you edit to add or modify a specialist or skill. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full how-to.
 
 ## Repository Structure
 
 ```
 money-desk/
+├── .claude-plugin/
+│   ├── plugin.json                            # Claude plugin manifest
+│   └── marketplace.json                       # one-plugin marketplace (source: ./)
+├── .mcp.json                                  # starts the MCP server for the Claude plugin
+├── manifest.json                              # MCPB Desktop Extension manifest (Claude Desktop chat)
+├── skills/money-desk/SKILL.md                 # Claude router skill
 ├── bin/
-│   └── cli.mjs                                # zero-dep installer
+│   └── cli.mjs                                # zero-dep Copilot installer
 ├── extensions/money-desk/
-│   ├── extension.mjs                          # thin SDK entry — joinSession() + hooks
+│   ├── extension.mjs                          # thin Copilot SDK entry — joinSession() + hooks
+│   ├── mcp-server.mjs                         # thin Claude/MCP entry — stdio JSON-RPC
 │   ├── registry.mjs                           # SPECIALISTS table — source of truth
 │   └── specialists/
 │       ├── budget-coach/
@@ -807,7 +855,8 @@ money-desk/
 ├── tests/
 │   ├── manifest-consistency.test.mjs          # every tool resolves to non-empty content
 │   ├── routes.test.mjs                        # every route regex matches a canonical phrase
-│   └── installer.test.mjs                     # CLI smoke tests against a tmp repo
+│   ├── installer.test.mjs                     # CLI smoke tests against a tmp repo
+│   └── claude-plugin.test.mjs                 # plugin version sync + MCP handshake
 ├── .github/
 │   ├── copilot-instructions.md                # conventions for AI agents working on this repo
 │   └── workflows/ci.yml                       # Node 18/20/22 × ubuntu/windows + npm pack
@@ -833,6 +882,15 @@ npx github:dmauser/money-desk --version
 - Restart Copilot CLI.
 - For user-level install, launch with `copilot --experimental`.
 - Verify with `npx github:dmauser/money-desk status`.
+
+**Claude doesn't see the money-desk tools after installing the plugin.**
+- Make sure Node.js 18+ is on `PATH` (`node --version`). The MCP server is launched with `node`.
+- Start a new session (or restart Claude Desktop) after installing.
+- In Claude Code, run `/mcp` and check that `money-desk` is connected; `claude plugin validate <path-to-repo>` checks the manifests.
+- To test the server alone: `npm run mcp`. It should print `MCP server … ready` on stderr and wait for input.
+
+**Exported reports land in an unexpected folder (Claude Desktop).**
+- Set `MONEY_DESK_WORKDIR` (or the "Reports folder" option in the Desktop Extension) to the folder you want. Without it, deliverables stay inline in chat.
 
 **`init` fails with "not in a git repository" for `--project`.**
 - Run `git init` in the target repo first, then re-run.

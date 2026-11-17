@@ -17,10 +17,10 @@ do with that data.
   produces in your working directory (under `./money-desk/<specialist>/`,
   or the legacy `./reports/...` path in older versions),
   exactly where you can see them.
-- The **only** data that leaves your machine is whatever the GitHub
-  Copilot CLI itself sends to GitHub Copilot's model service as part of
-  the normal Copilot CLI session — same as any other Copilot CLI
-  conversation.
+- The **only** data that leaves your machine is whatever your host
+  agent sends to its own model service as part of a normal session:
+  GitHub Copilot CLI → GitHub Copilot; Claude Desktop / Claude Code →
+  Anthropic. Money Desk adds no new data path in either host.
 
 ## What Money Desk actually is
 
@@ -30,12 +30,17 @@ A static collection of:
 - A small declarative tool registry (`extensions/money-desk/registry.mjs`)
 - A thin SDK adapter that registers those tools with Copilot CLI
   (`extensions/money-desk/extension.mjs`)
+- A thin local MCP adapter that serves the same tools to Claude over
+  stdin/stdout (`extensions/money-desk/mcp-server.mjs`), plus the Claude
+  plugin manifests (`.claude-plugin/`, `.mcp.json`, `manifest.json`)
 - An installer that copies the above into `~/.copilot/extensions/` or
   `.github/extensions/` (`bin/cli.mjs`)
 
-There is no server. There is no client. There is no background process.
-The extension's runtime contribution is a list of tools handed to
-Copilot CLI when it loads.
+There is no network server and no client. In Copilot CLI the extension's
+runtime contribution is a list of tools handed to Copilot CLI when it
+loads. In Claude, the host launches `mcp-server.mjs` as a local child
+process for the length of the session; it talks to Claude only over
+stdin/stdout, opens no sockets, and exits when Claude closes it.
 
 ## What the agent sends to GitHub Copilot
 
@@ -53,6 +58,15 @@ GitHub Copilot subscription terms:
    plus your message to the model.
 4. The model's response (which may contain analysis of files you've
    shared in the session) is shown to you.
+
+### In Claude (Desktop, Code, Cowork)
+
+The flow is the same, with Anthropic in place of GitHub Copilot and
+governed by your Claude plan's terms: Claude sends your prompt plus the
+Money Desk tool descriptions to Anthropic's model service; when the
+model calls a Money Desk tool, Claude runs it through the local MCP
+server (no network), and the returned prompt text goes back to the
+model with your message.
 
 If you share statements, pay stubs, or any document with the model
 during the session — that document content travels to the model. That

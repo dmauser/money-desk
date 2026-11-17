@@ -29,6 +29,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`tests/claude-plugin.test.mjs`** — version sync across plugin /
   marketplace / MCPB manifests and an end-to-end stdio handshake test.
 
+### Changed
+
+- **`README.md`** — new **🆕 What's New** section; tagline, Quick Start,
+  How It Works (new "Running in Claude (MCP)" subsection + diagram),
+  Repository Structure, and Troubleshooting now cover Claude; install
+  Option F documents the plugin, Desktop Extension, and manual MCP config.
+- **`PRIVACY.md`** — documents the Claude data flow (Anthropic as the model
+  service) and the local stdio MCP process; no new network path.
+
 ## [0.19.8] — 2026-06-12
 
 ### Added
