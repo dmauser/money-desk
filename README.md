@@ -16,7 +16,7 @@
 
 | | Section | Description |
 |---|---------|-------------|
-| 🆕 | [What's New](#-whats-new) | v0.24.0 fixed input names; v0.23.0 calculators; v0.22.0 compact mode; v0.21.0 deterministic skills + verified 2026 facts; v0.20.0 Claude support |
+| 🆕 | [What's New](#-whats-new) | v0.25.0 two more calculators; v0.24.0 fixed input names; v0.23.0 calculators; v0.22.0 compact mode; v0.21.0 deterministic skills + verified 2026 facts; v0.20.0 Claude support |
 | 🚀 | [Quick Start](#quick-start) | One-command install |
 | 💡 | [What is Money Desk?](#what-is-money-desk) | Overview and key concepts |
 | 👥 | [The Team](#the-team) | All 20 specialists at a glance |
@@ -34,6 +34,16 @@
 > 📋 **Full machine-readable capability map:** [docs/CAPABILITIES.md](./docs/CAPABILITIES.md) — auto-generated from the registry, lists every specialist, skill, and tool.
 
 ## 🆕 What's New
+
+### v0.25.0 — Calculators for rental property and rent vs buy
+
+Two more skills now run their math in code through `md_calc`: `rental_property` (NOI, cap rate, cash-on-cash, DSCR, IRR after exit taxes, verdict) and `rent_vs_buy` (net worth by year, break-even year, sensitivities, verdict). That makes nine calculators.
+
+### v0.24.1–0.24.3 — Leaner, consistent, more facts
+
+- `md_report_quality` is 57% smaller by default, and every skill and orchestrator now defers to it instead of restating (sometimes conflicting) file-naming rules.
+- Rates in the facts table are named `_rate` (fractions), no longer `_percent`.
+- Added to the facts table: Child Tax Credit, Roth and traditional IRA phase-outs, Saver's Credit limits, HSA plan thresholds. Corrected: Part D base premium ($38.99) and FHA floor ($541,287).
 
 ### v0.24.0 — Every skill asks for its inputs under fixed names
 

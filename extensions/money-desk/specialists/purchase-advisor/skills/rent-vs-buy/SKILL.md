@@ -103,7 +103,7 @@ description: Compare renting vs buying a home on total cost over a holding horiz
 
 ### Calculation method
 
-> **Calculators:** `md_calc` → `loan_amortization` for every fixed-rate loan payment, balance and payoff time; `md_calc` → `federal_income_tax` for ordinary tax, marginal rate and bracket headroom. Use the calculator's numbers verbatim, tagged `[CALCULATED]`, instead of mental arithmetic.
+> **Calculator:** run steps 1–9 and the Decision rules with `md_calc` → `rent_vs_buy` (params = the Input keys above; omitted overrides fall back to the `md_facts` defaults in the Assumptions table and are listed in the result). Use its numbers verbatim, tagged `[CALCULATED]`; the steps below define what it computes — work them by hand only if `md_calc` is unavailable.
 
 Model in **nominal** dollars, monthly steps, `m = 1 … 12 × max(horizon_years, 30)`. md_facts values are decimals (0.01 = 1%).
 

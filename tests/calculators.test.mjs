@@ -166,3 +166,61 @@ test("every calculator names a real skill or a general use", () => {
     const names = new Set(tools.map((t) => t.name));
     for (const [k, c] of Object.entries(CALCULATORS)) if (c.skill.startsWith("md_")) assert.ok(names.has(c.skill), `${k} → ${c.skill}`);
 });
+
+test("rental_property reproduces the workbook fixture (test_xlsx_rental_property_analyzer.py)", async () => {
+    const fx = {
+        purchase_price: 320000, down_payment_pct: 25, interest_rate: 7, loan_term_years: 30, gross_monthly_rent: 2600, vacancy_pct: 6,
+        property_tax_annual: 4200, insurance_annual: 1500, hoa_monthly: 0, mgmt_pct_of_rent: 0, maintenance_pct_of_price: 1, capex_pct_of_price: 1,
+        closing_costs_usd: 8000, rehab_budget: 5000, rent_comps: [{ monthly_rent_usd: 2550 }, { monthly_rent_usd: 2650 }],
+    };
+    const r = await calc("rental_property", fx);
+    assert.equal(r.monthly_pi_usd, 1596.73);
+    assert.equal(r.cash_invested_usd, 93000);
+    assert.equal(r.noi_usd, 17228);
+    assert.equal(r.cash_flow_usd, -1933);
+    assert.equal(r.cap_rate_pct, 5.38);
+    assert.equal(r.dscr, 0.9);
+    assert.equal(r.verdict.rule, 2, "negative cash flow / DSCR < 1 → Pass");
+    assert.match(r.projection, /Not computed/);
+    assert.equal((await calc("rental_property", { ...fx, rent_comps: [] })).verdict.rule, 1);
+
+    // All-cash, no growth, no tax: IRR must equal the cap rate on cash invested.
+    const flat = await calc("rental_property", {
+        purchase_price: 200000, down_payment_pct: 100, interest_rate: 0, closing_costs_usd: 0, gross_monthly_rent: 2000, vacancy_pct: 0,
+        property_tax_annual: 4000, insurance_annual: 0, mgmt_pct_of_rent: 0, maintenance_pct_of_price: 0, capex_pct_of_price: 0, rent_comps: [1, 2],
+        appreciation_pct: 0, rent_growth_pct: 0, expense_growth_pct: 0, selling_cost_pct: 0, land_pct: 100, ltcg_rate_pct: 0, ordinary_marginal_rate_pct: 0, holding_years: 5,
+    });
+    assert.equal(flat.noi_usd, 20000);
+    assert.equal(flat.cap_rate_pct, 10);
+    assert.equal(flat.exit.exit_cash_usd, 200000);
+    assert.equal(flat.irr_pct, 10);
+    assert.deepEqual(flat.annual_cash_flow_usd, [20000, 20000, 20000, 20000, 20000]);
+});
+
+test("rent_vs_buy: zero-rate cases reduce to simple arithmetic", async () => {
+    const zero = { appreciation_real_pct: 0, investment_real_return_pct: 0, inflation_pct: 0, rent_inflation_pct: 0 };
+    const common = { purchase_closing_costs_usd: 0, property_tax_annual_usd: 0, homeowners_insurance_annual_usd: 0, maintenance_pct: 0, selling_cost_pct: 0, monthly_rent_usd: 1000, horizon_years: 5, filing_status: "single", marginal_federal_rate_pct: 22, ...zero };
+
+    // Paid in cash: buyer has no outflow and invests the $1,000 rent each month.
+    const cash = await calc("rent_vs_buy", { ...common, home_price_usd: 240000, down_payment_pct: 100, mortgage_rate_pct: 0, mortgage_term_years: 30 });
+    assert.equal(cash.at_horizon.buy_net_worth_usd, 300000);
+    assert.equal(cash.at_horizon.rent_net_worth_usd, 240000);
+    assert.equal(cash.break_even_year, 1);
+    assert.equal(cash.verdict.rule, 2);
+    assert.deepEqual(cash.assumptions_used, []);
+
+    // 0% loan with a payment equal to the rent: nobody invests; buyer builds $12,000 of equity a year.
+    const loan = await calc("rent_vs_buy", { ...common, home_price_usd: 240000, down_payment_pct: 0, pmi_annual_pct: 0, mortgage_rate_pct: 0, mortgage_term_years: 20 });
+    assert.equal(loan.monthly_pi_usd, 1000);
+    assert.equal(loan.at_horizon.buy_net_worth_usd, 60000);
+    assert.equal(loan.at_horizon.rent_net_worth_usd, 0);
+
+    // md_facts defaults are used, and reported, when overrides are omitted.
+    const dflt = await calc("rent_vs_buy", { home_price_usd: 500000, down_payment_pct: 20, mortgage_rate_pct: 6.5, mortgage_term_years: 30, purchase_closing_costs_usd: 12000, property_tax_annual_usd: 6000, homeowners_insurance_annual_usd: 1800, maintenance_pct: 1, selling_cost_pct: 6, monthly_rent_usd: 2600, horizon_years: 10, filing_status: "mfj", marginal_federal_rate_pct: 22 });
+    assert.equal(dflt.assumptions_used.length, 4);
+    const d = facts.behavioral_assumptions_safe_defaults;
+    const g = (1 + d.real_estate_appreciation_long_term_real_rate) * (1 + d.long_term_inflation_rate);
+    assert.equal(dflt.at_horizon.home_value_usd, Math.round(500000 * Math.pow(g, 10)));
+    assert.equal(dflt.at_horizon.difference_usd, dflt.at_horizon.buy_net_worth_usd - dflt.at_horizon.rent_net_worth_usd);
+    assert.equal((await mdCalc.handler({ calculator: "rent_vs_buy", params: { ...common, home_price_usd: 240000, down_payment_pct: 10, mortgage_rate_pct: 5, mortgage_term_years: 30 } })).resultType, "failure", "PMI rate is required under 20% down");
+});

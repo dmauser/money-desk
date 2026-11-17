@@ -535,6 +535,309 @@ function federalIncomeTax(p, facts) {
     };
 }
 
+// ── rental_property (Real Estate Investor → Rental Property Analyzer) ──
+
+// Internal rate of return for annual cash flows, by bisection. null if the
+// flows never change sign or no root lies in (-99%, +1000%).
+function irr(flows) {
+    if (!(flows.some((x) => x < 0) && flows.some((x) => x > 0))) return null;
+    const npv = (rate) => flows.reduce((a, cf, t) => a + cf / Math.pow(1 + rate, t), 0);
+    let lo = -0.99;
+    let hi = 10;
+    if (npv(lo) * npv(hi) > 0) return null;
+    for (let i = 0; i < 200 && hi - lo > 1e-7; i++) {
+        const mid = (lo + hi) / 2;
+        if (npv(lo) * npv(mid) <= 0) hi = mid;
+        else lo = mid;
+    }
+    return (lo + hi) / 2;
+}
+
+function rentalProperty(p, facts) {
+    const base = {
+        price: num(p, "purchase_price", { min: 1 }),
+        rehab: num(p, "rehab_budget", { required: false, min: 0, dflt: 0 }),
+        closing: num(p, "closing_costs_usd", { min: 0 }),
+        downPct: num(p, "down_payment_pct", { min: 0, max: 100 }),
+        rate: num(p, "interest_rate", { min: 0, max: 100 }),
+        termYears: int(p, "loan_term_years", { required: false, min: 1, max: 50, dflt: 30 }),
+        rent: num(p, "gross_monthly_rent", { min: 0 }),
+        tax: num(p, "property_tax_annual", { min: 0 }),
+        ins: num(p, "insurance_annual", { min: 0 }),
+        hoa: num(p, "hoa_monthly", { required: false, min: 0, dflt: 0 }),
+        other: num(p, "other_opex_annual_usd", { required: false, min: 0, dflt: 0 }),
+        vacancy: num(p, "vacancy_pct", { min: 0, max: 100 }),
+        capex: num(p, "capex_pct_of_price", { min: 0, max: 100 }),
+        maint: num(p, "maintenance_pct_of_price", { min: 0, max: 100 }),
+        mgmt: num(p, "mgmt_pct_of_rent", { min: 0, max: 100 }),
+        appreciation: num(p, "appreciation_pct", { required: false, min: -50, max: 50 }),
+    };
+    const N = int(p, "holding_years", { required: false, min: 1, max: 50, dflt: 10 });
+    const proj = {
+        rentGrowth: num(p, "rent_growth_pct", { required: false, min: -50, max: 50 }),
+        expGrowth: num(p, "expense_growth_pct", { required: false, min: -50, max: 50 }),
+        selling: num(p, "selling_cost_pct", { required: false, min: 0, max: 100 }),
+        land: num(p, "land_pct", { required: false, min: 0, max: 100 }),
+        ltcg: num(p, "ltcg_rate_pct", { required: false, min: 0, max: 100 }),
+        ordinary: num(p, "ordinary_marginal_rate_pct", { required: false, min: 0, max: 100 }),
+        state: num(p, "state_tax_rate_pct", { required: false, min: 0, max: 100, dflt: 0 }),
+        niit: p.niit_applies === true,
+    };
+    const missingProj = Object.entries({ appreciation_pct: base.appreciation, rent_growth_pct: proj.rentGrowth, expense_growth_pct: proj.expGrowth, selling_cost_pct: proj.selling, land_pct: proj.land, ltcg_rate_pct: proj.ltcg, ordinary_marginal_rate_pct: proj.ordinary })
+        .filter(([, v]) => v === undefined)
+        .map(([k]) => k);
+    const life = facts?.mortgage_and_real_estate_2026?.residential_rental_depreciation_life_years_27_5 ?? 27.5;
+
+    const evaluate = (b) => {
+        const loanC = cents(b.price * (1 - b.downPct / 100));
+        const n = b.termYears * 12;
+        const piC = loanC > 0 ? levelPayment(loanC, b.rate, n) : 0;
+        const debtService = usd(piC) * 12; // step 1
+        const cashInvested = b.price * (b.downPct / 100) + b.closing + b.rehab; // step 2
+        const year = (t) => {
+            // Step 7: year 1 uses the inputs as given; later years grow.
+            const rg = t === 1 ? 1 : Math.pow(1 + proj.rentGrowth / 100, t - 1);
+            const eg = t === 1 ? 1 : Math.pow(1 + proj.expGrowth / 100, t - 1);
+            const value = t === 1 ? b.price : b.price * Math.pow(1 + b.appreciation / 100, t - 1); // value at start of year t
+            const gsr = 12 * b.rent * rg; // step 3
+            const egi = gsr * (1 - b.vacancy / 100);
+            const opex = (b.tax + b.ins + 12 * b.hoa + b.other) * eg + (gsr * b.mgmt) / 100 + (value * (b.maint + b.capex)) / 100; // step 4
+            const noi = egi - opex; // step 5
+            return { gsr, egi, opex, noi, cashFlow: noi - debtService };
+        };
+        const y1 = year(1);
+        const out = {
+            monthly_pi_usd: usd(piC),
+            debt_service_usd: Math.round(debtService),
+            cash_invested_usd: Math.round(cashInvested),
+            noi_usd: Math.round(y1.noi),
+            cash_flow_usd: Math.round(y1.cashFlow),
+            cash_on_cash_pct: cashInvested > 0 ? +((y1.cashFlow / cashInvested) * 100).toFixed(2) : null,
+            dscr: debtService > 0 ? +(y1.noi / debtService).toFixed(2) : null,
+            _y1: y1,
+            irr_pct: null,
+        };
+        if (missingProj.length === 0) {
+            const flows = [-cashInvested];
+            for (let t = 1; t <= N; t++) flows.push(year(t).cashFlow);
+            const vN = b.price * Math.pow(1 + b.appreciation / 100, N); // step 8
+            const saleNet = vN * (1 - proj.selling / 100);
+            const rows = loanC > 0 ? amortize(loanC, b.rate, piC, n) : [];
+            const k = Math.min(12 * N, rows.length);
+            const loanBalance = k === 0 ? usd(loanC) : usd(rows[k - 1].bal);
+            const depreciation = ((b.price * (1 - proj.land / 100) + b.rehab) / life) * N;
+            const adjustedBasis = b.price + b.closing + b.rehab - depreciation;
+            const gain = Math.max(0, saleNet - adjustedBasis);
+            const recapture = Math.min(depreciation, gain);
+            const tax = (recapture * Math.min(25, proj.ordinary)) / 100 + ((gain - recapture) * proj.ltcg) / 100 + (gain * (proj.niit ? 3.8 : 0)) / 100 + (gain * proj.state) / 100;
+            const exitCash = saleNet - loanBalance - tax;
+            flows[N] += exitCash;
+            const r = irr(flows); // step 9
+            out.irr_pct = r === null ? "IRR undefined" : +(r * 100).toFixed(2);
+            out.exit = {
+                year: N,
+                value_usd: Math.round(vN),
+                sale_net_usd: Math.round(saleNet),
+                loan_balance_usd: Math.round(loanBalance),
+                depreciation_total_usd: Math.round(depreciation),
+                gain_usd: Math.round(gain),
+                recapture_usd: Math.round(recapture),
+                tax_usd: Math.round(tax),
+                exit_cash_usd: Math.round(exitCash),
+            };
+            out.annual_cash_flow_usd = flows.slice(1, N + 1).map((x, i) => Math.round(i === N - 1 ? x - exitCash : x));
+        }
+        return out;
+    };
+
+    const b = evaluate(base);
+    const y1 = b._y1;
+    delete b._y1;
+    const capRate = (y1.noi / base.price) * 100; // step 6
+    const expenseRatio = y1.gsr > 0 ? (y1.opex / y1.gsr) * 100 : null;
+    const slim = (label, o) => ({ case: label, cash_on_cash_pct: o.cash_on_cash_pct, dscr: o.dscr, cash_flow_usd: o.cash_flow_usd, irr_pct: o.irr_pct ?? "Not computed" });
+    const sens = [
+        ["rent −5%", { ...base, rent: base.rent * 0.95 }],
+        ["vacancy 12%", { ...base, vacancy: 12 }],
+        ["rate +1.00 pt", { ...base, rate: base.rate + 1 }],
+    ].map(([label, x]) => {
+        const o = evaluate(x);
+        delete o._y1;
+        return slim(label, o);
+    });
+    if (missingProj.length === 0) {
+        const o = evaluate({ ...base, appreciation: base.appreciation - 1 });
+        sens.push({ case: "appreciation −1.00 pt", irr_pct: o.irr_pct });
+    }
+
+    const comps = Array.isArray(p.rent_comps) ? p.rent_comps.length : 0;
+    const band = (v, ok, tight) => (v >= ok ? "OK" : v >= tight ? "Tight" : "Fail");
+    let verdict;
+    if (comps < 2) verdict = { verdict: "No verdict — collect at least 2 rent comps", rule: 1 };
+    else if (b.dscr !== null && (b.dscr < 1 || y1.cashFlow < 0)) verdict = { verdict: "Pass", rule: 2 };
+    else if (capRate >= 6 && b.cash_on_cash_pct >= 8 && (b.dscr === null || b.dscr >= 1.25) && sens.every((s) => s.cash_flow_usd === undefined || s.cash_flow_usd >= 0)) verdict = { verdict: "Pursue", rule: 3 };
+    else if (b.cash_on_cash_pct >= 5 && capRate >= 4 && (b.dscr === null || b.dscr >= 1)) {
+        const breaker = sens.find((s) => s.cash_flow_usd !== undefined && s.cash_flow_usd < 0);
+        verdict = { verdict: "Marginal", rule: 4, breaks_under: breaker ? breaker.case : "none of the cash-flow sensitivities" };
+    } else verdict = { verdict: "Pass", rule: 5 };
+
+    return {
+        ...b,
+        gross_scheduled_rent_usd: Math.round(y1.gsr),
+        effective_gross_income_usd: Math.round(y1.egi),
+        operating_expenses_usd: Math.round(y1.opex),
+        cap_rate_pct: +capRate.toFixed(2),
+        one_pct_rule: +((base.rent / base.price) * 100).toFixed(2),
+        expense_ratio_pct: expenseRatio === null ? null : +expenseRatio.toFixed(1),
+        flags: [...(expenseRatio !== null && expenseRatio < 35 ? ["Expense ratio under 35% — something is probably missing"] : [])],
+        status: { cap_rate: band(capRate, 6, 4), cash_on_cash: band(b.cash_on_cash_pct, 8, 5), dscr: b.dscr === null ? "No debt" : band(b.dscr, 1.25, 1) },
+        projection: missingProj.length ? `Not computed — missing: ${missingProj.join(", ")}` : `${N}-year hold`,
+        sensitivities: sens,
+        verdict,
+        notes: [
+            "Capex and maintenance reserves are inside operating expenses (workbook convention). Cash flows are before income tax; tax is modelled only at sale.",
+            "Percentage-of-price expenses in year t use the value at the start of that year; depreciation is full-year straight-line.",
+        ],
+    };
+}
+
+// ── rent_vs_buy (Purchase Advisor → Rent vs Buy) ───────────────────────
+
+function rentVsBuy(p, facts) {
+    const d = facts?.behavioral_assumptions_safe_defaults ?? {};
+    const re = facts?.mortgage_and_real_estate_2026 ?? {};
+    const tb = facts?.income_tax_brackets_mfj_2026 ?? {};
+    const price = num(p, "home_price_usd", { min: 1 });
+    const downPct = num(p, "down_payment_pct", { min: 0, max: 100 });
+    const rate = num(p, "mortgage_rate_pct", { min: 0, max: 100 });
+    const term = int(p, "mortgage_term_years", { min: 1, max: 50 }) * 12;
+    const closing = num(p, "purchase_closing_costs_usd", { min: 0 });
+    const propTax = num(p, "property_tax_annual_usd", { min: 0 });
+    const hoa = num(p, "hoa_monthly_usd", { required: false, min: 0, dflt: 0 });
+    const homeIns = num(p, "homeowners_insurance_annual_usd", { min: 0 });
+    const maintPct = num(p, "maintenance_pct", { min: 0, max: 100 });
+    const pmiPct = num(p, "pmi_annual_pct", { required: downPct < 20, min: 0, max: 100, dflt: 0 });
+    const sellPct = num(p, "selling_cost_pct", { min: 0, max: 100 });
+    const rent0 = num(p, "monthly_rent_usd", { min: 0.01 });
+    const rentIns = num(p, "renters_insurance_annual_usd", { required: false, min: 0, dflt: 0 });
+    const horizon = int(p, "horizon_years", { min: 1, max: 60 });
+    const status = String(p.filing_status ?? "").toLowerCase();
+    const stdDed = { mfj: tb.standard_deduction_mfj, single: tb.standard_deduction_single, hoh: tb.standard_deduction_hoh, mfs: tb.standard_deduction_mfs }[status];
+    if (stdDed === undefined) throw new CalcError("`filing_status` must be one of: mfj, single, hoh, mfs.");
+    const fedRate = num(p, "marginal_federal_rate_pct", { min: 0, max: 100 });
+    const otherItemized = num(p, "other_itemized_deductions_usd", { required: false, min: 0, dflt: 0 });
+    const stateTaxPaid = num(p, "state_income_tax_paid_usd", { required: false, min: 0, dflt: 0 });
+    const assumed = [];
+    const withDefault = (key, factKey) => {
+        const v = num(p, key, { required: false, min: -50, max: 50 });
+        if (v !== undefined) return v / 100;
+        if (typeof d[factKey] !== "number") throw new CalcError(`\`${key}\` is required (md_facts default ${factKey} is missing).`);
+        assumed.push(`${key} = ${+(d[factKey] * 100).toFixed(4)}% [ASSUMPTION: md_facts ${factKey}]`);
+        return d[factKey];
+    };
+    const apprReal = withDefault("appreciation_real_pct", "real_estate_appreciation_long_term_real_rate");
+    const invReal = withDefault("investment_real_return_pct", "long_term_equity_real_return_rate");
+    const infl = withDefault("inflation_pct", "long_term_inflation_rate");
+    const rentInflIn = num(p, "rent_inflation_pct", { required: false, min: -50, max: 50 });
+    const rentInfl = rentInflIn !== undefined ? rentInflIn / 100 : infl;
+    if (rentInflIn === undefined) assumed.push("rent_inflation_pct = inflation [ASSUMPTION]");
+    const cap = re.mortgage_interest_deduction_cap_post_tcja ?? 750000;
+    const saltCap = status === "mfs" ? (re.salt_cap_married_filing_separately ?? re.salt_cap) : re.salt_cap;
+    const exclusion = status === "mfj" ? re.section_121_exclusion_mfj : re.section_121_exclusion_single;
+
+    const years = Math.max(horizon, 30);
+    const loanC = cents(price * (1 - downPct / 100));
+    const piC = loanC > 0 ? levelPayment(loanC, rate, term) : 0;
+    const sched = loanC > 0 ? amortize(loanC, rate, piC, term) : [];
+
+    const run = ({ dAppr = 0, dInv = 0, dRent = 0 } = {}) => {
+        const g = (1 + apprReal + dAppr) * (1 + infl) - 1; // step 1
+        const i = (1 + invReal + dInv) * (1 + infl) - 1;
+        const ri = rentInfl + dRent;
+        const gm = Math.pow(1 + g, 1 / 12) - 1;
+        const im = Math.pow(1 + i, 1 / 12) - 1;
+        let value = price;
+        let buyerAcct = 0;
+        let renterAcct = price * (downPct / 100) + closing; // step 6, month 0
+        const rows = [];
+        for (let y = 1; y <= years; y++) {
+            const cost = Math.pow(1 + infl, y - 1);
+            const rent = rent0 * Math.pow(1 + ri, y - 1);
+            let interest = 0;
+            let balSum = 0;
+            for (let mth = 1; mth <= 12; mth++) {
+                const m = (y - 1) * 12 + mth;
+                const row = sched[m - 1];
+                const balStart = m === 1 ? loanC : (sched[m - 2]?.bal ?? 0);
+                const pi = row ? usd(row.paid) : 0;
+                interest += row ? usd(row.interest) : 0;
+                balSum += usd(balStart);
+                const pmi = pmiPct > 0 && usd(balStart) > 0.8 * price ? ((pmiPct / 100) * usd(loanC)) / 12 : 0; // step 3
+                const buyOut = pi + ((propTax + homeIns) * cost) / 12 + hoa * cost + (maintPct / 100) * value / 12 + pmi;
+                const rentOut = rent + rentIns / 12; // step 5
+                buyerAcct = buyerAcct * (1 + im) + Math.max(0, rentOut - buyOut);
+                renterAcct = renterAcct * (1 + im) + Math.max(0, buyOut - rentOut);
+                value *= 1 + gm;
+            }
+            // Step 4: year-end tax benefit, credited to the buyer's account.
+            const avgBal = balSum / 12;
+            const itemized = interest * (avgBal > 0 ? Math.min(1, cap / avgBal) : 0) + Math.min(propTax * cost + stateTaxPaid, saltCap) + otherItemized;
+            const benefit = (Math.max(0, itemized - stdDed) * fedRate) / 100;
+            buyerAcct += benefit;
+            const bal = usd(sched[Math.min(y * 12, sched.length) - 1]?.bal ?? 0);
+            const buyNW = value * (1 - sellPct / 100) - (y * 12 >= sched.length ? 0 : bal) + buyerAcct; // step 7
+            rows.push({ year: y, buy: buyNW, rent: renterAcct, value, benefit, gainOverBasis: value * (1 - sellPct / 100) - price - closing });
+        }
+        let breakEven = null; // step 8
+        for (let y = years; y >= 1; y--) {
+            if (rows[y - 1].buy >= rows[y - 1].rent) breakEven = y;
+            else break;
+        }
+        if (breakEven !== null && breakEven > 30) breakEven = null;
+        return { rows, breakEven };
+    };
+
+    const base = run();
+    const h = base.rows[horizon - 1];
+    const diff = h.buy - h.rent;
+    const sens = [
+        ["appreciation +1 pp", { dAppr: 0.01 }],
+        ["appreciation −1 pp", { dAppr: -0.01 }],
+        ["investment return +1 pp", { dInv: 0.01 }],
+        ["investment return −1 pp", { dInv: -0.01 }],
+        ["rent inflation +1 pp", { dRent: 0.01 }],
+        ["rent inflation −1 pp", { dRent: -0.01 }],
+    ].map(([label, o]) => ({ case: label, break_even_year: run(o).breakEven ?? "No break-even within 30 years" })); // step 9
+    const be = sens.map((s) => s.break_even_year).filter((x) => typeof x === "number");
+    let verdict;
+    if (Math.abs(diff) < 0.02 * price) verdict = { verdict: "Toss-up — decide on the non-financial factors", rule: 1 };
+    else if (diff > 0 && be.length === sens.length && be.every((y) => y <= horizon)) verdict = { verdict: "Buy", rule: 2 };
+    else if (diff > 0) verdict = { verdict: "Lean buy — result flips under at least one sensitivity case", rule: 3 };
+    else verdict = { verdict: "Rent", rule: 4 };
+
+    const p2r = price / (12 * rent0);
+    const R = Math.round;
+    return {
+        price_to_rent: +p2r.toFixed(1),
+        price_to_rent_read: p2r < 15 ? "buy-leaning" : p2r <= 20 ? "toss-up" : "rent-leaning",
+        monthly_pi_usd: usd(piC),
+        horizon_years: horizon,
+        at_horizon: { buy_net_worth_usd: R(h.buy), rent_net_worth_usd: R(h.rent), difference_usd: R(h.buy) - R(h.rent), home_value_usd: R(h.value) },
+        break_even_year: base.breakEven ?? "No break-even within 30 years",
+        net_worth_by_year: base.rows.filter((r) => r.year <= horizon || r.year % 5 === 0).map((r) => ({ year: r.year, buy_usd: R(r.buy), rent_usd: R(r.rent) })),
+        first_year_tax_benefit_usd: R(base.rows[0].benefit),
+        sensitivities: sens,
+        break_even_range: be.length ? `${Math.min(...be)}–${Math.max(...be)}${be.length < sens.length ? " (some cases never break even)" : ""}` : "No case breaks even within 30 years",
+        section_121_flag: exclusion !== undefined && h.gainOverBasis > exclusion ? `Gain at horizon (~$${R(h.gainOverBasis)}) exceeds the §121 exclusion ($${exclusion}) — not taxed in this model` : null,
+        verdict,
+        assumptions_used: assumed,
+        notes: [
+            "Nominal dollars, monthly steps. Whoever has the lower monthly outflow invests the difference; both accounts compound at the same return.",
+            "The standard deduction, SALT cap and mortgage-interest cap are held at their 2026 values for every year; SALT uses the full cap (no income phase-down).",
+        ],
+    };
+}
+
 // ── registry of calculators ────────────────────────────────────────────
 
 export const CALCULATORS = {
@@ -576,6 +879,20 @@ export const CALCULATORS = {
         skill: "md_nw_skill_goal_based_savings_plan",
         params: "`target_usd`, `saved_usd`?, `months`, `annual_real_return_pct`",
         run: savingsGoal,
+    },
+    rental_property: {
+        title: "Rental property — NOI, cap rate, cash-on-cash, DSCR, IRR, verdict",
+        skill: "md_re_skill_rental_property_analyzer",
+        params:
+            "the skill's Input keys: `purchase_price`, `rehab_budget`?, `closing_costs_usd`, `down_payment_pct`, `interest_rate`, `loan_term_years`?, `gross_monthly_rent`, `rent_comps` [list], `property_tax_annual`, `insurance_annual`, `hoa_monthly`?, `other_opex_annual_usd`?, `vacancy_pct`, `capex_pct_of_price`, `maintenance_pct_of_price`, `mgmt_pct_of_rent`; for the projection / IRR also `appreciation_pct`, `holding_years`?, `rent_growth_pct`, `expense_growth_pct`, `selling_cost_pct`, `land_pct`, `ltcg_rate_pct`, `ordinary_marginal_rate_pct`, `state_tax_rate_pct`?, `niit_applies`?",
+        run: rentalProperty,
+    },
+    rent_vs_buy: {
+        title: "Rent vs buy — net worth by year, break-even, sensitivities, verdict",
+        skill: "md_pa_skill_rent_vs_buy",
+        params:
+            "the skill's Input keys: `home_price_usd`, `down_payment_pct`, `mortgage_rate_pct`, `mortgage_term_years`, `purchase_closing_costs_usd`, `property_tax_annual_usd`, `hoa_monthly_usd`?, `homeowners_insurance_annual_usd`, `maintenance_pct`, `pmi_annual_pct` (required under 20% down), `selling_cost_pct`, `monthly_rent_usd`, `renters_insurance_annual_usd`?, `horizon_years`, `filing_status` (mfj | single | hoh | mfs), `marginal_federal_rate_pct`, `other_itemized_deductions_usd`?, `state_income_tax_paid_usd`?, and optional overrides `appreciation_real_pct`, `investment_real_return_pct`, `rent_inflation_pct`, `inflation_pct` (md_facts defaults otherwise)",
+        run: rentVsBuy,
     },
     federal_income_tax: {
         title: "Federal ordinary income tax and marginal rate",

@@ -100,7 +100,7 @@ md_facts stores percentages as fractions (`0.05` = 5%); convert before use.
 
 ### Calculation method
 
-> **Calculators:** `md_calc` → `loan_amortization` for every fixed-rate loan payment, balance and payoff time; `md_calc` → `federal_income_tax` for ordinary tax, marginal rate and bracket headroom. Use the calculator's numbers verbatim, tagged `[CALCULATED]`, instead of mental arithmetic.
+> **Calculator:** run steps 1–10 and the Decision rules with `md_calc` → `rental_property` (params = the Input keys above, percentages as percents). Use its numbers verbatim, tagged `[CALCULATED]`; the steps below define what it computes — work them by hand only if `md_calc` is unavailable.
 
 Year-1 metrics mirror the workbook (`template.xlsx.json`) exactly:
 
@@ -110,7 +110,7 @@ Year-1 metrics mirror the workbook (`template.xlsx.json`) exactly:
 4. `opex = property_tax_annual + insurance_annual + 12 × hoa_monthly + other_opex_annual_usd + GSR × mgmt_pct_of_rent/100 + purchase_price × (maintenance_pct_of_price + capex_pct_of_price)/100` — capex reserve is inside opex (workbook convention).
 5. `NOI = EGI − opex`; `cash_flow = NOI − debt_service`.
 6. `cap_rate = NOI / purchase_price`; `cash_on_cash = cash_flow / cash_invested`; `DSCR = NOI / debt_service`; `one_pct = gross_monthly_rent / purchase_price`; `expense_ratio = opex / GSR` (flag "something is missing" if < 35%).
-7. **Projection** (only if `selling_cost_pct`, `land_pct`, and tax rates are supplied), years t = 1…`holding_years`: rent and the non-percentage expense lines grow at their growth rates from year 2; percentage-of-rent lines follow rent; percentage-of-price lines follow value `V_t = purchase_price × (1 + appreciation_pct/100)^t`. Debt service fixed.
+7. **Projection** (only if `selling_cost_pct`, `land_pct`, and tax rates are supplied), years t = 1…`holding_years`: rent and the non-percentage expense lines grow at their growth rates from year 2; percentage-of-rent lines follow rent; percentage-of-price lines follow the value at the start of the year, `purchase_price × (1 + appreciation_pct/100)^(t−1)` (so year 1 equals step 4). Debt service fixed. `V_N = purchase_price × (1 + appreciation_pct/100)^N` is the sale value.
 8. **Exit (year N):** `sale_net = V_N × (1 − selling_cost_pct/100)`; `loan_balance_N` from the amortization schedule; `depreciation_total = (purchase_price × (1 − land_pct/100) + rehab_budget) / 27.5 × N` (full-year straight-line convention for this projection); `adjusted_basis = purchase_price + closing_costs_usd + rehab_budget − depreciation_total`; `gain = max(0, sale_net − adjusted_basis)`; `recapture = min(depreciation_total, gain)`; `tax = recapture × min(25, ordinary_marginal_rate_pct)/100 + (gain − recapture) × ltcg_rate_pct/100 + gain × (3.8 if niit_applies else 0)/100 + gain × state_tax_rate_pct/100`; `exit_cash = sale_net − loan_balance_N − tax`.
 9. **IRR** of `[−cash_invested, CF_1, …, CF_N + exit_cash]`, solved to 0.01%; if no sign change, report "IRR undefined".
 10. **Sensitivities** (one at a time, everything else base): rent −5%; vacancy = 12%; rate +1.00 pt; appreciation −1.00 pt (IRR only). Report CoC, DSCR, cash flow, IRR for each.

@@ -1690,7 +1690,8 @@ function buildTools() {
                 "Money Desk deterministic calculators — run the math in code instead of by hand so the same inputs always give the same numbers. " +
                 "Calculators: `debt_payoff` (avalanche vs snowball schedule + recommendation), `loan_amortization` (payment, interest, payoff time, extra payments), " +
                 "`refinance` (break-even, hold-period cost, NPV), `rmd` (required minimum distribution from the IRS table), `retirement_projection` " +
-                "(balance at retirement, depletion age, gap, sensitivity, stress test), `savings_goal` (monthly amount for a target), `federal_income_tax` " +
+                "(balance at retirement, depletion age, gap, sensitivity, stress test), `savings_goal` (monthly amount for a target), `rental_property` " +
+                "(NOI, cap rate, cash-on-cash, DSCR, IRR, verdict), `rent_vs_buy` (net worth by year, break-even, verdict), `federal_income_tax` " +
                 "(2026 tax and marginal rate, all four filing statuses). Call with no arguments to list each calculator's params. ALWAYS use this instead of mental " +
                 "arithmetic when a skill's Calculation method names a calculator; quote its numbers verbatim.",
             parameters: {

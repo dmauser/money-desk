@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.25.0] — 2026-11-17
+
+### Added
+
+- **`md_calc` → `rental_property`** — the Rental Property Analyzer's full
+  method in code: year-1 NOI, cap rate, cash-on-cash, DSCR, the hold-period
+  projection, exit tax (depreciation recapture, LTCG, NIIT, state), IRR,
+  four sensitivities and the Pursue / Marginal / Pass verdict. Reproduces
+  the workbook fixture in `test_xlsx_rental_property_analyzer.py`.
+- **`md_calc` → `rent_vs_buy`** — the Rent vs Buy method in code: monthly
+  nominal simulation, tax benefit of itemizing, invest-the-difference,
+  net worth by year, break-even year, six sensitivities and the verdict.
+  Uses the `md_facts` defaults for any omitted assumption and lists them.
+- Both skills now name their calculator at the top of Calculation method.
+
+### Changed
+
+- Rental Property Analyzer step 7 now states that percentage-of-price
+  expenses use the value at the start of each year (so year 1 equals the
+  year-1 metrics); the previous wording implied a year of appreciation
+  before the first year's expenses.
+- README What's New: entries for 0.24.1–0.25.0.
+
 ## [0.24.3] — 2026-11-17
 
 ### Added
