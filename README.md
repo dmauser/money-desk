@@ -16,7 +16,7 @@
 
 | | Section | Description |
 |---|---------|-------------|
-| 🆕 | [What's New](#-whats-new) | v0.23.0 calculators; v0.22.0 compact mode; v0.21.0 deterministic skills + verified 2026 facts; v0.20.0 Claude support |
+| 🆕 | [What's New](#-whats-new) | v0.24.0 fixed input names; v0.23.0 calculators; v0.22.0 compact mode; v0.21.0 deterministic skills + verified 2026 facts; v0.20.0 Claude support |
 | 🚀 | [Quick Start](#quick-start) | One-command install |
 | 💡 | [What is Money Desk?](#what-is-money-desk) | Overview and key concepts |
 | 👥 | [The Team](#the-team) | All 20 specialists at a glance |
@@ -34,6 +34,10 @@
 > 📋 **Full machine-readable capability map:** [docs/CAPABILITIES.md](./docs/CAPABILITIES.md) — auto-generated from the registry, lists every specialist, skill, and tool.
 
 ## 🆕 What's New
+
+### v0.24.0 — Every skill asks for its inputs under fixed names
+
+The intake step now gives the agent each skill's real input names and units on the first call, for all 95 skills, so answers always arrive under the same keys and can be passed straight to the calculators. Unrecognised keys are flagged instead of silently used.
 
 ### v0.23.0 — Calculators: the math now runs in code
 

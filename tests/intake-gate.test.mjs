@@ -59,3 +59,35 @@ for (const t of skillTools) {
         );
     });
 }
+
+// ── Canonical input keys ────────────────────────────────────────────────
+// The gate must hand the agent the skill's real `inputs` key names on the
+// FIRST call (from `### Input keys`), never placeholder names, and must flag
+// keys it doesn't recognise on the second call.
+
+import { extractInputKeys } from "../extensions/money-desk/registry.mjs";
+import { readFileSync as _read } from "node:fs";
+import { join as _join } from "node:path";
+import { SPECIALISTS as _SPECS, SPECIALISTS_DIR as _DIR } from "../extensions/money-desk/registry.mjs";
+
+for (const spec of _SPECS) {
+    for (const skill of spec.skills) {
+        const name = `${spec.prefix}_skill_${skill.id}`;
+        const md = _read(_join(_DIR, spec.name, "skills", skill.id.replaceAll("_", "-"), "SKILL.md"), "utf8");
+        const canonical = extractInputKeys(md);
+        const t = tools.find((x) => x.name === name);
+
+        test(`gate hands over canonical input keys: ${name}`, async () => {
+            assert.ok(canonical && canonical.keys.length > 0, "SKILL.md has no parseable `### Input keys`");
+            const first = await t.handler({});
+            assert.doesNotMatch(first, /example_field_1/, "gate still shows placeholder key names");
+            if (!/Call `ask_user`/.test(first)) {
+                assert.match(first, /Use exactly the key names/);
+                for (const k of canonical.keys.slice(0, 2)) assert.ok(first.includes(`"${k}"`), `example should use real key ${k}`);
+            }
+            const second = await t.handler({ inputs: { [canonical.keys[0]]: "x", zz_not_a_key: 1 } });
+            assert.match(second, /Non-canonical keys:\*\* `zz_not_a_key`/);
+            assert.ok(!second.includes(`Non-canonical keys:** \`${canonical.keys[0]}\``));
+        });
+    }
+}

@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.0] — 2026-11-17
+
+### Changed
+
+- **The intake gate now hands over each skill's real input keys.** For the
+  78 skills without a structured form, the first call used to show
+  placeholder names (`example_field_1`), and the canonical `### Input keys`
+  only arrived with the workflow on the second call — after the agent had
+  already invented its own key names. The first call now lists the skill's
+  canonical keys and units and tells the agent to use exactly those; the
+  example uses real keys. Skills with a form also list any canonical keys
+  the form doesn't cover.
+- **Second call flags non-canonical keys.** If `inputs` contains keys that
+  aren't in the skill's list (or its form), the echo tells the agent to map
+  them to the canonical names before use.
+
+### Added
+
+- `extractInputKeys()` in `registry.mjs`, and per-skill tests in
+  `tests/intake-gate.test.mjs` for both behaviours.
+
 ## [0.23.2] — 2026-11-17
 
 ### Fixed

@@ -614,6 +614,7 @@ function buildSkillLoader(spec, skill) {
         if (!hasInputs) {
             const toolName = `${spec.prefix}_skill_${skill.id}`;
             const intakeSchema = getIntakeSchema(toolName);
+            const inputKeys = extractInputKeys(raw);
 
             const lines = [
                 `# 🛑 ${skill.displayName} — intake required`,
@@ -663,6 +664,15 @@ function buildSkillLoader(spec, skill) {
                     "",
                     "The full SKILL.md workflow will be returned on that second call, with the inputs echoed back so the user can verify them. Cite each field as `[USER-PROVIDED]` in the report.",
                 );
+                const extra = inputKeys ? inputKeys.keys.filter((k) => !(k in intakeSchema.schema.properties)) : [];
+                if (extra.length) {
+                    lines.push(
+                        "",
+                        "If the user volunteers more detail than the form asks for, pass it under these keys (from the skill's canonical list): " +
+                            extra.map((k) => "`" + k + "`").join(", ") +
+                            ".",
+                    );
+                }
             } else {
                 // Prose path (skills without a structured schema yet — agent
                 // asks in plain language).
@@ -675,13 +685,18 @@ function buildSkillLoader(spec, skill) {
                     "",
                     "## Step 2 — Re-invoke this tool with the answers",
                     "",
-                    "Once the user has replied, call this same tool again with an `inputs` object containing the answers. Example:",
+                    "Once the user has replied, call this same tool again with an `inputs` object containing the answers." +
+                        (inputKeys
+                            ? " **Use exactly the key names and units listed below** (omit keys the user didn't answer; never rename them or invent new ones):"
+                            : " Example:"),
                     "",
+                    ...(inputKeys ? [inputKeys.body, "", "Example shape:", ""] : []),
                     "```json",
                     JSON.stringify({
                         inputs: {
-                            example_field_1: "<value the user gave>",
-                            example_field_2: "<value the user gave>",
+                            ...(inputKeys
+                                ? Object.fromEntries(inputKeys.keys.slice(0, 2).map((k) => [k, "<value the user gave>"]))
+                                : { example_field_1: "<value the user gave>", example_field_2: "<value the user gave>" }),
                             notes: "<optional: user's free-text caveats, declined items, etc.>",
                         },
                     }, null, 2),
@@ -701,6 +716,20 @@ function buildSkillLoader(spec, skill) {
         for (const [key, val] of Object.entries(inputs)) {
             const display = typeof val === "string" ? val : JSON.stringify(val);
             echoLines.push(`- **${key}:** ${display}`);
+        }
+        const canonical = extractInputKeys(raw);
+        if (canonical) {
+            const schemaKeys = Object.keys(getIntakeSchema(`${spec.prefix}_skill_${skill.id}`)?.schema?.properties ?? {});
+            const known = new Set([...canonical.keys, ...schemaKeys, "notes"]);
+            const unknown = Object.keys(inputs).filter((k) => !known.has(k));
+            if (unknown.length) {
+                echoLines.push(
+                    "",
+                    "> **Non-canonical keys:** " +
+                        unknown.map((k) => "`" + k + "`").join(", ") +
+                        ". Map each to the matching key in this skill's `### Input keys` list before using it (same value, canonical name and unit); if none matches, treat it as a free-text note.",
+                );
+            }
         }
         echoLines.push("");
         echoLines.push("> **Verify the above with the user if any value looks invented or unclear.** Cite each as `[USER-PROVIDED]` in the report. Use `[ASSUMPTION:]` only for modeling defaults (discount rate, vacancy %, real return), never for personal facts.");
@@ -746,6 +775,24 @@ export function extractIntake(markdown) {
 // Look up a skill by its tool name (e.g. "md_lp_skill_life_insurance_needs")
 // or by "<prefix>:<skill_id>" / "<prefix> <skill_id>". Returns { spec, skill }
 // or null.
+// Canonical `inputs` keys for a skill: the `### Input keys` list inside its
+// `## Determinism rules` section. Returns { body, keys } or null.
+export function extractInputKeys(markdown) {
+    const m = markdown.match(/^###\s+Input keys\s*$/m);
+    if (!m) return null;
+    const rest = markdown.slice(m.index + m[0].length);
+    const end = rest.search(/^#{2,3}\s+\S/m);
+    const body = (end === -1 ? rest : rest.slice(0, end)).trim();
+    const keys = [];
+    for (const line of body.split(/\r?\n/)) {
+        if (!/^- `/.test(line)) continue;
+        // Keys are the backticked identifiers before the dash that starts the description.
+        const head = line.split(/\s[—–-]\s/)[0];
+        for (const k of head.matchAll(/`([a-z][a-z0-9_]*)`/g)) if (!keys.includes(k[1])) keys.push(k[1]);
+    }
+    return keys.length ? { body, keys } : null;
+}
+
 function findSkill(query) {
     if (!query) return null;
     const norm = String(query).trim().toLowerCase();

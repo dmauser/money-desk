@@ -140,6 +140,12 @@ skill/role prompts referring to tools by their full id so both modes work.
     skill's steps together, and keep `tests/calculators.test.mjs` checking
     against closed-form results or published figures (e.g. the IRS
     cumulative-tax table), not against the calculator's own output.
+18. **Input keys feed the gate.** The intake gate reads each skill's
+    `### Input keys` list (`extractInputKeys` in `registry.mjs`) and shows
+    it on the first call so agents use those exact names in `inputs`. Keep
+    each entry as ``- `key` — type, description`` (several keys may share a
+    line); `tests/intake-gate.test.mjs` fails if a skill's list can't be
+    parsed.
 
 ## File layout
 

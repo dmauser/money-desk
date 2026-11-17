@@ -2,7 +2,7 @@
   "manifest_version": "0.2",
   "name": "money-desk",
   "display_name": "Money Desk",
-  "version": "0.23.2",
+  "version": "0.24.0",
   "description": "Personal-finance AI team — 20 specialists for budgeting, tax, investing, retirement, debt, credit, insurance, estate, FIRE and more.",
   "long_description": "Money Desk exposes 20 personal-finance specialists (147 tools) to Claude Desktop: role prompts, orchestrators, gated skills with intake forms, a curated 2026 facts table, and report-quality rules. Analysis only — it never moves money, executes trades, files returns, or signs documents. Not professional advice.",
   "author": {
