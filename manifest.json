@@ -1,0 +1,41 @@
+{
+  "manifest_version": "0.2",
+  "name": "money-desk",
+  "display_name": "Money Desk",
+  "version": "0.20.0",
+  "description": "Personal-finance AI team — 20 specialists for budgeting, tax, investing, retirement, debt, credit, insurance, estate, FIRE and more.",
+  "long_description": "Money Desk exposes 20 personal-finance specialists (146 tools) to Claude Desktop: role prompts, orchestrators, gated skills with intake forms, a curated 2026 facts table, and report-quality rules. Analysis only — it never moves money, executes trades, files returns, or signs documents. Not professional advice.",
+  "author": {
+    "name": "dmauser"
+  },
+  "homepage": "https://github.com/dmauser/money-desk",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dmauser/money-desk"
+  },
+  "license": "MIT",
+  "keywords": ["personal-finance", "budgeting", "tax", "investing", "retirement"],
+  "server": {
+    "type": "node",
+    "entry_point": "extensions/money-desk/mcp-server.mjs",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/extensions/money-desk/mcp-server.mjs"],
+      "env": {
+        "MONEY_DESK_WORKDIR": "${user_config.workdir}"
+      }
+    }
+  },
+  "user_config": {
+    "workdir": {
+      "type": "directory",
+      "title": "Reports folder (optional)",
+      "description": "Folder where exported reports (./money-desk/...) and the renderer cache are written. Leave blank to deliver everything inline in chat.",
+      "required": false
+    }
+  },
+  "compatibility": {
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": { "node": ">=18.0.0" }
+  }
+}

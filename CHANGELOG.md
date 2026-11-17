@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.0] — 2026-11-17
+
+### Added
+
+- **Claude plugin** — the repo is now a Claude plugin *and* a one-plugin
+  marketplace (`.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`).
+  Works in Claude Desktop (Cowork / Code) and Claude Code via
+  `/plugin marketplace add dmauser/money-desk` → `/plugin install money-desk@money-desk`.
+- **`extensions/money-desk/mcp-server.mjs`** — zero-dependency stdio MCP
+  server that exposes the exact same 146 tools as the Copilot extension
+  (`registry.mjs` stays the single source of truth). Wired up via `.mcp.json`.
+  Server `instructions` carry the presence note plus host-adaptation rules
+  (`ask_user` → the host's question tool or chat; `web_search` → host web
+  tools; files only with filesystem access + an accepted export offer).
+- **`skills/money-desk/SKILL.md`** — router skill so Claude reaches for the
+  `md_*` tools on any personal-finance request.
+- **`manifest.json`** — MCPB (Desktop Extension) manifest for the Claude
+  Desktop chat tab; build with `npm run build:mcpb`. Optional
+  `MONEY_DESK_WORKDIR` / "Reports folder" setting pins where exports land.
+- **`tests/claude-plugin.test.mjs`** — version sync across plugin /
+  marketplace / MCPB manifests and an end-to-end stdio handshake test.
+
 ## [0.19.8] — 2026-06-12
 
 ### Added

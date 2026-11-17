@@ -19,7 +19,7 @@
 | 🚀 | [Quick Start](#quick-start) | One-command install |
 | 💡 | [What is Money Desk?](#what-is-money-desk) | Overview and key concepts |
 | 👥 | [The Team](#the-team) | All 20 specialists at a glance |
-| 📦 | [Installation](#installation) | 5 ways to install |
+| 📦 | [Installation](#installation) | 5 ways to install for Copilot CLI + [Claude Desktop / Claude Code](#option-f--claude-desktop--claude-code--cowork-plugin) |
 | 🖥️ | [CLI Reference](#cli-reference) | `init`, `status`, `uninstall`, `--version` |
 | 📝 | [Usage Examples](#usage-examples) | Example prompts for every specialist |
 | 🔒 | [Privacy & Guardrails](#privacy--guardrails) | What Money Desk will and won't do (full: [PRIVACY.md](./PRIVACY.md)) |
@@ -211,6 +211,35 @@ ls ~/.copilot/extensions/money-desk/
 ```
 
 </details>
+
+### Option F — Claude Desktop / Claude Code / Cowork (plugin)
+
+This repo is also a **Claude plugin** and a one-plugin **marketplace**. The plugin bundles a zero-dependency MCP server (`extensions/money-desk/mcp-server.mjs`) that serves the same 146 tools as the Copilot extension, plus a `money-desk` router skill. Requires **Node.js 18+** on `PATH`.
+
+**Claude Desktop (Cowork / Code tabs) and Claude Code:**
+
+```text
+/plugin marketplace add dmauser/money-desk
+/plugin install money-desk@money-desk
+```
+
+In Claude Desktop you can also add the marketplace from **Customize → Plugins → Add marketplace** using `dmauser/money-desk`, then install **money-desk**. Restart the session, then ask *"what can money-desk do?"*.
+
+**Claude Desktop chat (MCP only, no plugin):** either build a Desktop Extension with `npm run build:mcpb` and double-click `money-desk.mcpb`, or add the server to `claude_desktop_config.json` (Settings → Developer → Edit Config):
+
+```json
+{
+  "mcpServers": {
+    "money-desk": {
+      "command": "node",
+      "args": ["C:/path/to/money-desk/extensions/money-desk/mcp-server.mjs"],
+      "env": { "MONEY_DESK_WORKDIR": "C:/Users/you/Documents/MoneyDesk" }
+    }
+  }
+}
+```
+
+`MONEY_DESK_WORKDIR` is optional — it pins where exported reports (`./money-desk/<specialist>/`) and the renderer cache are written. Without it, deliverables are rendered inline in chat (the default).
 
 ### Verify installation
 

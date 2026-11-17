@@ -28,6 +28,17 @@ and `onUserPromptSubmitted` (per-prefix throttled routing hint) hooks.
 into `~/.copilot/extensions/money-desk/` (user) or
 `.github/extensions/money-desk/` (project, with .gitignore management).
 
+## Claude plugin (Claude Desktop / Claude Code / Cowork)
+
+The repo root is also a Claude plugin + one-plugin marketplace
+(`.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.mcp.json`,
+`skills/money-desk/SKILL.md`, MCPB `manifest.json`).
+`extensions/money-desk/mcp-server.mjs` is a zero-dep stdio MCP adapter over
+`registry.mjs` — the MCP counterpart of `extension.mjs`. Never fork tool
+definitions into it; add tools in `registry.mjs` and both hosts get them.
+Keep the plugin / marketplace / manifest versions equal to `package.json`
+(`tests/claude-plugin.test.mjs` enforces this).
+
 ## Conventions you must preserve
 
 1. **`registry.mjs` is pure** — no `@github/copilot-sdk` import. Tests load

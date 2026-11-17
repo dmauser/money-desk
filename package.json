@@ -1,7 +1,7 @@
 {
   "name": "money-desk",
-  "version": "0.19.8",
-  "description": "Your personal-finance AI team for GitHub Copilot CLI — 20 specialist agents (budget, tax, investing, retirement, debt, credit, health & Medicare, property & casualty, life & disability, estate, purchase decisions, education / 529, net worth & goals, self-employed / 1099, life events, real-estate investing, behavioral coaching, international / expat, financial literacy, FIRE), one install.",
+  "version": "0.20.0",
+  "description": "Your personal-finance AI team for GitHub Copilot CLI and Claude (Desktop, Code, Cowork) — 20 specialist agents (budget, tax, investing, retirement, debt, credit, health & Medicare, property & casualty, life & disability, estate, purchase decisions, education / 529, net worth & goals, self-employed / 1099, life events, real-estate investing, behavioral coaching, international / expat, financial literacy, FIRE), one install.",
   "type": "module",
   "bin": {
     "money-desk": "./bin/cli.mjs"
@@ -14,7 +14,11 @@
     "LICENSE",
     "README.md",
     "CONTRIBUTING.md",
-    "PRIVACY.md"
+    "PRIVACY.md",
+    ".claude-plugin/",
+    ".mcp.json",
+    "manifest.json",
+    "skills/"
   ],
   "keywords": [
     "copilot",
@@ -25,7 +29,10 @@
     "investing",
     "retirement",
     "debt",
-    "credit"
+    "credit",
+    "claude",
+    "claude-plugin",
+    "mcp"
   ],
   "author": "dmauser",
   "license": "MIT",
@@ -34,7 +41,7 @@
   },
   "scripts": {
     "pretest": "node scripts/sync-changelog.mjs && node scripts/build-renderers-manifest.mjs",
-    "test": "node --test tests/installer.test.mjs tests/manifest-consistency.test.mjs tests/routes.test.mjs tests/md-route.test.mjs tests/guardrails.test.mjs tests/docs-sync.test.mjs tests/report-quality.test.mjs tests/sources.test.mjs tests/renderer-regression.test.mjs tests/version-sync.test.mjs tests/changelog-sync.test.mjs tests/intake-gate.test.mjs tests/renderers-sync.test.mjs",
+    "test": "node --test tests/installer.test.mjs tests/manifest-consistency.test.mjs tests/routes.test.mjs tests/md-route.test.mjs tests/guardrails.test.mjs tests/docs-sync.test.mjs tests/report-quality.test.mjs tests/sources.test.mjs tests/renderer-regression.test.mjs tests/version-sync.test.mjs tests/changelog-sync.test.mjs tests/intake-gate.test.mjs tests/renderers-sync.test.mjs tests/claude-plugin.test.mjs",
     "test:watch": "node --test --watch tests/installer.test.mjs tests/manifest-consistency.test.mjs tests/routes.test.mjs tests/md-route.test.mjs tests/guardrails.test.mjs tests/docs-sync.test.mjs tests/sources.test.mjs tests/renderer-regression.test.mjs tests/version-sync.test.mjs",
     "start": "node bin/cli.mjs help",
     "init": "node bin/cli.mjs init",
@@ -43,6 +50,8 @@
     "status": "node bin/cli.mjs status",
     "docs:capabilities": "node scripts/generate-capabilities.mjs",
     "docs:check": "node scripts/generate-capabilities.mjs --check",
-    "prepublishOnly": "npm test"
+    "prepublishOnly": "npm test",
+    "mcp": "node extensions/money-desk/mcp-server.mjs",
+    "build:mcpb": "npx -y @anthropic-ai/mcpb pack . money-desk.mcpb"
   }
 }

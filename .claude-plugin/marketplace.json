@@ -1,0 +1,17 @@
+{
+  "name": "money-desk",
+  "owner": {
+    "name": "dmauser"
+  },
+  "metadata": {
+    "description": "Money Desk — personal-finance specialist team for Claude"
+  },
+  "plugins": [
+    {
+      "name": "money-desk",
+      "source": "./",
+      "description": "20 personal-finance specialists (budget, tax, investing, retirement, debt, credit, insurance, estate, FIRE, and more). Analysis only; not professional advice.",
+      "version": "0.20.0"
+    }
+  ]
+}
