@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.1] — 2026-11-17
+
+### Changed
+
+- **`md_report_quality` is 57% smaller by default** (~22k → ~9.5k
+  characters). The raw `report_quality:` YAML dump, which repeated the
+  structured config and TL;DR above it, is now returned only with
+  `{ "full": true }` (for producing files).
+- **One Report Quality block for every skill.** All 95 SKILL.md files end
+  with the same short block (`REPORT_QUALITY_SKILL_BLOCK` in
+  `registry.mjs`, enforced by test) that defers to `md_report_quality`
+  instead of restating rules.
+
+### Fixed
+
+- **Conflicting file-naming and folder rules.** The per-skill block gave a
+  different file name pattern from the authoritative config, and the 20
+  orchestrator prompts (plus the README and contributor notes) still
+  pointed at the legacy `./reports/` folder and a manual renderer copy
+  step. All now defer to `md_report_quality` / `./money-desk/`.
+
 ## [0.24.0] — 2026-11-17
 
 ### Changed

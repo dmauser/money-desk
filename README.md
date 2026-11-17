@@ -692,7 +692,7 @@ Money Desk is built around a strict set of guardrails baked into every specialis
 - **Not professional advice.** Money Desk is informational only. For complex situations, engage a licensed tax pro, fiduciary advisor, attorney, or insurance broker in your jurisdiction.
 - **MCP integrations are opt-in and public-data-only by default.** Money Desk recommends FRED / SEC EDGAR / TreasuryDirect / BLS / `.gov` fetch as authoritative sources for rates, fund expense ratios, Treasury yields, and inflation (see `md_sources`). If you wire any of those MCP servers into your Copilot CLI config, queries carry no PII — only public identifiers (series id, ticker, CUSIP, `.gov` URL). Money Desk's own runtime still makes zero outbound network calls.
 
-Reports produced by Money Desk are written to `./reports/<specialist>/` or `./reports/<ACCOUNT>/` in the current working directory. They never leave your machine unless you share them yourself.
+Reports are shown inline in chat by default. When you accept an export, files are written to `./money-desk/<specialist>/` in the current working directory. They never leave your machine unless you share them yourself.
 
 For the full, explicit data-flow and verification commands, see **[PRIVACY.md](./PRIVACY.md)**.
 
@@ -737,9 +737,9 @@ Every Money Desk deliverable — rebalance plan, portfolio review, tax analysis,
 
 - **Output = markdown rendered inline in chat.** No files are written automatically.
 - **At the end of every deliverable, the agent OFFERS** PDF / DOCX / XLSX / HTML. It only produces files if you accept (or asked for a format up front).
-- **File naming when files are produced:** `./reports/<specialist-slug>/<skill>_<YYYYMMDD>[_scenario_<label>].<ext>`. What-if scenarios get a `_scenario_<label>` suffix — prior runs are never overwritten.
+- **File naming when files are produced:** `./money-desk/<specialist-slug>/<specialist-slug>_<skill-slug>_<YYYYMMDD>_<HHMM>[_scenario_<label>].<ext>`. What-if scenarios get a `_scenario_<label>` suffix — prior runs are never overwritten.
 
-**Renderer toolchain** (ships in `extensions/money-desk/renderers/`, copied to `./reports/_renderers/` on first use in a project):
+**Renderer toolchain** (ships in `extensions/money-desk/renderers/`, synced to `./money-desk/_renderers/` automatically):
 
 | Format | Stack | Install |
 |--------|-------|---------|

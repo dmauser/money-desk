@@ -11,7 +11,7 @@ import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { glob } from "node:fs/promises";
-import { tools, SPECIALISTS, getReportQuality, REPORT_QUALITY_CONFIG } from "../extensions/money-desk/registry.mjs";
+import { tools, SPECIALISTS, getReportQuality, REPORT_QUALITY_CONFIG, REPORT_QUALITY_SKILL_BLOCK } from "../extensions/money-desk/registry.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
@@ -24,13 +24,22 @@ test("md_report_quality tool is registered", () => {
     assert.equal(t.skipPermission, true);
 });
 
-test("md_report_quality returns non-empty markdown with TL;DR + YAML block", async () => {
+test("md_report_quality returns the TL;DR by default and the YAML block only when full", async () => {
     const out = await getReportQuality();
     assert.ok(typeof out === "string" && out.length > 500, "output too short");
     assert.match(out, /Report Quality Rules/i);
     assert.match(out, /markdown[^a-z]*inline/i);
-    assert.match(out, /```yaml/);
-    assert.match(out, /report_quality:/);
+    assert.match(out, /TL;DR/);
+    assert.doesNotMatch(out, /```yaml/, "default response must not carry the raw YAML dump");
+    assert.match(out, /"full": true/, "default response must say how to get the full config");
+
+    const full = await getReportQuality(true);
+    assert.match(full, /```yaml/);
+    assert.match(full, /report_quality:/);
+    assert.ok(full.length > out.length + 5000);
+
+    const viaTool = await tools.find((x) => x.name === "md_report_quality").handler({ full: true });
+    assert.equal(viaTool, full);
 });
 
 test("md_report_quality emits the structured JSON config the agent must obey", async () => {
@@ -110,6 +119,11 @@ test("every SKILL.md references md_report_quality", async () => {
     )) {
         const raw = await readFile(file, "utf8");
         assert.match(raw, /md_report_quality/, `${file} must reference md_report_quality`);
+        assert.ok(
+            raw.replace(/\r\n/g, "\n").endsWith("\n\n" + REPORT_QUALITY_SKILL_BLOCK),
+            `${file} must end with the shared Report Quality block (REPORT_QUALITY_SKILL_BLOCK in registry.mjs)`,
+        );
+        assert.doesNotMatch(raw, /\.\/reports\//, `${file} still mentions the legacy ./reports/ folder`);
         count++;
     }
     assert.ok(count >= 90, `expected ~95 SKILL.md files, found ${count}`);
