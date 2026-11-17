@@ -116,7 +116,7 @@ The single most important rule. Park cash in a HYSA / money market / treasury MM
 | Date-of-death value / stepped-up basis | Custodian date-of-death valuation or formal appraisal; **Ask — no default** | — |
 | Federal estate exemption | `md_facts` → `estate_and_gift_2026.lifetime_exemption_per_individual` (read its `_notes` re: sunset/legislation) | `[IRS Estate 2026]` |
 | Annual gift exclusion | `md_facts` → `estate_and_gift_2026.annual_gift_exclusion_per_donee` | `[IRS Estate 2026]` |
-| Inherited-IRA growth for the 10-year schedule | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_percent` (fraction; 0.06 = 6%) | `[ASSUMPTION]` |
+| Inherited-IRA growth for the 10-year schedule | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_rate` (fraction; 0.06 = 6%) | `[ASSUMPTION]` |
 | RMD life-expectancy divisor (decedent past RBD) | Not in md_facts — IRS Pub 590-B Single Life Table via `md_sources`, else `[UNSOURCED]` | `[UNSOURCED]` |
 | State inheritance / estate tax rates | Not in md_facts — state department of revenue via `md_sources`, else `[UNSOURCED]` | `[UNSOURCED]` |
 

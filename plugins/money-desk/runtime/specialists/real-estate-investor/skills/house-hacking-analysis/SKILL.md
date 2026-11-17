@@ -72,9 +72,9 @@ Analysis only. Landlord-tenant law is state-specific; recommend local real-estat
 |---|---|---|
 | Rents on non-owner units | **Ask — no default**; current leases, else ≥ 2 comps | — |
 | Loan rate, mortgage insurance, upfront fees | **Ask — no default** (Loan Estimate); FHA MIP, VA funding fee and PMI rates are not in md_facts | — |
-| Vacancy | **Ask**; else `md_facts` → `behavioral_assumptions_safe_defaults.rental_vacancy_default_percent` | `[ASSUMPTION]` |
-| Maintenance reserve | **Ask**; else `md_facts` → `rental_maintenance_default_percent_of_rent` × rented-unit rent | `[ASSUMPTION]` |
-| Capex reserve | **Ask**; else `md_facts` → `rental_capex_reserve_default_percent_of_rent` × rented-unit rent | `[ASSUMPTION]` |
+| Vacancy | **Ask**; else `md_facts` → `behavioral_assumptions_safe_defaults.rental_vacancy_default_rate` | `[ASSUMPTION]` |
+| Maintenance reserve | **Ask**; else `md_facts` → `rental_maintenance_default_rate_of_rent` × rented-unit rent | `[ASSUMPTION]` |
+| Capex reserve | **Ask**; else `md_facts` → `rental_capex_reserve_default_rate_of_rent` × rented-unit rent | `[ASSUMPTION]` |
 | Loan limits | `county_loan_limit_usd` if given; for 1 unit, `md_facts` → `mortgage_and_real_estate_2026.conforming_loan_limit_one_unit_baseline` / `.fha_loan_limit_one_unit_low_cost_floor` as floors; 2–4-unit limits not in md_facts — look up via `md_sources` (FHFA / HUD), else `[UNSOURCED]` | `[FHFA / IRS RE 2026]` |
 | §121 exclusion | `md_facts` → `mortgage_and_real_estate_2026.section_121_exclusion_single` / `.section_121_exclusion_mfj` | `[FHFA / IRS RE 2026]` |
 | Vacancy stress | All rented units empty 3 months + one $5,000 turnover (Workflow step 5) | `[ASSUMPTION]` |

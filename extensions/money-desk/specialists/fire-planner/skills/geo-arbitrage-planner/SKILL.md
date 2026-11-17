@@ -113,7 +113,7 @@ International tax / immigration is the highest-stakes Money Desk domain. The FBA
 | FATCA (Form 8938) thresholds | `md_facts` → `expat_quick_reference_2026.fatca_form_8938_threshold_{single,mfj}_{resident_us,abroad}_end_of_year` | `[IRS / FinCEN Expat 2026]` |
 | FEIE maximum | `md_facts` → `expat_quick_reference_2026.feie_max_per_qualifying_individual` | `[IRS / FinCEN Expat 2026]` |
 | FBAR / FATCA penalty amounts | Inflation-adjusted annually — not in md_facts; cite via `md_sources`, else `[UNSOURCED]` | `[UNSOURCED]` |
-| Withdrawal rate | `md_facts` → `behavioral_assumptions_safe_defaults.safe_withdrawal_rate_30yr_horizon_percent` (× 100) | `[ASSUMPTION]` |
+| Withdrawal rate | `md_facts` → `behavioral_assumptions_safe_defaults.safe_withdrawal_rate_30yr_horizon` (× 100) | `[ASSUMPTION]` |
 
 ### Calculation method
 

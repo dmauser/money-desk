@@ -75,7 +75,7 @@ Core names follow the named ranges in this skill's `template.xlsx.json` (workboo
 |---|---|---|
 | Loan balances, rates, quotes, costs | **Ask — no default** (statement + Loan Estimate; verbal quotes `[UNSOURCED]`) | — |
 | Holding period | **Ask — no default** | — |
-| Alternative investment return | **Ask**; else `(1 + md_facts behavioral_assumptions_safe_defaults.long_term_equity_real_return_percent) × (1 + .long_term_inflation_percent) − 1` | `[ASSUMPTION]` |
+| Alternative investment return | **Ask**; else `(1 + md_facts behavioral_assumptions_safe_defaults.long_term_equity_real_return_rate) × (1 + .long_term_inflation_rate) − 1` | `[ASSUMPTION]` |
 | Market-rate benchmark | `md_facts` → `behavioral_assumptions_safe_defaults.mortgage_rate_assumption_check_freddie_pmms` → fetch Freddie Mac PMMS via `md_sources`, else `[UNSOURCED]` | — |
 | Mortgage-interest deduction cap | `md_facts` → `mortgage_and_real_estate_2026.mortgage_interest_deduction_cap_post_tcja` | `[FHFA / IRS RE 2026]` |
 | Standard deduction (itemizing test) | `md_facts` → `income_tax_brackets_mfj_2026.standard_deduction_mfj` / `_single` / `_hoh` | `[IRS 2026 limits]` |

@@ -96,9 +96,9 @@ Names match the `md_fi_skill_swr_stress_test` intake schema (template named rang
 | Horizon, spend, portfolio, allocation, real return, flexibility | **Ask — no default** (intake requires them) | — |
 | `current_age` when an income floor is given | **Ask — no default** | — |
 | Annual real spend change (rising / declining) | **Ask — no default**; flat pattern = 0 | — |
-| Stressed real return [`stress_real_return`] | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_bond_real_return_percent` (fraction — × 100): "the whole portfolio earns only bond-like real returns" | `[ASSUMPTION]` |
+| Stressed real return [`stress_real_return`] | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_bond_real_return_rate` (fraction — × 100): "the whole portfolio earns only bond-like real returns" | `[ASSUMPTION]` |
 | Bad-first-decade real return [`bad_first_decade_return`] | −1.0% real per year for years 1–10, then `expected_real_return_pct` (fixed path, same as the template) | `[ASSUMPTION]` |
-| Guardrail starting WR (for reference) | `md_facts` → `behavioral_assumptions_safe_defaults.guyton_klinger_initial_withdrawal_percent` (× 100) | `[ASSUMPTION]` |
+| Guardrail starting WR (for reference) | `md_facts` → `behavioral_assumptions_safe_defaults.guyton_klinger_initial_withdrawal_rate` (× 100) | `[ASSUMPTION]` |
 | SS haircut scenario | Income floor × 75% | `[ASSUMPTION]` |
 | Historical survival rates | Cite a primary study (Trinity 1998/2011, Bengen 1994, Kitces/Pfau) or a historical-sequence tool via `md_sources`; otherwise the column reads "Not computed — no primary source retrieved" | `[UNSOURCED]` |
 

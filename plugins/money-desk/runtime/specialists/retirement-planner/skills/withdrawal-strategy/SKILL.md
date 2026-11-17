@@ -86,8 +86,8 @@ Keys map 1:1 to the `template.xlsx.json` named ranges where one exists (shown in
 | Assumption | If the user doesn't supply it | Tag |
 |---|---|---|
 | Balances, spend, ages, filing status, state | **Ask — no default** | — |
-| Real return | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_percent` × stock share + `.long_term_bond_real_return_percent` × bond share (fractions — × 100); if allocation unknown → **Ask** | `[ASSUMPTION]` |
-| Inflation | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_percent` (× 100) | `[ASSUMPTION]` |
+| Real return | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_rate` × stock share + `.long_term_bond_real_return_rate` × bond share (fractions — × 100); if allocation unknown → **Ask** | `[ASSUMPTION]` |
+| Inflation | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_rate` (× 100) | `[ASSUMPTION]` |
 | Effective tax rate on traditional withdrawals | **Ask — no default** (or compute from `md_facts` brackets for the planned income) | — |
 | Ordinary brackets, standard deduction, LTCG brackets, NIIT | `md_facts` → `income_tax_brackets_mfj_2026.brackets`, `.standard_deduction_*`, `.ltcg_qualified_dividend_brackets_mfj`, `.niit_threshold_mfj` / `.niit_threshold_single` (bracket tables are MFJ only; other statuses: `.brackets_single` / `.brackets_hoh` / `.brackets_mfs` and `.ltcg_qualified_dividend_brackets_single` / `_hoh` / `_mfs`) | `[IRS 2026 brackets]` |
 | IRMAA tiers, lookback | `md_facts` → `medicare_2026.irmaa_brackets_mfj_part_b_total_monthly` / `_single_`, `.irmaa_lookback_years` | `[CMS Medicare 2026]` |

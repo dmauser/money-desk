@@ -90,7 +90,7 @@ Names match the intake schema `md_lp_skill_life_insurance_needs`; extra keys are
 | Income, dependents, years to replace | **Ask — no default** | — |
 | Final expenses | **Ask**; if the user has no figure, $15,000 (the planning figure in Inputs needed) | `[ASSUMPTION: $15,000]` |
 | Children counted for education | Each dependent aged ≤ 17 | `[ASSUMPTION]` |
-| Real discount rate (Human Life Value only) | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_bond_real_return_percent` (stored as a fraction); income held flat in today's dollars | `[ASSUMPTION]` |
+| Real discount rate (Human Life Value only) | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_bond_real_return_rate` (stored as a fraction); income held flat in today's dollars | `[ASSUMPTION]` |
 | Personal consumption % (HLV only) | **Ask — no default**; HLV is skipped if absent | — |
 | Replacement-of-services cost (non-earning spouse) | **Ask — no default** | — |
 | Premiums | Carrier quotes only; otherwise "to be quoted" — never estimated | — |

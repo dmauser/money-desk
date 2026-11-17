@@ -108,7 +108,7 @@ General evidence-based education. Whether the myth applies to YOUR specific situ
 | Assumption | If the user doesn't supply it | Tag |
 |---|---|---|
 | Current-year limits in evidence text (e.g. 401(k) limit) | `md_facts` → `irs_contribution_limits.401k_employee_deferral` etc. | `[IRS 2026 limits]` |
-| Long-run return used in "invest the difference" math | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_percent` | `[ASSUMPTION]` |
+| Long-run return used in "invest the difference" math | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_rate` | `[ASSUMPTION]` |
 | Study statistics (DALBAR, CFPB, SCF, best-days studies) | Cite the named primary source via `md_sources`; else `[UNSOURCED]` + "verify" | `[UNSOURCED]` |
 | User's mortgage rate (payoff myth) | **Ask — no default**; without it, show all three bands | — |
 

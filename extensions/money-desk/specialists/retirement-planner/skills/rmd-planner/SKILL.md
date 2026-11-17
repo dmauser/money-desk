@@ -81,7 +81,7 @@ description: Plan Required Minimum Distributions from tax-deferred accounts at a
 | QCD annual limit (indexed) | `md_facts` → `rmd_and_qcd_2026.qcd_annual_limit_per_person` | `[IRS 2026]` |
 | Ordinary brackets, standard deduction | `md_facts` → `income_tax_brackets_mfj_2026.brackets`, `.standard_deduction_mfj` / `.standard_deduction_single` / `.standard_deduction_hoh`, `.additional_standard_deduction_age_65_or_blind_*` (other statuses: `.brackets_single` / `.brackets_hoh` / `.brackets_mfs`) | `[IRS 2026 brackets]` |
 | IRMAA tiers | `md_facts` → `medicare_2026.irmaa_brackets_mfj_part_b_total_monthly` / `irmaa_brackets_single_part_b_total_monthly`, `medicare_2026.irmaa_lookback_years` | `[CMS Medicare 2026]` |
-| Projection real return | `projection_real_return_pct`; else `stock_pct × equity + (100 − stock_pct) × bond` using `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_percent` / `long_term_bond_real_return_percent` (fractions — × 100); if `stock_pct` missing → **Ask** | `[ASSUMPTION]` |
+| Projection real return | `projection_real_return_pct`; else `stock_pct × equity + (100 − stock_pct) × bond` using `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_rate` / `long_term_bond_real_return_rate` (fractions — × 100); if `stock_pct` missing → **Ask** | `[ASSUMPTION]` |
 | Bracket / IRMAA indexing | Thresholds held at today's values in a real-dollar projection (i.e. they rise with inflation) | `[ASSUMPTION]` |
 | Taxable portion of SS | IRS Pub 915 worksheet (IRC §86 thresholds are statutory, not indexed) | — |
 

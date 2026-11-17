@@ -67,7 +67,7 @@ VALIDATION (default-on, opt-out via --no-validate / validate=False):
 """
 from __future__ import annotations
 
-__renderer_version__ = "0.24.1"
+__renderer_version__ = "0.24.2"
 def _warn_on_drift() -> None:
     """Soft-warn if our sibling RENDERERS_MANIFEST.json declares a different version.
 

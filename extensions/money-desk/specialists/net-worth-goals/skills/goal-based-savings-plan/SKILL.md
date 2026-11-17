@@ -79,9 +79,9 @@ Markdown report `./money-desk/net-worth-goals/goal-plan-<YYYYMMDD>.md`:
 |---|---|---|
 | Goal amounts, dates, saved balances, priorities | **Ask — no default** | — |
 | Monthly capacity | **Ask — no default** (Budget Coach can supply it) | — |
-| Inflation | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_percent` (decimal) | `[ASSUMPTION]` |
-| Equity real return | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_percent` | `[ASSUMPTION]` |
-| Bond real return | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_bond_real_return_percent` | `[ASSUMPTION]` |
+| Inflation | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_rate` (decimal) | `[ASSUMPTION]` |
+| Equity real return | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_rate` | `[ASSUMPTION]` |
+| Bond real return | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_bond_real_return_rate` | `[ASSUMPTION]` |
 | Cash yield (< 24-month goals) | Look up via `md_sources` / deposit-rate policy; if unavailable, 0% real (cash = inflation) | `[ASSUMPTION]` |
 | Down-payment closing costs, moving, furnishing | **Ask — no default** (size from a lender Loan Estimate; the 2–3% figure in Notes is context only) | — |
 

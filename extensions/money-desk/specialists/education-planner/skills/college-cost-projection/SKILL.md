@@ -76,7 +76,7 @@ Names follow the named ranges in this skill's `template.xlsx.json` (the workbook
 |---|---|---|
 | Today's annual cost | **Ask**; the target school's published cost of attendance, or College Board *Trends in College Pricing* via `md_sources` (cite year); the "~" figures in Inputs needed are orientation only | `[USER-PROVIDED]` / `[College Board {year}]` |
 | Education cost inflation | **Ask — no default**; not in md_facts. If the user has no view, cite College Board historical tuition inflation via `md_sources`, else `[UNSOURCED]`. The sensitivity grid always shows 3 / 5 / 7% | — |
-| Expected nominal return | `(1 + md_facts behavioral_assumptions_safe_defaults.long_term_equity_real_return_percent) × (1 + .long_term_inflation_percent) − 1` (stored as fractions), rounded to 2 decimals of a percent | `[ASSUMPTION]` |
+| Expected nominal return | `(1 + md_facts behavioral_assumptions_safe_defaults.long_term_equity_real_return_rate) × (1 + .long_term_inflation_rate) − 1` (stored as fractions), rounded to 2 decimals of a percent | `[ASSUMPTION]` |
 | Share of cost the family funds | 100% | `[ASSUMPTION]` |
 | College start age | 18 | `[ASSUMPTION]` |
 

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.2] — 2026-11-17
+
+### Changed
+
+- **`md_facts` rate names.** Thirteen keys held fractions (0.06 = 6%) under
+  names ending in `_percent`, inviting a 100× error. They are renamed to
+  `_rate`, matching the rest of the table (e.g.
+  `long_term_equity_real_return_percent` → `long_term_equity_real_return_rate`,
+  `safe_withdrawal_rate_30yr_horizon_percent` → `safe_withdrawal_rate_30yr_horizon`,
+  `bonus_depreciation_percent_2026` → `bonus_depreciation_rate_2026`).
+  Every skill reference is updated, `_meta.units` documents the rule, and a
+  test forbids `percent` / `_pct` key names in the table.
+
 ## [0.24.1] — 2026-11-17
 
 ### Changed

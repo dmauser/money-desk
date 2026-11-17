@@ -94,7 +94,7 @@ Names match the `md_fi_skill_fire_number_calculator` intake schema; extra keys f
 | Buckets, SS, part-time income | 0 | `[USER-PROVIDED]` / `[ASSUMPTION: 0]` |
 | `ss_claim_age`, `part_time_years` (when the related income > 0) | **Ask — no default** | — |
 | Annual savings | **Ask — no default**; without it, years-to-close is "Not applicable" | — |
-| Withdrawal-rate grid | 4.0% / 3.5% / 3.0% (fixed); 4.0% is `md_facts` → `behavioral_assumptions_safe_defaults.safe_withdrawal_rate_30yr_horizon_percent` | `[ASSUMPTION]` |
+| Withdrawal-rate grid | 4.0% / 3.5% / 3.0% (fixed); 4.0% is `md_facts` → `behavioral_assumptions_safe_defaults.safe_withdrawal_rate_30yr_horizon` | `[ASSUMPTION]` |
 | Chubby multiple | 1.5 × lean (community convention) | `[ASSUMPTION]` |
 | Normal retirement age for Coast FIRE (`coast_retirement_age`) | 65 (community convention; same rule as the FIRE flavor classifier) | `[ASSUMPTION]` |
 | Fat-FIRE spend floor | $200,000 / yr (community convention) | `[ASSUMPTION]` |

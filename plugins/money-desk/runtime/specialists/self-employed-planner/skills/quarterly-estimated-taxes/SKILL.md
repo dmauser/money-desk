@@ -96,7 +96,7 @@ Markdown report `./money-desk/self-employed-planner/quarterly-tax-<YYYYMMDD>.md`
 | Standard deduction | `md_facts` → `income_tax_brackets_mfj_2026.standard_deduction_mfj` / `standard_deduction_single` / `standard_deduction_hoh` | `[IRS 2026 brackets]` |
 | Brackets — MFJ | `md_facts` → `income_tax_brackets_mfj_2026.brackets` | `[IRS 2026 brackets]` |
 | Brackets — other statuses, Child Tax Credit amount | Brackets: Single / HoH / MFS: `md_facts` → `income_tax_brackets_mfj_2026.brackets_single` / `.brackets_hoh` / `.brackets_mfs`. CTC: not in md_facts — `md_sources`, else `[UNSOURCED]` (CTC treated as $0) | `[UNSOURCED]` |
-| QBI rate and threshold | `md_facts` → `qbi_section_199a_2026.deduction_percent`, `phase_in_start_mfj` / `phase_in_start_single` | `[IRS QBI 2026]` |
+| QBI rate and threshold | `md_facts` → `qbi_section_199a_2026.deduction_rate`, `phase_in_start_mfj` / `phase_in_start_single` | `[IRS QBI 2026]` |
 | State estimated-tax rules and rates | Not in md_facts — look up via `md_sources` (state DoR), else state section reads "Not computed — [UNSOURCED]" | `[UNSOURCED]` |
 | Capital gains taxed as | Ordinary income (conservative — overstates tax) | `[ASSUMPTION]` |
 | IRS underpayment interest rate | Not in md_facts — look up via `md_sources`; quote only if sourced | `[UNSOURCED]` |
@@ -111,7 +111,7 @@ Compute in cents; report whole dollars. md_facts rates are decimals.
 2. **SE tax.** `ss = 2 × fica_employee_rate × min(se_base, max(0, wage_base − w2_ss_wages_usd))`; `med = 2 × medicare_employee_rate × se_base`; `se_tax = ss + med`. `half_se = se_tax / 2`.
 3. **Additional Medicare** `= rate × max(0, w2_wages_usd + se_base − threshold)`, minus any amount already withheld by the employer (if known; else none).
 4. **AGI** `= w2_wages_usd + p + interest_dividends_usd + capital_gains_usd + k1_income_usd − half_se − se_health_premiums_usd − se_retirement_contrib_usd`.
-5. **QBI deduction.** `qbi = p − half_se − se_health_premiums_usd − se_retirement_contrib_usd`. `ti_pre = max(0, AGI − deduction)`. If `ti_pre ≤ phase_in_start`: `qbi_ded = deduction_percent × min(qbi, ti_pre − capital_gains_usd)` (floor 0). If above: `qbi_ded = 0` here (conservative) and flag for **Business Deductions & QBI Review**.
+5. **QBI deduction.** `qbi = p − half_se − se_health_premiums_usd − se_retirement_contrib_usd`. `ti_pre = max(0, AGI − deduction)`. If `ti_pre ≤ phase_in_start`: `qbi_ded = deduction_rate × min(qbi, ti_pre − capital_gains_usd)` (floor 0). If above: `qbi_ded = 0` here (conservative) and flag for **Business Deductions & QBI Review**.
 6. **Income tax** on `taxable = max(0, ti_pre − qbi_ded)` via brackets; subtract CTC (non-refundable floor 0).
 7. **Current-year liability** `L = income_tax + se_tax + additional_medicare`.
 8. **Required annual payment.** `prior_pct = 110%` if `prior_year_agi_usd > $150,000` ($75,000 MFS), else 100%. `req = min(0.90 × L, prior_pct × prior_year_total_tax_usd)` (or `0.90 × L` if prior-year tax absent).

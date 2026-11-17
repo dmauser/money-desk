@@ -95,9 +95,9 @@ Analysis only. Strongly recommend a CPA familiar with real-estate dispositions b
 | Value, basis, depreciation, loan balance | **Ask — no default** (BPO/appraisal, settlement statement, prior returns) | — |
 | Selling cost % | **Ask — no default** | — |
 | Discount rate | **Ask**; if the user has none, use `alt_return_pct` | `[ASSUMPTION]` |
-| Alternative return | **Ask**; else `(1 + md_facts behavioral_assumptions_safe_defaults.long_term_equity_real_return_percent) × (1 + .long_term_inflation_percent) − 1` | `[ASSUMPTION]` |
-| Rent / expense growth | **Ask**; else `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_percent` | `[ASSUMPTION]` |
-| Appreciation | **Ask**; else `(1 + md_facts real_estate_appreciation_long_term_real_percent) × (1 + long_term_inflation_percent) − 1` | `[ASSUMPTION]` |
+| Alternative return | **Ask**; else `(1 + md_facts behavioral_assumptions_safe_defaults.long_term_equity_real_return_rate) × (1 + .long_term_inflation_rate) − 1` | `[ASSUMPTION]` |
+| Rent / expense growth | **Ask**; else `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_rate` | `[ASSUMPTION]` |
+| Appreciation | **Ask**; else `(1 + md_facts real_estate_appreciation_long_term_real_rate) × (1 + long_term_inflation_rate) − 1` | `[ASSUMPTION]` |
 | Holding period | 10 years | `[ASSUMPTION]` |
 | Recapture rate | Ordinary rate capped at 25% (unrecaptured §1250) | IRC §1(h)(1)(E) |
 | LTCG brackets | `md_facts` → `income_tax_brackets_mfj_2026.ltcg_qualified_dividend_brackets_mfj`; `.ltcg_qualified_dividend_brackets_single` / `.ltcg_qualified_dividend_brackets_hoh` for other statuses | `[IRS 2026 limits]` |

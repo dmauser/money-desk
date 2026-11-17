@@ -15,10 +15,10 @@ description: Underwrite a residential 1–4 unit rental property (existing or pr
 - **Loan terms**: rate, amortization (15/20/30), fixed/ARM (and ARM reset details).
 - **Gross rent** — current AND market. Get the market number from at least 2 comps (Rentometer, Zillow Rent Estimate, recent same-bedroom comps in the same building / block).
 - **Operating expenses**: property tax, insurance, HOA, utilities owner pays, lawn / snow / pest.
-- **Vacancy assumption** (if user has no local data: `md_facts` → `behavioral_assumptions_safe_defaults.rental_vacancy_default_percent`).
+- **Vacancy assumption** (if user has no local data: `md_facts` → `behavioral_assumptions_safe_defaults.rental_vacancy_default_rate`).
 - **Capex reserve** (entered as % of **property value per year**; fallback in Determinism rules — roof, HVAC, water heater, flooring all have predictable useful lives; the older "8% of rent" rule of thumb under-reserves on appreciated properties).
 - **Maintenance reserve** (entered as % of **property value per year** — routine repairs; fallback in Determinism rules).
-- **Management** (% **of rent**, included even if self-managed — fallback `md_facts` → `rental_property_management_default_percent_of_rent` — so the deal stays honest when the owner later hires out or considers their time; use 0% only if the user is explicit about self-managing forever).
+- **Management** (% **of rent**, included even if self-managed — fallback `md_facts` → `rental_property_management_default_rate_of_rent` — so the deal stays honest when the owner later hires out or considers their time; use 0% only if the user is explicit about self-managing forever).
 - Holding period assumed for IRR (default 10 years).
 - Tax assumptions: marginal federal + state rate, depreciation schedule (residential 27.5y SL per `md_facts` → `mortgage_and_real_estate_2026.residential_rental_depreciation_life_years_27_5`; land % from the county assessor ratio).
 
@@ -83,12 +83,12 @@ Names match the intake schema `md_re_skill_rental_property_analyzer` (workbook n
 | Assumption | If the user doesn't supply it | Tag |
 |---|---|---|
 | Price, financing, rent, taxes, insurance | **Ask — no default** | — |
-| Vacancy | **Ask**; if the user has no local data, `md_facts` → `behavioral_assumptions_safe_defaults.rental_vacancy_default_percent` | `[ASSUMPTION]` |
-| Capex reserve | **Ask** (% of value); if no view, convert `md_facts` → `rental_capex_reserve_default_percent_of_rent` × annual gross rent into % of price | `[ASSUMPTION]` |
-| Maintenance | **Ask** (% of value); if no view, convert `md_facts` → `rental_maintenance_default_percent_of_rent` × annual gross rent into % of price | `[ASSUMPTION]` |
-| Management | **Ask**; if no view, `md_facts` → `rental_property_management_default_percent_of_rent` | `[ASSUMPTION]` |
-| Appreciation (nominal) | **Ask**; if no view, `(1 + md_facts real_estate_appreciation_long_term_real_percent) × (1 + long_term_inflation_percent) − 1` | `[ASSUMPTION]` |
-| Rent and expense growth | **Ask**; if no view, `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_percent` | `[ASSUMPTION]` |
+| Vacancy | **Ask**; if the user has no local data, `md_facts` → `behavioral_assumptions_safe_defaults.rental_vacancy_default_rate` | `[ASSUMPTION]` |
+| Capex reserve | **Ask** (% of value); if no view, convert `md_facts` → `rental_capex_reserve_default_rate_of_rent` × annual gross rent into % of price | `[ASSUMPTION]` |
+| Maintenance | **Ask** (% of value); if no view, convert `md_facts` → `rental_maintenance_default_rate_of_rent` × annual gross rent into % of price | `[ASSUMPTION]` |
+| Management | **Ask**; if no view, `md_facts` → `rental_property_management_default_rate_of_rent` | `[ASSUMPTION]` |
+| Appreciation (nominal) | **Ask**; if no view, `(1 + md_facts real_estate_appreciation_long_term_real_rate) × (1 + long_term_inflation_rate) − 1` | `[ASSUMPTION]` |
+| Rent and expense growth | **Ask**; if no view, `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_rate` | `[ASSUMPTION]` |
 | Holding period | 10 years | `[ASSUMPTION]` |
 | Selling cost | **Ask — no default** (IRR is reported "Not computed" without it) | — |
 | Land allocation | **Ask — no default** (county assessor ratio) | — |

@@ -115,7 +115,7 @@ Educational only. Cross-border filing must be done by a CPA / EA with explicit e
 |---|---|---|
 | Income, foreign tax paid, days abroad, account balances | **Ask — no default** | — |
 | FEIE maximum | `md_facts` → `expat_quick_reference_2026.feie_max_per_qualifying_individual` | `[IRS / FinCEN Expat 2026]` |
-| Housing base | `md_facts` → `expat_quick_reference_2026.foreign_housing_exclusion_base_percent_of_feie` × FEIE max | `[IRS / FinCEN Expat 2026]` |
+| Housing base | `md_facts` → `expat_quick_reference_2026.foreign_housing_exclusion_base_rate_of_feie` × FEIE max | `[IRS / FinCEN Expat 2026]` |
 | Housing cap | 30% of FEIE max unless a higher locality cap for the city is found via `md_sources` (IRS notice) | `[ASSUMPTION]` |
 | Physical-presence test | `md_facts` → `expat_quick_reference_2026.physical_presence_test_days_abroad_in_12_months` | `[IRS / FinCEN Expat 2026]` |
 | FBAR threshold and deadline | `md_facts` → `expat_quick_reference_2026.fbar_filing_threshold_aggregate_usd`, `fbar_filing_deadline` | `[IRS / FinCEN Expat 2026]` |

@@ -82,7 +82,7 @@ description: Plan for long-term care (LTC) — custodial care that Medicare does
 |---|---|---|
 | State annual costs by care type | **Ask — no default**; look up Genworth / CareScout Cost of Care via `md_sources`; if unreachable, tag `[UNSOURCED]` and stop sizing | — |
 | Claim duration by scenario | Fixed convention: Low 1 yr, Base 3 yr (the ~3-year average claim cited from longtermcare.gov / ACL), High 5 yr | `[ASSUMPTION]` |
-| LTC cost inflation (nominal projection only) | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_percent` (stored as a fraction); state that LTC costs have historically risen faster | `[ASSUMPTION]` |
+| LTC cost inflation (nominal projection only) | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_rate` (stored as a fraction); state that LTC costs have historically risen faster | `[ASSUMPTION]` |
 | Care start age (nominal projection only) | **Ask — no default**; without it, report today's dollars only | — |
 | Income offset during care | None — retirement income is assumed to keep covering ordinary living costs | `[ASSUMPTION]` |
 | Traditional LTC premium increases | Budget at quoted premium × 1.5 (top of the +30–50% historical range) | `[ASSUMPTION]` |

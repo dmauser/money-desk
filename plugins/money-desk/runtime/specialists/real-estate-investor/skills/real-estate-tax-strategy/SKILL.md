@@ -29,7 +29,7 @@ description: Walk through the tax mechanics specific to residential real-estate 
 
 ### Cost segregation
 - An engineering study reclassifies portions of the building (carpet, fixtures, landscaping, certain systems) into 5/7/15-year property.
-- Combined with bonus depreciation (rate for the acquisition date: `md_facts` → `mortgage_and_real_estate_2026.bonus_depreciation_percent_2026`, verified via `md_sources` — 2025 legislation changed the §168(k) phase-down), can shift huge first-year deductions.
+- Combined with bonus depreciation (rate for the acquisition date: `md_facts` → `mortgage_and_real_estate_2026.bonus_depreciation_rate_2026`, verified via `md_sources` — 2025 legislation changed the §168(k) phase-down), can shift huge first-year deductions.
 - **Tradeoff**: bigger depreciation recapture (§1245 ordinary income up to 37%) at sale on the accelerated portion. Worth it if user can use the deductions now AND plans to hold long or §1031 out.
 - Typically only economic above ~$500k cost basis; cost-seg study runs $5-15k. The go/no-go uses the provider's actual estimate and fee (Determinism rules step 3).
 
@@ -97,7 +97,7 @@ Educational. Cost-seg, §1031, and REPS all create audit risk if mis-claimed. St
 |---|---|---|
 | Basis components, land % | **Ask — no default** | — |
 | Residential recovery period | `md_facts` → `mortgage_and_real_estate_2026.residential_rental_depreciation_life_years_27_5`; mid-month convention (IRS Pub 527 / 946) | `[FHFA / IRS RE 2026]` |
-| Bonus depreciation % | `md_facts` → `mortgage_and_real_estate_2026.bonus_depreciation_percent_2026` — verify for the acquisition date via `md_sources` (2025 legislation changed §168(k)); else `[UNSOURCED]` | `[FHFA / IRS RE 2026]` |
+| Bonus depreciation % | `md_facts` → `mortgage_and_real_estate_2026.bonus_depreciation_rate_2026` — verify for the acquisition date via `md_sources` (2025 legislation changed §168(k)); else `[UNSOURCED]` | `[FHFA / IRS RE 2026]` |
 | §469 special allowance | $25,000, phased out 50¢ per $1 of MAGI over $100,000 (zero at $150,000) — statutory, not indexed | IRC §469(i) |
 | REPS test | > 750 hours and > 50% of personal-service hours in real-property trades | IRC §469(c)(7) |
 | Unrecaptured §1250 rate | Ordinary rate capped at 25% | IRC §1(h)(1)(E) |

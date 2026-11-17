@@ -61,8 +61,8 @@ Education, not advice. "Here's how a Backdoor Roth works" is in scope. "You pers
 |---|---|---|
 | Depth | `intermediate` (stated in the heading) | `[ASSUMPTION: intermediate]` |
 | Worked-example principal | Fixed illustrative base: $10,000 | `[ASSUMPTION: illustrative $10,000]` |
-| Worked-example growth rate | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_percent` (stocks) or `long_term_bond_real_return_percent` (bonds/cash); value is a fraction (0.06 = 6%) | `[ASSUMPTION]` |
-| Inflation in examples | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_percent` | `[ASSUMPTION]` |
+| Worked-example growth rate | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_rate` (stocks) or `long_term_bond_real_return_rate` (bonds/cash); value is a fraction (0.06 = 6%) | `[ASSUMPTION]` |
+| Inflation in examples | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_rate` | `[ASSUMPTION]` |
 | Current-year limits / brackets / thresholds | `md_facts` (topic + key named in the text) | `[IRS 2026 limits]` etc. |
 | Any figure not in md_facts | `md_sources`; else `[UNSOURCED]` + "verify before relying on this" | `[UNSOURCED]` |
 

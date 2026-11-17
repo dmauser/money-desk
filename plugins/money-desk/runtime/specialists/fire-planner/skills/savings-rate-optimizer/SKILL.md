@@ -94,7 +94,7 @@ The MMM curve is an *envelope*, not a prediction. Real-life FI timelines also in
 | Take-home, spending | **Ask — no default** | — |
 | Savings-rate basis | Take-home basis: `(take_home − spending) / take_home` (the MMM convention) | `[ASSUMPTION]` |
 | Real return | 5% — the Mr. Money Mustache (2012) table convention | `[ASSUMPTION: MMM 2012]` |
-| Withdrawal rate | `md_facts` → `behavioral_assumptions_safe_defaults.safe_withdrawal_rate_30yr_horizon_percent` (× 100) | `[ASSUMPTION]` |
+| Withdrawal rate | `md_facts` → `behavioral_assumptions_safe_defaults.safe_withdrawal_rate_30yr_horizon` (× 100) | `[ASSUMPTION]` |
 | Current portfolio | 0 (matches the canonical table) | `[ASSUMPTION]` |
 | Dollar value of any move | From the user's category $ or a quote; never a generic "typical" saving — **Ask** | — |
 | Effort tier | 1 = one-time call / switch; 2 = recurring habit change; 3 = major life change (move, sell a car, job change) | `[ASSUMPTION]` |

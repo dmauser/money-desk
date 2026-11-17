@@ -77,8 +77,8 @@ description: Compute total cost of ownership over the planned hold period for a 
 | Resale at horizon | **Ask — no default** (KBB / iSeeCars / Black Book + date) | — |
 | Maintenance and repair fund | **Ask — no default** (cite Consumer Reports / RepairPal); if unavailable, $0 for every option and flagged "reliability not modeled" | `[ASSUMPTION]` |
 | Energy cost | Computed in step 2 when efficiency and prices are given; else **Ask** | — |
-| Discount rate | `(1 + md_facts long_term_equity_real_return_percent) × (1 + md_facts long_term_inflation_percent) − 1` from `behavioral_assumptions_safe_defaults` | `[ASSUMPTION]` |
-| Cost escalation | Operating costs grow at `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_percent` | `[ASSUMPTION]` |
+| Discount rate | `(1 + md_facts long_term_equity_real_return_rate) × (1 + md_facts long_term_inflation_rate) − 1` from `behavioral_assumptions_safe_defaults` | `[ASSUMPTION]` |
+| Cost escalation | Operating costs grow at `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_rate` | `[ASSUMPTION]` |
 
 ### Calculation method
 

@@ -94,7 +94,7 @@ Names match the `md_rp_skill_retirement_projection` intake schema; extra keys fo
 | Account balances, contributions | 0 for any bucket left blank | `[USER-PROVIDED]` / `[ASSUMPTION: 0]` |
 | SS claim age (when `ss_monthly_estimate > 0`) | **Ask — no default** | — |
 | Contribution growth | Flat in real terms (rises with inflation only) | `[ASSUMPTION]` |
-| Inflation (only to show nominal equivalents) | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_percent` (stored as a fraction — × 100) | `[ASSUMPTION]` |
+| Inflation (only to show nominal equivalents) | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_rate` (stored as a fraction — × 100) | `[ASSUMPTION]` |
 | Taxes | None modelled — `target_annual_spend` is the pre-tax equivalent | `[ASSUMPTION]` |
 | Other income | 0 | `[ASSUMPTION]` |
 

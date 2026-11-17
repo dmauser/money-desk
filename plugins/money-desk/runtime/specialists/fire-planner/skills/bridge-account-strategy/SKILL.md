@@ -125,7 +125,7 @@ Names match the `md_fi_skill_bridge_account_strategy` intake schema; extra keys 
 | Bucket balances, other incomes | 0 | `[USER-PROVIDED]` / `[ASSUMPTION: 0]` |
 | HSA receipts | 0 (HSA not counted as accessible) | `[ASSUMPTION]` |
 | Return on bridge assets | 0% real (conservative — bridge money is spent) | `[ASSUMPTION]` |
-| Inflation (only for nominal display) | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_percent` (× 100) | `[ASSUMPTION]` |
+| Inflation (only for nominal display) | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_rate` (× 100) | `[ASSUMPTION]` |
 | Standard deduction, ordinary brackets, 0% LTCG ceiling | `md_facts` → `income_tax_brackets_mfj_2026.standard_deduction_*`, `.brackets`, `.ltcg_qualified_dividend_brackets_mfj` (MFJ; other statuses: `.brackets_single` / `.brackets_hoh` / `.brackets_mfs` and `.ltcg_qualified_dividend_brackets_single` / `_hoh` / `_mfs`) | `[IRS 2026 brackets]` |
 | SEPP interest rate | 5.00% — the Notice 2022-6 rate that is always permitted (the alternative "120% of federal mid-term rate" via `md_sources`) | — |
 | SEPP life-expectancy divisor | Not in md_facts — IRS Single Life Table (Treas. Reg. §1.401(a)(9)-9) via `md_sources`, else `[UNSOURCED]` | `[UNSOURCED]` |

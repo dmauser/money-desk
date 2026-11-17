@@ -42,3 +42,13 @@ test("every md_facts topic.key reference resolves", () => {
     }
     assert.deepEqual([...missing], [], `Unknown md_facts keys referenced:\n  ${[...missing].join("\n  ")}`);
 });
+
+test("fraction-valued facts are named `_rate`, never `_percent`", () => {
+    const bad = [];
+    for (const [topic, v] of Object.entries(facts)) {
+        if (!v || typeof v !== "object") continue;
+        for (const k of Object.keys(v)) if (/percent|_pct/.test(k)) bad.push(`${topic}.${k}`);
+    }
+    assert.deepEqual(bad, [], "md_facts stores rates as fractions (0.06 = 6%); name them `_rate` (see _meta.units)");
+    assert.match(facts._meta.units, /fractions/);
+});

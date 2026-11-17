@@ -98,8 +98,8 @@ Names match the `md_nw_skill_emergency_fund_assessment` intake schema; amounts a
 | Marginal federal rate | **Ask — no default** (derive from `md_facts` → `income_tax_brackets_mfj_2026.brackets` if taxable income and filing status are given) | `[IRS 2026 limits]` |
 | Marginal state rate | **Ask — no default** | — |
 | Current deposit / MMF / T-bill yields | **Ask — no default**; look up per the deposit-rate source policy (DepositAccounts.com, fund 7-day yield page, TreasuryDirect) | `[UNSOURCED — verify on issuer page]` |
-| Long-run equity real return (opportunity cost of excess) | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_percent` (decimal; 0.06 = 6%) | `[ASSUMPTION]` |
-| Inflation | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_percent` | `[ASSUMPTION]` |
+| Long-run equity real return (opportunity cost of excess) | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_rate` (decimal; 0.06 = 6%) | `[ASSUMPTION]` |
+| Inflation | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_rate` | `[ASSUMPTION]` |
 | Starter EF | $2,000 (upper end of the $1k–$2k starter convention) | `[ASSUMPTION]` |
 
 ### Calculation method

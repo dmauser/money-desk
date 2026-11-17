@@ -21,12 +21,13 @@ A table of every value the analysis needs that the user may not supply, and exac
 
 | Assumption | If the user doesn't supply it | Tag |
 |---|---|---|
-| Long-run equity real return | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_percent` | `[ASSUMPTION]` |
+| Long-run equity real return | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_rate` | `[ASSUMPTION]` |
 | Mortgage rate | **Ask — no default** | — |
 
 Rules:
 - Never invent a number. A fallback is either an `md_facts` key or "Ask — no default".
 - Year-specific limits and thresholds (contribution limits, brackets, IRMAA, gift exclusion…) come from `md_facts`, named by topic and key, never hard-coded in the skill. If the figure isn't in `md_facts`, say so and require `md_sources` lookup or an `[UNSOURCED]` tag.
+- `md_facts` stores rates as fractions under `_rate` names (`0.06` = 6%); skill inputs named `_pct` are percents. Say "× 100" wherever a `_rate` feeds a `_pct`.
 - "None — all values are user-provided" is a valid answer.
 
 ## 3. `### Calculation method`

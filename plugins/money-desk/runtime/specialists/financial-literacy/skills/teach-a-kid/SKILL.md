@@ -101,7 +101,7 @@ Education for parents on money lessons. Not a parenting strategy. Not therapy fo
 | Kid's age | **Ask — no default** | — |
 | Earned income | 0 (custodial Roth section omitted) | `[ASSUMPTION: $0]` |
 | IRA contribution limit | `md_facts` → `irs_contribution_limits.ira_traditional_or_roth` | `[IRS 2026 limits]` |
-| Real return for the Roth projection | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_percent` (fraction; 0.06 = 6%) | `[ASSUMPTION]` |
+| Real return for the Roth projection | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_rate` (fraction; 0.06 = 6%) | `[ASSUMPTION]` |
 | Projection end age | 67 (skill convention, matching SSA full retirement age `md_facts` → `social_security_2026.full_retirement_age_born_1960_or_later`) | `[SSA 2026]` |
 | Allowance benchmark ($1–2 per year of age per week) | Heuristic — cite T. Rowe Price survey or `[UNSOURCED]` | `[UNSOURCED]` |
 | State age of majority (UTMA/custodial transfer) | Not in md_facts — state statute via `md_sources`, else `[UNSOURCED]` | `[UNSOURCED]` |

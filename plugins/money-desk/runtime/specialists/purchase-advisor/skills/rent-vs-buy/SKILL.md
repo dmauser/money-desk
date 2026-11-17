@@ -92,9 +92,9 @@ description: Compare renting vs buying a home on total cost over a holding horiz
 | Maintenance % | **Ask — no default**; the user may adopt the 1%-of-price rule of thumb, recorded as `[USER-PROVIDED]` | — |
 | Selling costs % and purchase closing costs | **Ask — no default** | — |
 | PMI rate | **Ask — no default** (from the Loan Estimate) | — |
-| Home appreciation (real) | `md_facts` → `behavioral_assumptions_safe_defaults.real_estate_appreciation_long_term_real_percent` | `[ASSUMPTION]` |
-| Investment return on the renter's capital (real) | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_percent` | `[ASSUMPTION]` |
-| Inflation | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_percent` | `[ASSUMPTION]` |
+| Home appreciation (real) | `md_facts` → `behavioral_assumptions_safe_defaults.real_estate_appreciation_long_term_real_rate` | `[ASSUMPTION]` |
+| Investment return on the renter's capital (real) | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_equity_real_return_rate` | `[ASSUMPTION]` |
+| Inflation | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_rate` | `[ASSUMPTION]` |
 | Rent inflation | Equal to inflation above | `[ASSUMPTION]` |
 | Standard deduction | `md_facts` → `income_tax_brackets_mfj_2026.standard_deduction_mfj` / `standard_deduction_single` / `standard_deduction_hoh` | `[IRS 2026 limits]` |
 | Mortgage-interest debt cap | `md_facts` → `mortgage_and_real_estate_2026.mortgage_interest_deduction_cap_post_tcja` | `[IRS 2026 limits]` |

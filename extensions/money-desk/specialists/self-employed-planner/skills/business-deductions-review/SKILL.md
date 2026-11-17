@@ -27,7 +27,7 @@ description: Audit Schedule C (or S-corp) business deductions for completeness a
    - **Line 9 Car & truck expenses** — standard mileage (current-year IRS rate — not in md_facts; look up via `md_sources`) OR actual + depreciation. Standard easier; actual better for expensive vehicle / heavy use. Once actual chosen for a vehicle, can't switch back to standard.
    - **Line 10 Commissions and fees** — referral fees, platform fees (Stripe, Upwork, etc.).
    - **Line 11 Contract labor** — issue 1099-NEC at or above the current-year filing threshold (not in md_facts — verify via `md_sources`) to non-employee contractors.
-   - **Line 13 Depreciation / Section 179** — equipment >$2,500 typically depreciated; Sec 179 expensing up to `mortgage_and_real_estate_2026.section_179_expensing_limit` (phase-out from `section_179_phaseout_start`); bonus depreciation per `bonus_depreciation_percent_2026` — verify via `md_sources`, legislation may have changed it.
+   - **Line 13 Depreciation / Section 179** — equipment >$2,500 typically depreciated; Sec 179 expensing up to `mortgage_and_real_estate_2026.section_179_expensing_limit` (phase-out from `section_179_phaseout_start`); bonus depreciation per `bonus_depreciation_rate_2026` — verify via `md_sources`, legislation may have changed it.
    - **Line 14 Employee benefits** — only if employees; not the owner's solo health.
    - **Line 15 Insurance (non-health)** — liability, E&O, malpractice, business property. Health insurance is separate (line 29 Sch 1).
    - **Line 16 Interest** — business loan, business credit card interest. Personal-card interest only deductible if business-only card.
@@ -47,7 +47,7 @@ description: Audit Schedule C (or S-corp) business deductions for completeness a
    - **Self-employed health insurance** (Sch 1 line 17) — premiums for self + family, capped at net SE income, not eligible if user/spouse eligible for any subsidized employer plan.
    - **SE retirement contribution** (Sch 1 line 16) — Solo 401(k) / SEP / SIMPLE employer portion.
    - **HSA** (Sch 1 line 13) — if HDHP-covered.
-3. **QBI deduction (Section 199A)** — `qbi_section_199a_2026.deduction_percent` of qualified business income (formula in Determinism rules step 6).
+3. **QBI deduction (Section 199A)** — `qbi_section_199a_2026.deduction_rate` of qualified business income (formula in Determinism rules step 6).
    - **Below threshold** (`phase_in_start_single` / `phase_in_start_mfj`): full deduction with simple formula.
    - **In phase-in band** (`phase_in_start_*` – `phase_in_end_*`): partial; SSTB-status starts mattering.
    - **Above threshold**: SSTBs lose QBI entirely; non-SSTBs subject to the wage / UBIA limitation (greater of 50% of W-2 wages, or 25% of W-2 wages + 2.5% of unadjusted basis).
@@ -105,8 +105,8 @@ Markdown report `./money-desk/self-employed-planner/deductions-<YYYYMMDD>.md`:
 | Gross revenue and Schedule C expenses | **Ask — no default** | — |
 | Standard mileage rate | Not in md_facts — look up via `md_sources` (IRS notice for the tax year), else tag `[UNSOURCED]` and do not compute the mileage method | `[UNSOURCED]` |
 | Section 179 limit and phase-out | `md_facts` → `mortgage_and_real_estate_2026.section_179_expensing_limit`, `section_179_phaseout_start` | `[FHFA / IRS RE 2026]` |
-| Bonus depreciation % | `md_facts` → `mortgage_and_real_estate_2026.bonus_depreciation_percent_2026` — verify via `md_sources` before use (legislation may have changed it) | `[FHFA / IRS RE 2026]` |
-| QBI rate and thresholds | `md_facts` → `qbi_section_199a_2026.deduction_percent`, `phase_in_start_mfj` / `phase_in_end_mfj` / `phase_in_start_single` / `phase_in_end_single` (single values for single/HoH/MFS) | `[IRS QBI 2026]` |
+| Bonus depreciation % | `md_facts` → `mortgage_and_real_estate_2026.bonus_depreciation_rate_2026` — verify via `md_sources` before use (legislation may have changed it) | `[FHFA / IRS RE 2026]` |
+| QBI rate and thresholds | `md_facts` → `qbi_section_199a_2026.deduction_rate`, `phase_in_start_mfj` / `phase_in_end_mfj` / `phase_in_start_single` / `phase_in_end_single` (single values for single/HoH/MFS) | `[IRS QBI 2026]` |
 | 1099-NEC filing threshold | Not in md_facts — look up via `md_sources`, else tag `[UNSOURCED]` | `[UNSOURCED]` |
 | SS wage base and rates | `md_facts` → `social_security_2026.wage_base`, `fica_employee_rate`, `medicare_employee_rate` | `[SSA 2026]` |
 | Federal marginal rate | MFJ: bracket containing `taxable_income_before_qbi_usd` from `md_facts` → `income_tax_brackets_mfj_2026.brackets`; other statuses: `md_sources`, else `[UNSOURCED]` | `[IRS 2026 brackets]` |
@@ -123,7 +123,7 @@ Compute in cents; report whole dollars. md_facts rates are decimals.
 3. **Vehicle:** `bu = business_miles / total_miles`. `actual = bu × actual_costs_annual_usd + depreciation_annual_usd × bu`. `standard = business_miles × mileage_rate` (if sourced). If `actual_method_used_before`, method = actual (no switch back). Else method = the larger (tie → standard).
 4. **Net profit** `p = gross_revenue_usd − Σ allowed lines − home office`.
 5. **Above-the-line:** half SE tax (`se_tax` per the Quarterly Estimated Taxes formula: `b = p × 0.9235`, SS on `min(b, wage_base)`, Medicare on `b`); SEHI = `min(se_health_premiums_usd, p − half_se − se_retirement_contrib_usd)` and 0 if `subsidized_employer_plan_eligible`; SE retirement and HSA as supplied.
-6. **QBI** `q = p − half_se − sehi − se_retirement_contrib_usd`; `ti = taxable_income_before_qbi_usd`; `start`, `end` = thresholds for the filing status; `pct = deduction_percent`; `wage_limit = max(0.50 × W, 0.25 × W + 0.025 × U)` with `W = w2_wages_paid_usd`, `U = ubia_usd`.
+6. **QBI** `q = p − half_se − sehi − se_retirement_contrib_usd`; `ti = taxable_income_before_qbi_usd`; `start`, `end` = thresholds for the filing status; `pct = deduction_rate`; `wage_limit = max(0.50 × W, 0.25 × W + 0.025 × U)` with `W = w2_wages_paid_usd`, `U = ubia_usd`.
    - `ti ≤ start`: `ded = pct × q`.
    - `start < ti < end`: `f = (ti − start) / (end − start)`. If SSTB, scale `q`, `W`, `U` by `(1 − f)` first. `tent = pct × q`; `excess = max(0, tent − wage_limit)`; `ded = tent − excess × f`.
    - `ti ≥ end`: SSTB → `ded = 0`; non-SSTB → `ded = min(pct × q, wage_limit)`.

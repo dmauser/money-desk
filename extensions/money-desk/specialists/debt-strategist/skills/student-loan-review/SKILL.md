@@ -78,8 +78,8 @@ description: Review federal and private student loans — repayment plan choice 
 | Loan details, AGI, household size, employer type | **Ask — no default** (NSLDS export / statements) | — |
 | Currently available repayment plans, IDR payment % and poverty-line multiple, forgiveness periods | Not in `md_facts` — look up on StudentAid.gov via `md_sources` for the working date; if unreachable, IDR math is not run and the figures are `[UNSOURCED]` | `[UNSOURCED]` |
 | Poverty guideline | `md_facts` → `federal_poverty_level_2026_48_states.household_size_to_fpl` (48 states + DC; AK / HI via `md_sources`) | `[HHS FPL 2026]` |
-| Income growth | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_percent` (flat real income) | `[ASSUMPTION]` |
-| Expected investment return (payoff vs invest) | `(1 + long_term_equity_real_return_percent)(1 + long_term_inflation_percent) − 1` from `md_facts` → `behavioral_assumptions_safe_defaults` | `[ASSUMPTION]` |
+| Income growth | `md_facts` → `behavioral_assumptions_safe_defaults.long_term_inflation_rate` (flat real income) | `[ASSUMPTION]` |
+| Expected investment return (payoff vs invest) | `(1 + long_term_equity_real_return_rate)(1 + long_term_inflation_rate) − 1` from `md_facts` → `behavioral_assumptions_safe_defaults` | `[ASSUMPTION]` |
 | Student-loan interest deduction limit and phase-out | Not in `md_facts` — look up via `md_sources` (IRS Pub. 970), else `[UNSOURCED]` | `[UNSOURCED]` |
 | Tax treatment of IDR forgiveness in the forgiveness year | Not in `md_facts` — verify via `md_sources` for the working year | `[UNSOURCED]` |
 
